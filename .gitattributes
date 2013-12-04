@@ -3,3 +3,6 @@
 *.cls eol=crlf
 *.ctl eol=crlf
 *.vbp eol=crlf
+*.txt eol=crlf
+*.js eol=crlf
+*.iss eol=crlf

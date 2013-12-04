@@ -91,6 +91,7 @@ Begin VB.Form Form1
       _ExtentX        =   15478
       _ExtentY        =   6059
       _Version        =   393217
+      Enabled         =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":1142
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -409,7 +410,6 @@ Begin VB.Form Form1
       _ExtentX        =   17383
       _ExtentY        =   7223
       _Version        =   393217
-      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":11C4
@@ -3287,7 +3287,7 @@ Private Sub Form_Load()
                      "CVE-2010-4091 Date:11.4.10 v9.2 or v8.1.7=printSeps", _
                      "CVE-2010-0188 Date:2.32.10 v9.3=rawValue", _
                      "Contains PRC file - possible CVE-2011-4369 (Date:12.16.11 v9.4.6)=^PRC", _
-                     "CVE-2012-0775 Date: 4.10.2012 v10-10.102=addToolButton" _
+                     "CVE-2012-0775 Date: 4.10.2012 v10.10.102, or CVE-2013-3346 Date: 4.12.12 v10.1.6=addToolButton" _
                      )
                      
                      'is just using the JBIG2 Filter to generic to detect on?
@@ -3301,7 +3301,8 @@ Private Sub Form_Load()
                            "CVE-2011-0627 VulnVer: 10.2.159.1", _
                            "CVE-2011-2110 VulnVer: 10.3.181.14", _
                            "CVE-2012-0779 VulnVer: 11.2.202.233", _
-                           "CVE-2012-1535 VulnVer: 11.3.300.270" _
+                           "CVE-2012-1535 VulnVer: 11.3.300.270", _
+                           "Many other CVEs are possible, this is the common list." _
                      )
                      
     help_vids = Array("Readme file;[readme]", _

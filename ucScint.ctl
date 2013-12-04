@@ -146,6 +146,7 @@ End Property
 Property Get SelText()
     On Error Resume Next
     SelText = sciMain.SelText
+    If Len(SelText) = 1 And Asc(SelText) = 0 Then SelText = Empty
 End Property
 
 Property Let SelText(x)

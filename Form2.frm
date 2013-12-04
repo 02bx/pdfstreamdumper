@@ -1624,9 +1624,13 @@ Private Function RecommendedName(Optional defaultName) As String
         Exit Function
     End If
     
-    r = fso.GetBaseName(Form1.txtPDFPath)
+    If Form1.txtPDFPath <> "Drag and drop pdf file here" Then
+        r = fso.GetBaseName(Form1.txtPDFPath)
+    End If
+    
     If Len(r) = 0 Then
         RecommendedName = defaultName
+        Exit Function
     Else
         r = r & ext
     End If
