@@ -198,6 +198,7 @@ Begin VB.Form Form2
       _ExtentX        =   20981
       _ExtentY        =   10398
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form2.frx":0000
@@ -253,6 +254,7 @@ Begin VB.Form Form2
       _ExtentX        =   20981
       _ExtentY        =   2249
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form2.frx":0080
@@ -413,18 +415,21 @@ Begin VB.Form Form2
       End
       Begin VB.Menu mnuSc2ExeMain 
          Caption         =   "Shellcode 2 Exe"
-         Begin VB.Menu mnuShellcode2Exe 
-            Caption         =   "Simple Husk (sc 0x401000)"
-            Index           =   0
-         End
-         Begin VB.Menu mnuShellcode2Exe 
-            Caption         =   "Simple Husk w/Wsa Startup  (sc 0x401020)"
-            Index           =   1
-         End
-         Begin VB.Menu mnuShellcode2Exe 
-            Caption         =   "New Husk (supports cmdline + 6k sc buf)"
-            Index           =   2
-         End
+      End
+      Begin VB.Menu mnuShellcode2Exe 
+         Caption         =   "Simple Husk (sc 0x401000)"
+         Index           =   0
+         Visible         =   0   'False
+      End
+      Begin VB.Menu mnuShellcode2Exe 
+         Caption         =   "Simple Husk w/Wsa Startup  (sc 0x401020)"
+         Index           =   1
+         Visible         =   0   'False
+      End
+      Begin VB.Menu mnuShellcode2Exe 
+         Caption         =   "New Husk (supports cmdline + 6k sc buf)"
+         Index           =   2
+         Visible         =   0   'False
       End
       Begin VB.Menu mnuSend2IDA 
          Caption         =   "Disassemble in IDA"
@@ -894,6 +899,12 @@ Private Sub mnuRenameFunc_Click()
     
     lvFunc.SelectedItem.Text = NewName
     
+End Sub
+
+Private Sub mnuSc2ExeMain_Click()
+    'built in shellcode 2 exe removed because to many AV vendors complain about the husks..not sure how many people use them.
+    On Error Resume Next
+    Shell "cmd /c start http://sandsprite.com/shellcode_2_exe.php"
 End Sub
 
 Private Sub mnuScintillaOptions_Click()
@@ -1440,10 +1451,10 @@ End Sub
 
 Private Sub mnuLaunchSclog_Click(Index As Integer)
     
-    If Len(txtJS.SelText) = 0 Then
-        MsgBox "You must first select the shellcode to extract in the script window."
-        Exit Sub
-    End If
+    'If Len(txtJS.SelText) = 0 Then
+    '    MsgBox "You must first select the shellcode to extract in the script window."
+    '    Exit Sub
+    'End If
     
     x = txtJS.SelText
     
@@ -1462,10 +1473,10 @@ End Sub
 Private Sub mnuScSigs_Click()
     On Error Resume Next
     
-    If Len(txtJS.SelText) = 0 Then
-        MsgBox "You must first select the shellcode to extract in the script window."
-        Exit Sub
-    End If
+    'If Len(txtJS.SelText) = 0 Then
+    '    MsgBox "You must first select the shellcode to extract in the script window."
+    '    Exit Sub
+    'End If
     
     x = txtJS.SelText
     
@@ -1657,102 +1668,102 @@ Private Sub mnuSaveToFile_Click()
 hell:     MsgBox Err.Description
 End Sub
 
-Private Sub mnuShellcode2Exe_Click(Index As Integer)
-    
-    On Error Resume Next
-    
-    Dim pth As String
-    Dim f As Long
-    Dim Shellcode() As Byte
-    Dim husk() As Byte
-    Dim hFile As String
-    Dim simple_husk As Boolean
-    
-    x = txtJS.SelText
-    
-    If Len(x) = 0 Then
-        MsgBox "No text selected", vbInformation
-        Exit Sub
-    End If
-    
-    
-    'If MsgBox("Do you want to use the simple husk?", vbYesNo + vbQuestion) = vbYes Then
-    '    simple_husk = True
-    'End If
-    
-    simple_husk = True
-    If Index = 2 Then simple_husk = False
-    
-    hFile = App.path & IIf(simple_husk, "\simple_husk.dat", "\husk.dat")
-    If Not fso.FileExists(hFile) Then
-        MsgBox "Husk.exe container was not found did your AV eat it?", vbInformation
-        Exit Sub
-    End If
-    
-    hFile = fso.ReadFile(hFile)
-    
-    If simple_husk Then
-        hFile = HexStringUnescape(hFile)
-        husk() = StrConv(hFile, vbFromUnicode, LANG_US)
-        For i = 0 To UBound(husk): husk(i) = husk(i) Xor &H77: Next
-    Else
-        'husk() = StrConv(hFile, vbFromUnicode, LANG_US)
-        hFile = HexStringUnescape(hFile)
-        husk() = StrConv(hFile, vbFromUnicode, LANG_US)
-        For i = 0 To UBound(husk): husk(i) = husk(i) Xor &H77: Next
-    End If
-    
-    x = PrepareShellcode(x)
-    Shellcode() = StrConv(x, vbFromUnicode, LANG_US)
-    
-    If simple_husk And UBound(Shellcode) > &H1A49 Then
-        MsgBox "Shellcode is larger than buffer in husk..may cause errors"
-    End If
-    
-    If Not simple_husk And UBound(Shellcode) > 6000 Then
-        MsgBox "Shellcode is larger than buffer in husk..may cause errors"
-    End If
-    
-    pth = dlg.SaveDialog(AllFiles, , "Save Shellcode Executable As", , Me.hwnd, "shellcode.exe_")
-    If Len(pth) = 0 Then Exit Sub
-    
-    If Err.Number <> 0 Then
-        MsgBox Err.Description
-        Exit Sub
-    End If
-    
-    f = FreeFile
-    Open pth For Binary As f
-    Put f, , husk
-    
-    Dim offset As Long
-    
-    Select Case Index
-        Case 0: offset = &H1000
-        Case 1: offset = &H1020
-        Case 2: offset = &HC000
-    End Select
-    
-    Dim b As Byte
-    If offset = &HC000 Then 'negative fuckers
-        Seek f, &H7000
-        For i = 0 To &H5000 'this is some stupid shit...
-            Get f, , b
-        Next
-        Put f, , Shellcode()
-    Else
-        Put f, offset + 1, Shellcode()
-    End If
-    
-    Close
-    
-    If Err.Number = 0 Then
-        MsgBox "File generated successfully...", vbInformation
-    Else
-        MsgBox Err.Description
-    End If
-    
-End Sub
+'Private Sub mnuShellcode2Exe_Click(Index As Integer)
+'
+'    On Error Resume Next
+'
+'    Dim pth As String
+'    Dim f As Long
+'    Dim Shellcode() As Byte
+'    Dim husk() As Byte
+'    Dim hFile As String
+'    Dim simple_husk As Boolean
+'
+'    x = txtJS.SelText
+'
+'    If Len(x) = 0 Then
+'        MsgBox "No text selected", vbInformation
+'        Exit Sub
+'    End If
+'
+'
+'    'If MsgBox("Do you want to use the simple husk?", vbYesNo + vbQuestion) = vbYes Then
+'    '    simple_husk = True
+'    'End If
+'
+'    simple_husk = True
+'    If Index = 2 Then simple_husk = False
+'
+'    hFile = App.path & IIf(simple_husk, "\simple_husk.dat", "\husk.dat")
+'    If Not fso.FileExists(hFile) Then
+'        MsgBox "Husk.exe container was not found did your AV eat it?", vbInformation
+'        Exit Sub
+'    End If
+'
+'    hFile = fso.ReadFile(hFile)
+'
+'    If simple_husk Then
+'        hFile = HexStringUnescape(hFile)
+'        husk() = StrConv(hFile, vbFromUnicode, LANG_US)
+'        For i = 0 To UBound(husk): husk(i) = husk(i) Xor &H77: Next
+'    Else
+'        'husk() = StrConv(hFile, vbFromUnicode, LANG_US)
+'        hFile = HexStringUnescape(hFile)
+'        husk() = StrConv(hFile, vbFromUnicode, LANG_US)
+'        For i = 0 To UBound(husk): husk(i) = husk(i) Xor &H77: Next
+'    End If
+'
+'    x = PrepareShellcode(x)
+'    Shellcode() = StrConv(x, vbFromUnicode, LANG_US)
+'
+'    If simple_husk And UBound(Shellcode) > &H1A49 Then
+'        MsgBox "Shellcode is larger than buffer in husk..may cause errors"
+'    End If
+'
+'    If Not simple_husk And UBound(Shellcode) > 6000 Then
+'        MsgBox "Shellcode is larger than buffer in husk..may cause errors"
+'    End If
+'
+'    pth = dlg.SaveDialog(AllFiles, , "Save Shellcode Executable As", , Me.hwnd, "shellcode.exe_")
+'    If Len(pth) = 0 Then Exit Sub
+'
+'    If Err.Number <> 0 Then
+'        MsgBox Err.Description
+'        Exit Sub
+'    End If
+'
+'    f = FreeFile
+'    Open pth For Binary As f
+'    Put f, , husk
+'
+'    Dim offset As Long
+'
+'    Select Case Index
+'        Case 0: offset = &H1000
+'        Case 1: offset = &H1020
+'        Case 2: offset = &HC000
+'    End Select
+'
+'    Dim b As Byte
+'    If offset = &HC000 Then 'negative fuckers
+'        Seek f, &H7000
+'        For i = 0 To &H5000 'this is some stupid shit...
+'            Get f, , b
+'        Next
+'        Put f, , Shellcode()
+'    Else
+'        Put f, offset + 1, Shellcode()
+'    End If
+'
+'    Close
+'
+'    If Err.Number = 0 Then
+'        MsgBox "File generated successfully...", vbInformation
+'    Else
+'        MsgBox Err.Description
+'    End If
+'
+'End Sub
 
 
 Private Sub mnuSimplifySelection_Click()

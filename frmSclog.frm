@@ -352,7 +352,11 @@ Const def_dump As String = "c:\SHELLC~1.SC.dmp"
 Dim last_cmdline As String
 
 Private Declare Function GetShortPathName Lib "kernel32" Alias "GetShortPathNameA" (ByVal lpszLongPath As String, ByVal lpszShortPath As String, ByVal cchBuffer As Long) As Long
+Private Declare Function URLDownloadToFile Lib "urlmon" Alias "URLDownloadToFileA" (ByVal pCaller As Long, ByVal szURL As String, ByVal szFileName As String, ByVal dwReserved As Long, ByVal lpfnCB As Long) As Long
 
+Private Function DownloadFile(url As String, saveAs As String) As Boolean
+    If URLDownloadToFile(0, url, saveAs, 0, 0) = 0 Then DownloadFile = True
+End Function
 
 Public Function GetShortName(sFile As String) As String
     Dim sShortFile As String * 67
@@ -366,7 +370,7 @@ Public Function GetShortName(sFile As String) As String
     Len(sShortFile))
 
     'Trim out unused characters from the string.
-    GetShortName = Left$(sShortFile, lResult)
+    GetShortName = left$(sShortFile, lResult)
     
     If Len(GetShortName) = 0 Then GetShortName = sFile
 
@@ -391,11 +395,28 @@ Public Function InitInterface(Optional Shellcode As String = Empty)
 End Function
 
 Function checkForMap() As Boolean
+        Dim url As String
+        Dim msg As String
         
-        sclog = GetShortName(App.path & "\sclog.exe")
+        msg = "Because some AV complain about shellcode analysis tools, sclog has not yet been installed." & _
+               vbCrLf & vbCrLf & "Do you want to download the latest version?"
+        
+        url = "https://github.com/dzzie/sclog/raw/master/bin/sclog.exe"
+        sclog = App.path & "\sclog.exe"
+        
         If Not fso.FileExists(sclog) Then
-            MsgBox "Can not find sclog should have been installed by installer?", vbCritical
+            If MsgBox(msg, vbYesNo) = vbYes Then
+                    If DownloadFile(url, sclog) Then
+                        If fso.FileExists(sclog) Then
+                            sclog = GetShortName(sclog) 'must come after file exists checks for it creates the file if need be..
+                            checkForMap = True
+                            Exit Function
+                        End If
+                    End If
+                    MsgBox "Download failed.."
+            End If
         Else
+            sclog = GetShortName(sclog) 'must come after file exists checks for it creates the file if need be..
             checkForMap = True
         End If
         
@@ -579,8 +600,8 @@ End Sub
 
 Private Sub Label1_Click()
     
-    X = HexStringUnescape(QuickDecode("C8D4B33C3C3C5CB3DF0BEA60B16A0CB16A38B16A30B14A14358D721E0BC50BFC98085B483A181CFBF5373BFDDACC6A6DB16A2CB17A083BECB17C44BFFC50723BEC6CB17424B1641C3BE9D90873B110B13BEE0BC50BFC98FBF5373BFD04DC4FD03947C40147204FDA64B164203BE95EB13871B164283BE9B140B13BECB380202061615B63626BC5DC646562B12AD1BE67B7BF813B3C3C6C54C53C3C3C540CC973E0C5EFB7A7813B3C3C3BE45416595557B53C523CB7BF813B3C3C6C5418613EDAC5EFB3FE54983C3C3CB7A7353B3C3C696C54CE65B6D3C5EFB3CC6C5498C5B7CFC5EF523BB7BF813B3C3C6C540BB155BDC5EF54EC3D3C3C5480CC0FDCC5EFB7A7813B3C3C6954ED16E729C5EF523C54CC8F9A6EC5EF8C29F72C09FC858C3B833C47C99182F439D67AC6F3BCC108493FBCF940D134BCC5084939BCFD40B2F9D6B2FDD60AFCD6DAD98BF4BB3E983BD35ABC3E983B5ABB2E963B230E9B963B09EA817C3BCDC9B1CAC6B84C47DAE786CB3A858B468B5A82063BB2A8FCC6B280C539E4B2803B39E4B2C07C3B39E4FBD13AB4277E7D724FDA7E7E7D7DDAE3868A46858A3B8346066B6DC99F66543C9C3D853A4763C99F263D903BF72E50B884393CF72CF9"))
-    Me.InitInterface CStr(X)
+    x = HexStringUnescape(QuickDecode("C8D4B33C3C3C5CB3DF0BEA60B16A0CB16A38B16A30B14A14358D721E0BC50BFC98085B483A181CFBF5373BFDDACC6A6DB16A2CB17A083BECB17C44BFFC50723BEC6CB17424B1641C3BE9D90873B110B13BEE0BC50BFC98FBF5373BFD04DC4FD03947C40147204FDA64B164203BE95EB13871B164283BE9B140B13BECB380202061615B63626BC5DC646562B12AD1BE67B7BF813B3C3C6C54C53C3C3C540CC973E0C5EFB7A7813B3C3C3BE45416595557B53C523CB7BF813B3C3C6C5418613EDAC5EFB3FE54983C3C3CB7A7353B3C3C696C54CE65B6D3C5EFB3CC6C5498C5B7CFC5EF523BB7BF813B3C3C6C540BB155BDC5EF54EC3D3C3C5480CC0FDCC5EFB7A7813B3C3C6954ED16E729C5EF523C54CC8F9A6EC5EF8C29F72C09FC858C3B833C47C99182F439D67AC6F3BCC108493FBCF940D134BCC5084939BCFD40B2F9D6B2FDD60AFCD6DAD98BF4BB3E983BD35ABC3E983B5ABB2E963B230E9B963B09EA817C3BCDC9B1CAC6B84C47DAE786CB3A858B468B5A82063BB2A8FCC6B280C539E4B2803B39E4B2C07C3B39E4FBD13AB4277E7D724FDA7E7E7D7DDAE3868A46858A3B8346066B6DC99F66543C9C3D853A4763C99F263D903BF72E50B884393CF72CF9"))
+    Me.InitInterface CStr(x)
     
 End Sub
 
@@ -612,12 +633,12 @@ Private Sub Label5_Click()
     MsgBox "Last command line copied to clipboard: " & vbCrLf & vbCrLf & last_cmdline, vbInformation
 End Sub
 
-Private Sub txtFhand_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub txtFhand_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, Y As Single)
     On Error Resume Next
     txtFhand.Text = data.Files(1)
 End Sub
 
-Private Sub txtLogFile_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub txtLogFile_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, Y As Single)
      On Error Resume Next
      txtLogFile.Text = data.Files(1)
 End Sub

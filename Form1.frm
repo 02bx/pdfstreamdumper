@@ -3287,7 +3287,7 @@ Private Sub Form_Load()
                      "CVE-2010-4091 Date:11.4.10 v9.2 or v8.1.7=printSeps", _
                      "CVE-2010-0188 Date:2.32.10 v9.3=rawValue", _
                      "Contains PRC file - possible CVE-2011-4369 (Date:12.16.11 v9.4.6)=^PRC", _
-                     "CVE-2012-0775 Date: 4.10.2012 v10.10.102, or CVE-2013-3346 Date: 4.12.12 v10.1.6=addToolButton" _
+                     "CVE-2012-0775 Date: 4.10.2012 v10.1.2, or CVE-2013-3346 Date: 8.8.13 v10.1.6=addToolButton" _
                      )
                      
                      'is just using the JBIG2 Filter to generic to detect on?

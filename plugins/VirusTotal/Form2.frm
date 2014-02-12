@@ -289,7 +289,7 @@ Private Sub Command1_Click()
 
     On Error Resume Next
     
-    Dim lvMain As ListView
+    Dim lvMain As Object 'MSComctlLib.ListView <-- wtf does this give type mismatch error...exact same library and guid and version..
     Dim li As ListItem
     Dim li2 As ListItem
     Dim stream As Object 'CPdfStream
@@ -301,7 +301,11 @@ Private Sub Command1_Click()
     cmdClear_Click
     
     If lvMain Is Nothing Then
-        MsgBox "Could not get a reference to the main form listview?"
+        MsgBox "Could not get a reference to the main form listview? Err:" & Err.Description
+        MsgBox "TypeName(frmMain) = " & TypeName(frmMain)
+        MsgBox "TypeName(frmMain.lv) = " & TypeName(frmMain.lv)
+        MsgBox "Objptr(lvMain) = " & ObjPtr(lvMain)
+        MsgBox frmMain.lv.ListItems.Count
         If frmMain Is Nothing Then MsgBox "FrmMain was nothing!?", vbInformation
         Exit Sub
     End If
@@ -324,7 +328,7 @@ Private Sub Command1_Click()
         
 End Sub
 
-Private Sub scanLV(lvMain As ListView)
+Private Sub scanLV(lvMain As Object)
     
     On Error Resume Next
     
