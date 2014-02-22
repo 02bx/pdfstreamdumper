@@ -91,7 +91,6 @@ Begin VB.Form Form1
       _ExtentX        =   15478
       _ExtentY        =   6059
       _Version        =   393217
-      Enabled         =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":1142
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -410,6 +409,7 @@ Begin VB.Form Form1
       _ExtentX        =   17383
       _ExtentY        =   7223
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":11C4
@@ -867,7 +867,6 @@ Attribute VB_Exposed = False
 
 Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hwnd As Long, ByVal lpszOp As String, ByVal lpszFile As String, ByVal lpszParams As String, ByVal LpszDir As String, ByVal FsShowCmd As Long) As Long
 Private Declare Function GetTickCount Lib "kernel32" () As Long
-Private Declare Function InitCommonControls Lib "comctl32.dll" () As Long
 
 Dim WithEvents parser As CPdfParser
 Attribute parser.VB_VarHelpID = -1
@@ -910,8 +909,6 @@ Dim DownloadPath As String
 'COMMAND LINE OPTIONS:
 Dim ExtractToFolder As String 'command line ex: pdfstreamdumper "c:\file.pdf" /extract "c:\folder" (extracts objects only (flash, fonts, prc, u3d))
 
-
-
 Sub LoadPlugins()
     
     Dim tmp() As String, i As Integer, progid As String
@@ -927,14 +924,7 @@ Sub LoadPlugins()
     tmp() = fso.GetFolderFiles(App.path & "\plugins", "*dll")
     
     If AryIsEmpty(tmp) Then Exit Sub
-    
-   'for the demo, we will just let the user register this way if they want
-    'If MsgBox("Did you register all of the dlls & the wsc file with regsvr32 already?", vbYesNo) = vbNo Then
-    '     For i = 0 To UBound(tmp)
-    '        Shell "regsvr32 """ & tmp(i) & """", vbNormalFocus
-    '     Next
-    'End If
-    
+        
     ReDim plugins(0)
     
     For i = 0 To UBound(tmp)
@@ -978,11 +968,6 @@ Private Sub cmdAbortProcessing_Click()
     ucAsyncDownload1.AbortDownload
     pb.Value = 0
 End Sub
-
-Private Sub Form_Initialize()
-    InitCommonControls
-End Sub
-
 
 Private Sub lblClosePictViewer_Click()
     fraPictViewer.Visible = False
@@ -1528,19 +1513,19 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
     
     If KeyCode = 65 And Shift = 2 Then 'ctrl-a - select all
         For Each li In lv.ListItems
-            li.selected = True
+            li.Selected = True
         Next
     End If
     
     If KeyCode = 73 And Shift = 2 Then 'ctrl-i - invert selection
         For Each li In lv.ListItems
-            li.selected = Not li.selected
+            li.Selected = Not li.Selected
         Next
     End If
     
     If KeyCode = 68 And Shift = 2 Then 'ctrl-d - delete selected
         For i = lv.ListItems.Count To 1 Step -1
-            If li.selected = True Then
+            If li.Selected = True Then
                 lv.ListItems.Remove i
             End If
         Next
@@ -1548,7 +1533,7 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
     
     If KeyCode = 78 And Shift = 2 Then 'ctrl-n -select none
         For Each li In lv.ListItems
-            li.selected = False
+            li.Selected = False
         Next
     End If
     
@@ -1713,7 +1698,7 @@ Private Sub mnuHideUnselected_Click()
     Dim i As Long
     
     For i = lv.ListItems.Count To 1 Step -1
-        If lv.ListItems(i).selected = False Then
+        If lv.ListItems(i).Selected = False Then
             lv.ListItems.Remove i
         End If
     Next
@@ -1836,7 +1821,7 @@ Private Sub mnuShowRawHeader_Click()
     Dim s As CPDFStream
     Set s = selli.tag
     txtUncompressed.Text = s.Header
-    ts.Tabs(1).selected = True
+    ts.Tabs(1).Selected = True
     
 End Sub
 
@@ -1851,7 +1836,7 @@ Private Sub mnuShowRawObject_Click()
     Dim s As CPDFStream
     Set s = selli.tag
     txtUncompressed.Text = s.RawObject
-    ts.Tabs(1).selected = True
+    ts.Tabs(1).Selected = True
     
 End Sub
 
@@ -1887,8 +1872,12 @@ Private Sub mnuFindReplace_Click()
     
     Select Case ts.SelectedItem.Index
         Case 1: Set txtObj = txtUncompressed
-        Case 2: Set txtObj = he
         Case 3: Set txtObj = txtDetails
+        
+        Case 2:
+                he.ShowFind
+                Exit Sub
+        
     End Select
     
     frmReplace.LaunchReplaceForm txtObj
@@ -1906,7 +1895,7 @@ Private Sub mnuGotoObject_Click()
     For Each li In lv.ListItems
         Set s = li.tag
         If s.Index = x Then
-            li.selected = True
+            li.Selected = True
             li.EnsureVisible
             lv_ItemClick li
             Exit Sub
@@ -1960,7 +1949,7 @@ Private Sub mnuHideSelected_Click()
     Dim i As Long
     
     For i = lv.ListItems.Count To 1 Step -1
-        If lv.ListItems(i).selected = True Then
+        If lv.ListItems(i).Selected = True Then
             lv.ListItems.Remove i
         End If
     Next
@@ -2007,13 +1996,13 @@ Public Sub mnuJavascriptUI_Click()
     
     Dim selCount As Long
     For Each li In lv.ListItems
-        If li.selected Then selCount = selCount + 1
+        If li.Selected Then selCount = selCount + 1
     Next
     
     If selCount > 1 Then
         'multiple streams selected..put them all together for js ui
         For Each li In lv.ListItems
-            If li.selected Then
+            If li.Selected Then
                 t = t & GetActiveData(li, False) & vbCrLf
             End If
         Next
@@ -2068,7 +2057,7 @@ Private Sub mnuSearchFilter_Click(Index As Integer)
     For Each li In lv.ListItems
         Set s = li.tag
         match = False
-        If li.selected Then li.selected = False
+        If li.Selected Then li.Selected = False
         
         Select Case Index
             Case 0:   If AnyofTheseInstr(pound_unescape(s.Header), "/JS,/Javascript") Then match = True
@@ -2086,7 +2075,7 @@ Private Sub mnuSearchFilter_Click(Index As Integer)
             Set sli = lvSearch.ListItems.Add(, , li.Text)
             Set sli.tag = li.tag
             sli.Text = sli.Text & "   " & IIf(Index = 5, s.Header, pound_unescape(s.Header))
-            li.selected = True
+            li.Selected = True
         End If
         
     Next
@@ -2112,7 +2101,7 @@ Private Sub mnuSearchFilter_Click(Index As Integer)
     Next
     
     'If lvSearch.ListItems.Count > 0 Then
-        TabStrip1.Tabs(2).selected = True
+        TabStrip1.Tabs(2).Selected = True
     'End If
     
     lvSearch.ColumnHeaders(1).Text = lvSearch.ListItems.Count & " Search Results"
@@ -3177,7 +3166,7 @@ Function GetActiveData(Item As ListItem, Optional load_ui As Boolean = False, Op
          txtDetails.Text = s.GetDetailsReport()
          
          If mnuAutoSwitchTabs.Checked And ts.SelectedItem.Index <> 3 Then 'and not viewing headers pane..
-            ts.Tabs(IIf(s.isBinary, 2, 1)).selected = True
+            ts.Tabs(IIf(s.isBinary, 2, 1)).Selected = True
          End If
          
     End If
@@ -3235,7 +3224,7 @@ Private Sub mnuSearch_Click()
     Next
     
     If lvSearch.ListItems.Count > 0 Then
-        TabStrip1.Tabs(2).selected = True
+        TabStrip1.Tabs(2).Selected = True
     Else
         MsgBox "0 Search Results", vbInformation
     End If
@@ -3376,7 +3365,7 @@ Private Sub Form_Load()
     
     If Not csharp.Initilized Then
         lvDebug.ListItems.Add , , "C# Filters not initilized. See Tools->Manual Filters and click on iText Enabled = false link"
-        TabStrip1.Tabs(3).selected = True
+        TabStrip1.Tabs(3).Selected = True
     End If
     
 
@@ -3544,7 +3533,7 @@ End Sub
 
 Private Sub scAuto_Error()
      MsgBox "Automation Script Error: " & scAuto.error.Description & vbCrLf & _
-            "Line: " & scAuto.error.line & vbCrLf & _
+            "Line: " & scAuto.error.Line & vbCrLf & _
             "Source: " & scAuto.error.Source & vbCrLf & _
             "Text: " & scAuto.error.Text
 End Sub

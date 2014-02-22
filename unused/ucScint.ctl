@@ -237,6 +237,8 @@ Private Sub UserControl_Initialize()
 
         On Error Resume Next
         
+        App.StartLogging "", vbLogOff
+        
         Dim f As String
         f = App.path & "\highlighters"
         If Not FolderExists(f) Then

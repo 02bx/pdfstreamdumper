@@ -1,4 +1,4 @@
-tb.Save2Clipboard(x) 
+Save2Clipboard(x) 
 GetClipboard() 
 t(x) 
 eval(x) 

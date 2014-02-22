@@ -13,7 +13,6 @@ Name: {app}\iTextFilters
 Name: {app}\scripts
 Name: {app}\libemu
 Name: {app}\plugins
-Name: {app}\highlighters
 Name: {app}\xor_bruteforcer
 Name: {app}\sc_samples
 Name: {app}\AS3_WebInstall
@@ -21,8 +20,7 @@ Name: {app}\mupdf
 Name: {app}\mupdf\jbig2dec
 
 [Files]
-Source: ./\highlighters\CPP.Bin; DestDir: {app}\highlighters
-Source: ./\highlighters\Java.bin; DestDir: {app}\highlighters
+Source: ./java.hilighter; DestDir: {app}
 Source: ./iTextSharp.dll; DestDir: {app}
 Source: ./\beautify.js; DestDir: {app}
 Source: ./\PDFStreamDumper.exe; DestDir: {app}
@@ -35,7 +33,7 @@ Source: ./\api.api; DestDir: {app}
 Source: ./\dependancies\MSCOMCTL.OCX; DestDir: {win}; Flags: regserver uninsneveruninstall
 Source: ./\dependancies\msscript.ocx; DestDir: {win}; Flags: regserver uninsneveruninstall
 Source: ./\dependancies\richtx32.ocx; DestDir: {win}; Flags: regserver uninsneveruninstall
-Source: ./\dependancies\SCIVBX.ocx; DestDir: {app}; Flags: regserver
+Source: ./\dependancies\scivb_lite.ocx; DestDir: {app}; Flags: regserver
 Source: ./\dependancies\SciLexer.dll; DestDir: {app}
 Source: ./\dependancies\hexed.ocx; DestDir: {app}; Flags: regserver
 Source: iTextFilters.dll; DestDir: {app}; Flags: ignoreversion

@@ -453,7 +453,7 @@ Private Sub lv_ItemClick(ByVal Item As MSComctlLib.ListItem)
     Dim lineNum As Long
     Text1 = Item.SubItems(1)
     Text2 = Item.SubItems(2)
-    lineNum = Form2.txtJS.SCI.DirectSCI.LineFromPosition(CLng(Item.Text))
+    lineNum = Form2.txtJS.DirectSCI.LineFromPosition(CLng(Item.Text))
     Form2.txtJS.GotoLineCentered lineNum, False
     Form2.txtJS.SelStart = Item.Text
     Form2.txtJS.SelLength = Item.tag

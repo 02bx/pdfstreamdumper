@@ -2,6 +2,7 @@ VERSION 5.00
 Object = "{0E59F1D2-1FBE-11D0-8FF2-00A0D10038BC}#1.0#0"; "msscript.ocx"
 Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{FBE17B58-A1F0-4B91-BDBD-C9AB263AC8B0}#72.0#0"; "scivb_lite.ocx"
 Begin VB.Form Form2 
    Caption         =   "PDF Stream Dumper - JS UI"
    ClientHeight    =   8310
@@ -12,10 +13,20 @@ Begin VB.Form Form2
    ScaleHeight     =   8310
    ScaleWidth      =   14460
    StartUpPosition =   3  'Windows Default
+   Begin SCIVB_LITE.SciSimple txtJS 
+      Height          =   5865
+      Left            =   2475
+      TabIndex        =   17
+      Top             =   270
+      Width           =   11895
+      _ExtentX        =   20981
+      _ExtentY        =   10345
+   End
    Begin MSComctlLib.ListView lv2 
       Height          =   2670
       Left            =   30
-      TabIndex        =   17
+      TabIndex        =   15
+      TabStop         =   0   'False
       Top             =   5580
       Width           =   2295
       _ExtentX        =   4048
@@ -56,21 +67,12 @@ Begin VB.Form Form2
       _ExtentY        =   1005
       Language        =   "Javascript"
    End
-   Begin PDFStreamDumper.ucScint txtJS 
-      Height          =   5865
-      Left            =   2430
-      TabIndex        =   16
-      Top             =   270
-      Width           =   11895
-      _ExtentX        =   12171
-      _ExtentY        =   6853
-   End
    Begin VB.Frame splitter 
       BackColor       =   &H00808080&
       Height          =   75
       Left            =   2400
       MousePointer    =   7  'Size N S
-      TabIndex        =   9
+      TabIndex        =   8
       Top             =   6840
       Width           =   11895
    End
@@ -78,14 +80,15 @@ Begin VB.Form Form2
       Caption         =   "THIS RUNS SCRIPTS LIVE -- NO SANDBOX  -- (also watch for Adobe specific objects)"
       ForeColor       =   &H00000080&
       Height          =   615
-      Left            =   2400
-      TabIndex        =   4
+      Left            =   2385
+      TabIndex        =   3
       Top             =   6180
       Width           =   11895
       Begin VB.TextBox txtPageNum 
          Height          =   285
          Left            =   5220
-         TabIndex        =   15
+         TabIndex        =   14
+         TabStop         =   0   'False
          Text            =   "0"
          Top             =   225
          Width           =   465
@@ -94,7 +97,8 @@ Begin VB.Form Form2
          Caption         =   "No Reset"
          Height          =   195
          Left            =   10665
-         TabIndex        =   13
+         TabIndex        =   12
+         TabStop         =   0   'False
          ToolTipText     =   "Check this to not reset the script control between runs (reset clears vars from old scripts which may be needed)"
          Top             =   270
          Width           =   1005
@@ -102,7 +106,8 @@ Begin VB.Form Form2
       Begin VB.ComboBox cboVersion 
          Height          =   315
          Left            =   2790
-         TabIndex        =   11
+         TabIndex        =   10
+         TabStop         =   0   'False
          Top             =   225
          Width           =   1320
       End
@@ -110,7 +115,8 @@ Begin VB.Form Form2
          Caption         =   "Run"
          Height          =   375
          Left            =   8730
-         TabIndex        =   5
+         TabIndex        =   4
+         TabStop         =   0   'False
          Top             =   180
          Width           =   1455
       End
@@ -118,7 +124,7 @@ Begin VB.Form Form2
          Caption         =   "this.pageNum"
          Height          =   285
          Left            =   4185
-         TabIndex        =   14
+         TabIndex        =   13
          Top             =   270
          Width           =   1005
       End
@@ -126,7 +132,7 @@ Begin VB.Form Form2
          Caption         =   "app.viewerVersion :"
          Height          =   285
          Left            =   1350
-         TabIndex        =   12
+         TabIndex        =   11
          Top             =   270
          Width           =   1455
       End
@@ -145,7 +151,7 @@ Begin VB.Form Form2
          Height          =   255
          Index           =   3
          Left            =   8010
-         TabIndex        =   8
+         TabIndex        =   7
          Top             =   270
          Width           =   585
       End
@@ -164,7 +170,7 @@ Begin VB.Form Form2
          Height          =   255
          Index           =   1
          Left            =   120
-         TabIndex        =   7
+         TabIndex        =   6
          Top             =   240
          Width           =   1215
       End
@@ -183,39 +189,16 @@ Begin VB.Form Form2
          Height          =   255
          Index           =   2
          Left            =   5805
-         TabIndex        =   6
+         TabIndex        =   5
          Top             =   270
          Width           =   1230
       End
-   End
-   Begin RichTextLib.RichTextBox old_txtJs 
-      Height          =   5895
-      Left            =   2430
-      TabIndex        =   3
-      Top             =   270
-      Visible         =   0   'False
-      Width           =   11895
-      _ExtentX        =   20981
-      _ExtentY        =   10398
-      _Version        =   393217
-      Enabled         =   -1  'True
-      HideSelection   =   0   'False
-      ScrollBars      =   2
-      TextRTF         =   $"Form2.frx":0000
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "Courier New"
-         Size            =   12
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
    End
    Begin MSComctlLib.ListView lv 
       Height          =   2775
       Left            =   45
       TabIndex        =   1
+      TabStop         =   0   'False
       Top             =   270
       Width           =   2295
       _ExtentX        =   4048
@@ -248,7 +231,8 @@ Begin VB.Form Form2
    Begin RichTextLib.RichTextBox txtOut 
       Height          =   1275
       Left            =   2400
-      TabIndex        =   10
+      TabIndex        =   9
+      TabStop         =   0   'False
       Top             =   6960
       Width           =   11895
       _ExtentX        =   20981
@@ -257,7 +241,7 @@ Begin VB.Form Form2
       Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
-      TextRTF         =   $"Form2.frx":0080
+      TextRTF         =   $"Form2.frx":0000
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Courier New"
          Size            =   12
@@ -271,7 +255,8 @@ Begin VB.Form Form2
    Begin MSComctlLib.ListView lvFunc 
       Height          =   2490
       Left            =   60
-      TabIndex        =   18
+      TabIndex        =   16
+      TabStop         =   0   'False
       Top             =   3060
       Width           =   2295
       _ExtentX        =   4048
@@ -434,20 +419,6 @@ Begin VB.Form Form2
       Begin VB.Menu mnuSend2IDA 
          Caption         =   "Disassemble in IDA"
       End
-      Begin VB.Menu mnuspacer2 
-         Caption         =   "-"
-      End
-      Begin VB.Menu mnuSample 
-         Caption         =   "Sample Shellcode"
-         Begin VB.Menu mnuShellcode 
-            Caption         =   "Copy sc files to /sc_samples directory to load list"
-            Index           =   0
-         End
-         Begin VB.Menu mnuShellcode 
-            Caption         =   "samples removed due to AV alert"
-            Index           =   1
-         End
-      End
    End
    Begin VB.Menu mnuReplace 
       Caption         =   "Find/Replace"
@@ -516,14 +487,8 @@ Begin VB.Form Form2
       Begin VB.Menu mnuCollapseAll 
          Caption         =   "Collapse/Expand All"
       End
-      Begin VB.Menu mnuScintillaOptions 
-         Caption         =   "Scintilla Options"
-      End
       Begin VB.Menu mnuIndentGuide 
          Caption         =   "Show Indent Guides"
-      End
-      Begin VB.Menu mnuAutoComplete 
-         Caption         =   "AutoComplete on CtrlSpace"
       End
    End
    Begin VB.Menu mnuPopup3 
@@ -581,20 +546,12 @@ Private objsAdded As Boolean
 Dim USING_MYMAIN As Boolean
 Private Declare Function SetFilePointer Lib "kernel32" (ByVal hFile As Long, ByVal lDistanceToMove As Long, lpDistanceToMoveHigh As Long, ByVal dwMoveMethod As Long) As Long
 
-
-
 Public Function StandardizeLineBreaks(ByVal x)
     x = Replace(x, vbCrLf, Chr(5))
     x = Replace(x, vbCr, Chr(5))
     x = Replace(x, vbLf, Chr(5))
     StandardizeLineBreaks = Replace(x, Chr(5), vbCrLf)
 End Function
-
-
-
- 
-
- 
 
 Private Sub lv2_ItemClick(ByVal Item As MSComctlLib.ListItem)
     On Error Resume Next
@@ -604,8 +561,6 @@ Private Sub lv2_ItemClick(ByVal Item As MSComctlLib.ListItem)
         txtOut.Text = Item.Text
     End If
 End Sub
-
- 
 
 Private Sub lv2_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
     If Button = 2 Then PopupMenu mnuPopup3
@@ -635,11 +590,6 @@ Private Sub lvFunc_MouseUp(Button As Integer, Shift As Integer, x As Single, Y A
     If Button = 2 Then PopupMenu mnuPopupFuncs
 End Sub
 
-Private Sub mnuAutoComplete_Click()
-    mnuAutoComplete.Checked = Not mnuAutoComplete.Checked
-    txtJS.AutoCompleteOnCTRLSpace = mnuAutoComplete.Checked
-End Sub
-
 Private Sub mnuCodeFolding_Click()
     mnuCodeFolding.Checked = Not mnuCodeFolding.Checked
     txtJS.Folding = mnuCodeFolding.Checked
@@ -647,7 +597,7 @@ End Sub
 
 Private Sub mnuCollapseAll_Click()
     If mnuCodeFolding.Checked = False Then mnuCodeFolding_Click
-    txtJS.SCI.FoldAll
+    txtJS.FoldAll
 End Sub
 
 Private Sub mnuCopyAllDatalv2_Click()
@@ -735,7 +685,7 @@ Private Sub mnuExtractFunc_Click()
     Dim data As String
     Dim foundEnd As Boolean
     For Each li In lvFunc.ListItems
-        If li.selected Then
+        If li.Selected Then
             data = data & ExtractFunction(CLng(li.tag), foundEnd)
             If Not foundEnd Then Exit Sub
         End If
@@ -758,10 +708,10 @@ Private Sub mnuFindFuncDependancies_Click()
     data = ExtractFunction(CLng(lvFunc.SelectedItem.tag), foundEnd)
     
     For Each li In lvFunc.ListItems
-        If li.Text <> startFunc Then li.selected = False
+        If li.Text <> startFunc Then li.Selected = False
         If InStr(data, li.Text & "(") > 0 And li.Text <> startFunc Then
             push func, li.Text
-            li.selected = True
+            li.Selected = True
         End If
     Next
     
@@ -779,9 +729,11 @@ Private Sub mnuFindFuncRefs_Click()
     If lvFunc.SelectedItem Is Nothing Then Exit Sub
     Find = lvFunc.SelectedItem.Text
     If Len(Find) = 0 Then Exit Sub
-    frmReplace.LaunchReplaceForm txtJS
-    frmReplace.Text1 = Find
-    frmReplace.cmdFindAll_Click
+    Dim f As Object
+    Set f = txtJS.ShowFindReplace
+    Set f.Icon = Me.Icon
+    f.Text1 = Find
+    f.cmdFindAll_Click
 End Sub
 
 Public Sub mnuFunctionScan_Click()
@@ -812,10 +764,7 @@ End Sub
 
 Private Sub mnuGotoLine_Click()
     On Error Resume Next
-    x = InputBox("Enter line to goto:")
-    'txtJS.GotoLine CLng(x)
-    'txtJS.FirstVisibleLine = CLng(x) - 1
-    txtJS.GotoLineCentered CLng(x) - 1
+    txtJS.ShowGoto
 End Sub
 
 Private Sub mnuHex2Unicode_Click()
@@ -840,7 +789,7 @@ End Sub
 
 Private Sub mnuIndentGuide_Click()
     mnuIndentGuide.Checked = Not mnuIndentGuide.Checked
-    txtJS.LineIndentGuide = mnuIndentGuide.Checked
+    txtJS.ShowIndentationGuide = mnuIndentGuide.Checked
 End Sub
 
 Public Sub mnuLoadShellcode_Click()
@@ -881,19 +830,10 @@ Private Sub mnuRenameFunc_Click()
         Exit Sub
     End If
     
-    txtJS.SelectLine
-    x = txtJS.CurrentLine       'if the user scrolls using scroll bar, this wont change...
     fl = txtJS.FirstVisibleLine 'this can be buggy...
+    Debug.Print "Top line: " & fl
     txtJS.Text = Replace(txtJS.Text, oldname, NewName)
-    'txtJS.GotoLine x
-    
-    If x < 5 And fl = 0 Then
-        txtJS.FirstVisibleLine = CLng(lvFunc.SelectedItem.tag)
-    ElseIf x > 5800 Or fl = 0 Then
-        txtJS.GotoLineCentered x, False
-    Else
-        txtJS.FirstVisibleLine = fl
-    End If
+    txtJS.FirstVisibleLine = fl
     
     'MsgBox txtJS.SCI.ReplaceAll(CStr(oldname), CStr(NewName), True) 'buggy...
     
@@ -904,14 +844,118 @@ End Sub
 Private Sub mnuSc2ExeMain_Click()
     'built in shellcode 2 exe removed because to many AV vendors complain about the husks..not sure how many people use them.
     On Error Resume Next
-    Shell "cmd /c start http://sandsprite.com/shellcode_2_exe.php"
+    Dim h1 As String, h2 As String, x As Long
+    h1 = App.path & "\simple_husk.dat"
+    h2 = App.path & "\husk.dat"
+    If fso.FileExists(h1) And fso.FileExists(h2) Then
+        'they have manually installed the husks so we will let them use it..(aka let me use them anyway..)
+        x = CLng(InputBox(Replace("Enter which husk index you would like to use:\n\n1: basic husk\n2:advanced husk", "\n", vbCrLf)))
+        If Err.Number <> 0 Then Exit Sub
+        If x = 0 Or x > 2 Then Exit Sub
+        If x = 1 Then x = 0 'use simple husk no wsa
+        Shellcode2Exe (x)
+    Else
+        Shell "cmd /c start http://sandsprite.com/shellcode_2_exe.php"
+    End If
 End Sub
 
-Private Sub mnuScintillaOptions_Click()
-    txtJS.ShowOptions
-End Sub
-
-
+Function Shellcode2Exe(Index As Long)
+    '0 = simple no wsa, 1 = simple w/wsa, 2 = adv husk
+    
+    On Error Resume Next
+    
+    Dim pth As String
+    Dim f As Long
+    Dim Shellcode() As Byte
+    Dim husk() As Byte
+    Dim hFile As String
+    Dim simple_husk As Boolean
+    
+    x = txtJS.SelText
+    
+    If Len(x) = 0 Then
+        MsgBox "No text selected", vbInformation
+        Exit Function
+    End If
+    
+    
+    'If MsgBox("Do you want to use the simple husk?", vbYesNo + vbQuestion) = vbYes Then
+    ' simple_husk = True
+    'End If
+    
+    simple_husk = True
+    If Index = 2 Then simple_husk = False
+    
+    hFile = App.path & IIf(simple_husk, "\simple_husk.dat", "\husk.dat")
+    If Not fso.FileExists(hFile) Then
+        MsgBox "Husk.exe container was not found did your AV eat it?", vbInformation
+        Exit Function
+    End If
+    
+    hFile = fso.ReadFile(hFile)
+    
+    If simple_husk Then
+        hFile = HexStringUnescape(hFile)
+        husk() = StrConv(hFile, vbFromUnicode, LANG_US)
+        For i = 0 To UBound(husk): husk(i) = husk(i) Xor &H77: Next
+    Else
+        'husk() = StrConv(hFile, vbFromUnicode, LANG_US)
+        hFile = HexStringUnescape(hFile)
+        husk() = StrConv(hFile, vbFromUnicode, LANG_US)
+        For i = 0 To UBound(husk): husk(i) = husk(i) Xor &H77: Next
+    End If
+    
+    x = PrepareShellcode(x)
+    Shellcode() = StrConv(x, vbFromUnicode, LANG_US)
+    
+    If simple_husk And UBound(Shellcode) > &H1A49 Then
+        MsgBox "Shellcode is larger than buffer in husk..may cause errors"
+    End If
+    
+    If Not simple_husk And UBound(Shellcode) > 6000 Then
+        MsgBox "Shellcode is larger than buffer in husk..may cause errors"
+    End If
+    
+    pth = dlg.SaveDialog(AllFiles, , "Save Shellcode Executable As", , Me.hwnd, "shellcode.exe_")
+    If Len(pth) = 0 Then Exit Function
+    
+    If Err.Number <> 0 Then
+        MsgBox Err.Description
+        Exit Function
+    End If
+    
+    f = FreeFile
+    Open pth For Binary As f
+    Put f, , husk
+    
+    Dim offset As Long
+    
+    Select Case Index
+        Case 0: offset = &H1000
+        Case 1: offset = &H1020
+        Case 2: offset = &HC000
+    End Select
+    
+    Dim b As Byte
+    If offset = &HC000 Then 'negative fuckers
+        Seek f, &H7000
+        For i = 0 To &H5000 'this is some stupid shit...
+            Get f, , b
+        Next
+        Put f, , Shellcode()
+    Else
+        Put f, offset + 1, Shellcode()
+    End If
+    
+    Close
+    
+    If Err.Number = 0 Then
+        MsgBox "File generated successfully...", vbInformation
+    Else
+        MsgBox Err.Description
+    End If
+    
+End Function
 
 Private Sub mnuSend2IDA_Click()
     Dim h As String
@@ -952,28 +996,28 @@ End Sub
 
 
 
-Private Sub mnuShellcode_Click(Index As Integer)
-    
-    On Error Resume Next
-    
-    cap = mnuShellcode(Index).Caption
-    If cap = "Copy sc files to /sc_samples directory to load list" Or _
-       cap = "samples removed due to AV alert" Then _
-    Exit Sub
-    
-    pth = App.path & "\sc_samples\" & cap
-    
-    If Not fso.FileExists(pth) Then
-        MsgBox "File not found: " & pth
-        Exit Sub
-    End If
-    
-    tmp = fso.ReadFile(pth)
-    tmp = HexDump(tmp, 1)
-    txtJS.Text = AddPercentToHexString(tmp)
-    txtJS.SelectAll
-    
-End Sub
+'Private Sub mnuShellcode_Click(Index As Integer)
+'
+'    On Error Resume Next
+'
+'    cap = mnuShellcode(Index).Caption
+'    If cap = "Copy sc files to /sc_samples directory to load list" Or _
+'       cap = "samples removed due to AV alert" Then _
+'    Exit Sub
+'
+'    pth = App.path & "\sc_samples\" & cap
+'
+'    If Not fso.FileExists(pth) Then
+'        MsgBox "File not found: " & pth
+'        Exit Sub
+'    End If
+'
+'    tmp = fso.ReadFile(pth)
+'    tmp = HexDump(tmp, 1)
+'    txtJS.Text = AddPercentToHexString(tmp)
+'    txtJS.SelectAll
+'
+'End Sub
 
 Private Sub mnuShowHelp_Click()
     toolbox.Help
@@ -1157,10 +1201,10 @@ Private Sub Form_Load()
     mnuAutoComplete.Checked = IIf(GetMySetting("AutoComplete", 0) = 1, True, False)
     
     txtJS.WordWrap = mnuWordWrap.Checked
-    txtJS.LineIndentGuide = mnuIndentGuide.Checked
+    txtJS.ShowIndentationGuide = mnuIndentGuide.Checked
     txtJS.Folding = mnuCodeFolding.Checked
-    txtJS.AutoCompleteOnCTRLSpace = mnuAutoComplete.Checked
-    
+    txtJS.DisplayCallTips = True
+   
     lvFunc.ColumnHeaders(1).Width = lv.Width - 200
     lv.ColumnHeaders(1).Width = lv.Width - 200
     FormPos Me, True
@@ -1173,17 +1217,25 @@ Private Sub Form_Load()
     cboVersion.AddItem "9.2"
     cboVersion.Text = "9.2"
     
-    Dim tmp() As String
-    i = 0
-    tmp() = fso.GetFolderFiles(App.path & "\sc_samples\")
-    For Each x In tmp
-        If Len(x) > 0 And fso.FileExists(x) Then
-            If i > 1 Then Load mnuShellcode(i)
-            mnuShellcode(i).Caption = x
-            'mnuShellcode(i).Tag = x
-            i = i + 1
-        End If
-    Next
+    Dim jsapi As String
+    jsapi = App.path & "\js_api.txt"
+    If fso.FileExists(jsapi) Then
+        Dim apiLoaded As Long
+        apiLoaded = txtJS.LoadCallTips(jsapi)
+        Debug.Print "JSApi loaded: " & apiLoaded & " path: " & jsapi
+    End If
+    
+'    Dim tmp() As String 'AV never liked this, people worried..
+'    i = 0
+'    tmp() = fso.GetFolderFiles(App.path & "\sc_samples\")
+'    For Each x In tmp
+'        If Len(x) > 0 And fso.FileExists(x) Then
+'            If i > 1 Then Load mnuShellcode(i)
+'            mnuShellcode(i).Caption = x
+'            'mnuShellcode(i).Tag = x
+'            i = i + 1
+'        End If
+'    Next
         
 End Sub
 
@@ -1284,7 +1336,7 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
     
     If KeyCode = 82 And Shift = 2 Then 'ctrl-r - rename
         For Each li In lv.ListItems
-            If li.selected Then
+            If li.Selected Then
                 x = InputBox("Rename entry " & li.Text, , li.Text)
                 If Len(x) > 0 Then li.Text = x
             End If
@@ -1293,20 +1345,20 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
     
     If KeyCode = 65 And Shift = 2 Then 'ctrl-a - select all
         For Each li In lv.ListItems
-            li.selected = True
+            li.Selected = True
         Next
     End If
     
     If KeyCode = 73 And Shift = 2 Then 'ctrl-i - invert selection
         For Each li In lv.ListItems
-            li.selected = Not li.selected
+            li.Selected = Not li.Selected
         Next
     End If
     
     If KeyCode = 68 And Shift = 2 Then 'ctrl-d - delete selected
         If MsgBox("Are you sure you want to deleted the selected entries?", vbYesNo) = vbYes Then
             For i = lv.ListItems.Count To 1 Step -1
-                If li.selected = True Then
+                If li.Selected = True Then
                     lv.ListItems.Remove i
                 End If
             Next
@@ -1315,7 +1367,7 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
     
     If KeyCode = 78 And Shift = 2 Then 'ctrl-n -select none
         For Each li In lv.ListItems
-            li.selected = False
+            li.Selected = False
         Next
     End If
     
@@ -1443,11 +1495,7 @@ Private Sub mnuExploitScan_Click()
   
 End Sub
 
-Private Sub mnuFind_Click()
-    
-    
-    
-End Sub
+ 
 
 Private Sub mnuLaunchSclog_Click(Index As Integer)
     
@@ -1578,10 +1626,10 @@ Private Sub mnuRenameScript_Click()
 End Sub
 
 Private Sub mnuReplace_Click()
-    
-    frmReplace.LaunchReplaceForm txtJS
-    If txtJS.SelLength > 0 Then frmReplace.Text1.Text = txtJS.SelText
-    
+    On Error Resume Next
+    Dim f As Object
+    Set f = txtJS.ShowFindReplace
+    Set f.Icon = Me.Icon
 End Sub
 
 
@@ -1782,7 +1830,7 @@ Private Sub mnuSimplifySelection_Click()
     txtJS.SelText = x
     txtJS.SelStart = ss
     txtJS.SelLength = Len(x)
-    txtJS.SetFocus
+    txtJS.SetFocusSci
 
 End Sub
 
@@ -1830,7 +1878,7 @@ Private Sub sc_Error()
     With sc.error
     
         curLine = txtJS.CurrentLine
-        adjustedLine = .line - IIf(USING_MYMAIN, 4, 0)
+        adjustedLine = .Line - IIf(USING_MYMAIN, 4, 0)
         
         txtOut.Text = "Time: " & Now & vbCrLf & "Error: " & .Description & vbCrLf & "Line: " & adjustedLine
         txtOut.Text = txtOut.Text & vbCrLf & "Source: " & txtJS.GetLineText(adjustedLine) 'vbsci specific
@@ -1856,53 +1904,18 @@ Private Sub sc_Error()
     
 End Sub
 
-
 Private Sub txtJS_AutoCompleteEvent(className As String)
-    If className = "tb" Then
-        txtJS.ShowAutoComplete "Save2Clipboard GetClipboard t eval unescape alert Hexdump WriteFile ReadFile HexString2Bytes Disasm pad EscapeHexString GetStream CRC getPageNumWords GetPageNthWord"
+    Dim prev As String
+    
+    prev = txtJS.PreviousWord
+    
+    If className = "tb" Or prev = "tb" Then
+        txtJS.ShowAutoComplete "save2Clipboard getClipboard t eval unescape alert " & _
+                               "hexdump writeFile readFile hexString2Bytes pad " & _
+                               "escapeHexString getStream crc getPageNumWords getPageNthWord"
     End If
+    
 End Sub
 
-Private Sub txtJS_CtrlH()
-    mnuReplace_Click
-End Sub
-
-'Private Const WM_USER = &H400
-'Private Const EM_SETTARGETDEVICE = (WM_USER + 72)
-'Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
-'
-''problems with codemax
-''cant select a line? or set sellength
-''can not turn on wrod wrap? - looks unfixable rest fixable..
-''select all?
-'Function InitCodeMax()
-'    On Error Resume Next
-'
-'    Dim g As New CodeMaxCtl.Globals
-'    Dim l As Language
-'
-'    SendMessage txtJs.hwnd, EM_SETTARGETDEVICE, 0, 60
-'    Const keywords = "function,with,setTimeout,setInterval,app,alert,eval,doc,getAnnots"
-'
-'    With txtJs
-'        .SetColor cmClrLeftMargin, &HC0C0C0
-'        .SetColor cmClrLineNumber, vbWhite
-'        Set l = g.GetLanguageDef("Java")
-'
-'        k = Split(keywords, ",")
-'        For Each kk In k
-'            l.keywords = l.keywords & Chr(10) & kk
-'        Next
-'
-'        g.RegisterLanguage "Adobe_Javascript", l
-'        .Language = "Adobe_Javascript"
-'        .SetColor cmClrLineNumberBk, &H808080
-'    End With
-'
-'End Function
 
 
-
-Private Sub txtJS_GotFocus()
-
-End Sub

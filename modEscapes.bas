@@ -121,7 +121,7 @@ Function unescape(x) As String '%uxxxx and %xx
     For i = 1 To UBound(tmp)
         t = tmp(i)
         
-        If LCase(VBA.Left(t, 1)) = "u" Then
+        If LCase(VBA.left(t, 1)) = "u" Then
         
             If Len(t) < 5 Then '%u21 -> %u0021
                 t = "u" & String(5 - Len(t), "0") & Mid(t, 2)
@@ -343,13 +343,13 @@ Public Function HexStringUnescape(str, Optional stripWhite As Boolean = False, O
     
 End Function
 
-Function ExtractFromParanthesisPageEncapsulation(Data)
+Function ExtractFromParanthesisPageEncapsulation(data)
     
     On Error Resume Next
     
     Dim ret As String
     
-    t = Split(Data, "(")
+    t = Split(data, "(")
     For Each x In t
         If Len(x) > 0 Then
             a = InStr(x, ")")
@@ -389,14 +389,14 @@ Function EscapeHeader(ByVal raw As String) As String
     raw = nl_unescape(raw)
     
     While IsWhitespace(raw): raw = Mid(raw, 2): Wend
-    If VBA.Left(raw, 2) = "<<" Then
+    If VBA.left(raw, 2) = "<<" Then
         raw = Mid(raw, 3)
         hadLeftOpen = True
     End If
-    While VBA.Left(raw, 1) = "<": raw = Mid(raw, 2): Wend
+    While VBA.left(raw, 1) = "<": raw = Mid(raw, 2): Wend
     
     While IsWhitespace(raw, False): raw = Mid(raw, 1, Len(raw) - 1): Wend
-    If VBA.Right(raw, 2) = ">>" Then
+    If VBA.right(raw, 2) = ">>" Then
         raw = Mid(raw, 1, Len(raw) - 2)
         hadRightClose = True
     End If
@@ -489,9 +489,9 @@ Function IsWhitespace(strin As String, Optional onLeft As Boolean = True) As Boo
     Dim c As Byte
     
     If onLeft Then
-        c = Asc(VBA.Left(strin, 1))
+        c = Asc(VBA.left(strin, 1))
     Else
-         c = Asc(VBA.Right(strin, 1))
+         c = Asc(VBA.right(strin, 1))
     End If
     
      If c = 0 Or c = 9 Or c = 10 Or c = 12 Or c = 13 Or c = 32 Then IsWhitespace = True
@@ -622,5 +622,4 @@ Function QuickDecode(ByVal hexstring) As String
     QuickDecode = HexDump(s, 1)
     
 End Function
-
 

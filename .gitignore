@@ -36,4 +36,6 @@ SCIVBX.ocx
 _olly.dll
 iTextFilters.dll.config
 /scripts/old_*
+old_*
+new_*
 
