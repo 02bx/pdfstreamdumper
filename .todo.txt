@@ -1,2 +1,4 @@
 
-autocomplete dialog disappearing as you keep typing?
+test: autocomplete dialog disappearing as you keep typing? - should be fixed..
+make jsui usable for some basic browser js analysis..(document.write, document.body.innerHTML, document.location)
+

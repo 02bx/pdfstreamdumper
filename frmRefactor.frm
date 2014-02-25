@@ -9,7 +9,7 @@ Begin VB.Form frmRefactor
    LinkTopic       =   "Form3"
    ScaleHeight     =   7050
    ScaleWidth      =   14715
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.Frame fraButtons 
       BorderStyle     =   0  'None
       Height          =   435

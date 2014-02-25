@@ -10,7 +10,7 @@ Begin VB.Form frmBruteZLib
    LinkTopic       =   "Form1"
    ScaleHeight     =   8055
    ScaleWidth      =   14175
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.OptionButton optLZW 
       Caption         =   "lzw"
       Height          =   255
@@ -179,6 +179,7 @@ Begin VB.Form frmBruteZLib
       _ExtentX        =   19235
       _ExtentY        =   9313
       _Version        =   393217
+      Enabled         =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"frmBruteZLib.frx":0000
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -768,14 +769,14 @@ Private Sub mnuSaveToFile_Click()
     
 End Sub
 
-Function SaveStream(c As CPDFStream, fPath) As Boolean
+Function SaveStream(c As CPDFStream, fpath) As Boolean
     On Error Resume Next
     Dim b() As Byte
     Dim f As Long
     
     b() = StrConv(c.DecompressedData, vbFromUnicode, LANG_US)
     f = FreeFile
-    Open fPath For Binary As f
+    Open fpath For Binary As f
     Put f, , b()
     Close f
     
@@ -815,8 +816,8 @@ Private Sub mnuSearchStreams_Click()
         
 End Sub
 
-Private Sub txtFile_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub txtFile_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, Y As Single)
     On Error Resume Next
-    txtFile = Data.Files(1)
+    txtFile = data.Files(1)
     Command1_Click
 End Sub

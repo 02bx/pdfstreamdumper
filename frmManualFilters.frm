@@ -9,7 +9,7 @@ Begin VB.Form frmManualFilters
    LinkTopic       =   "Form3"
    ScaleHeight     =   7290
    ScaleWidth      =   14715
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.Frame fraFaxDecode 
       Caption         =   "Fax Decode Parameters"
       Height          =   3075
@@ -353,6 +353,7 @@ Begin VB.Form frmManualFilters
       _ExtentX        =   22251
       _ExtentY        =   9922
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"frmManualFilters.frx":0000

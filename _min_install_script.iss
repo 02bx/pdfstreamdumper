@@ -20,22 +20,22 @@ Name: {app}\mupdf
 Name: {app}\mupdf\jbig2dec
 
 [Files]
-Source: ./java.hilighter; DestDir: {app}
-Source: ./iTextSharp.dll; DestDir: {app}
-Source: ./\beautify.js; DestDir: {app}
-Source: ./\PDFStreamDumper.exe; DestDir: {app}
-Source: ./\Readme.txt; DestDir: {app}
-Source: ./\zlib.dll; DestDir: {app}
-Source: ./\userLib.js; DestDir: {app}
-Source: ./\myMain.js; DestDir: {app}
-Source: ./\JS_UI_Readme.txt; DestDir: {app}
-Source: ./\api.api; DestDir: {app}
-Source: ./\dependancies\MSCOMCTL.OCX; DestDir: {win}; Flags: regserver uninsneveruninstall
-Source: ./\dependancies\msscript.ocx; DestDir: {win}; Flags: regserver uninsneveruninstall
-Source: ./\dependancies\richtx32.ocx; DestDir: {win}; Flags: regserver uninsneveruninstall
-Source: ./\dependancies\scivb_lite.ocx; DestDir: {app}; Flags: regserver
-Source: ./\dependancies\SciLexer.dll; DestDir: {app}
-Source: ./\dependancies\hexed.ocx; DestDir: {app}; Flags: regserver
+Source: java.hilighter; DestDir: {app}
+Source: iTextSharp.dll; DestDir: {app}
+Source: beautify.js; DestDir: {app}
+Source: PDFStreamDumper.exe; DestDir: {app}
+Source: Readme.txt; DestDir: {app}
+Source: zlib.dll; DestDir: {app}
+Source: userLib.js; DestDir: {app}
+Source: myMain.js; DestDir: {app}
+Source: JS_UI_Readme.txt; DestDir: {app}
+Source: js_api.txt; DestDir: {app}
+Source: dependancies\MSCOMCTL.OCX; DestDir: {win}; Flags: regserver uninsneveruninstall
+Source: dependancies\msscript.ocx; DestDir: {win}; Flags: regserver uninsneveruninstall
+Source: dependancies\richtx32.ocx; DestDir: {win}; Flags: regserver uninsneveruninstall
+Source: dependancies\scivb_lite.ocx; DestDir: {app}; Flags: regserver
+Source: dependancies\SciLexer.dll; DestDir: {app}
+Source: dependancies\hexed.ocx; DestDir: {app}; Flags: regserver
 Source: iTextFilters.dll; DestDir: {app}; Flags: ignoreversion
 Source: iTextFilters.tlb; DestDir: {app}; Flags: regtypelib
 Source: iTextFilters\iText_Filters.reg; DestDir: {app}\iTextFilters\
@@ -68,7 +68,7 @@ Source: mupdf\jbig2dec\README; DestDir: {app}\mupdf\jbig2dec
 Source: mupdf\CONTRIBUTORS; DestDir: {app}\mupdf\
 Source: mupdf\COPYING; DestDir: {app}\mupdf\
 Source: mupdf\README; DestDir: {app}\mupdf\
-Source: PDFStreamDumper.exe.manifest; DestDir: {app}
+
 
 [Icons]
 Name: {group}\PdfStreamDumper.exe; Filename: {app}\PDFStreamDumper.exe

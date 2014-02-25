@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{0E59F1D2-1FBE-11D0-8FF2-00A0D10038BC}#1.0#0"; "msscript.ocx"
 Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
-Object = "{FBE17B58-A1F0-4B91-BDBD-C9AB263AC8B0}#72.0#0"; "scivb_lite.ocx"
+Object = "{FBE17B58-A1F0-4B91-BDBD-C9AB263AC8B0}#75.0#0"; "scivb_lite.ocx"
 Begin VB.Form Form2 
    Caption         =   "PDF Stream Dumper - JS UI"
    ClientHeight    =   8310
@@ -77,7 +77,7 @@ Begin VB.Form Form2
       Width           =   11895
    End
    Begin VB.Frame Frame1 
-      Caption         =   "THIS RUNS SCRIPTS LIVE -- NO SANDBOX  -- (also watch for Adobe specific objects)"
+      Caption         =   $"Form2.frx":0000
       ForeColor       =   &H00000080&
       Height          =   615
       Left            =   2385
@@ -238,10 +238,9 @@ Begin VB.Form Form2
       _ExtentX        =   20981
       _ExtentY        =   2249
       _Version        =   393217
-      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
-      TextRTF         =   $"Form2.frx":0000
+      TextRTF         =   $"Form2.frx":008A
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Courier New"
          Size            =   12
@@ -475,6 +474,9 @@ Begin VB.Form Form2
       Begin VB.Menu mnuCopyFuncsNames 
          Caption         =   "Copy Func Names"
       End
+      Begin VB.Menu mnuSciVerInfo 
+         Caption         =   "Scintinilla Version"
+      End
       Begin VB.Menu mnuShowHelp 
          Caption         =   "Show Help"
       End
@@ -512,6 +514,9 @@ Begin VB.Form Form2
       End
       Begin VB.Menu mnuCopyFuncNames 
          Caption         =   "Copy All Names"
+      End
+      Begin VB.Menu mnuHighLightAllRefs 
+         Caption         =   "Highlight All References"
       End
       Begin VB.Menu mnuFindFuncRefs 
          Caption         =   "Find All References"
@@ -576,6 +581,7 @@ Private Sub lvFunc_DblClick()
          'txtJS.GotoLine lvFunc.SelectedItem.tag
          txtJS.FirstVisibleLine = CLng(lvFunc.SelectedItem.tag)
          txtJS.SelectLine
+         txtJS.SetFocus
     End If
 End Sub
 
@@ -727,12 +733,11 @@ End Sub
 Private Sub mnuFindFuncRefs_Click()
     On Error Resume Next
     If lvFunc.SelectedItem Is Nothing Then Exit Sub
-    Find = lvFunc.SelectedItem.Text
-    If Len(Find) = 0 Then Exit Sub
+    find = lvFunc.SelectedItem.Text
+    If Len(find) = 0 Then Exit Sub
     Dim f As Object
     Set f = txtJS.ShowFindReplace
-    Set f.Icon = Me.Icon
-    f.Text1 = Find
+    f.Text1 = find
     f.cmdFindAll_Click
 End Sub
 
@@ -787,6 +792,15 @@ Private Sub mnuHex2Unicode_Click()
     txtJS.SelText = ret
 End Sub
 
+Private Sub mnuHighLightAllRefs_Click()
+    On Error Resume Next
+    Dim find As String
+    If lvFunc.SelectedItem Is Nothing Then Exit Sub
+    find = lvFunc.SelectedItem.Text
+    If Len(find) = 0 Then Exit Sub
+    Me.Caption = "  " & txtJS.hilightWord(find, , vbBinaryCompare) & " instances of " & find & " found"
+End Sub
+
 Private Sub mnuIndentGuide_Click()
     mnuIndentGuide.Checked = Not mnuIndentGuide.Checked
     txtJS.ShowIndentationGuide = mnuIndentGuide.Checked
@@ -813,7 +827,13 @@ End Sub
 Private Sub mnuRenameFunc_Click()
 
     On Error Resume Next
+    Dim fl As Long
+    
     If lvFunc.SelectedItem Is Nothing Then Exit Sub
+    
+    fl = txtJS.FirstVisibleLine 'this can be buggy...
+    Debug.Print "Top line: " & fl
+    
     oldname = lvFunc.SelectedItem.Text
     NewName = InputBox("Enter new name for " & oldname, , oldname)
     If Len(NewName) = 0 Then Exit Sub
@@ -830,8 +850,6 @@ Private Sub mnuRenameFunc_Click()
         Exit Sub
     End If
     
-    fl = txtJS.FirstVisibleLine 'this can be buggy...
-    Debug.Print "Top line: " & fl
     txtJS.Text = Replace(txtJS.Text, oldname, NewName)
     txtJS.FirstVisibleLine = fl
     
@@ -956,6 +974,10 @@ Function Shellcode2Exe(Index As Long)
     End If
     
 End Function
+
+Private Sub mnuSciVerInfo_Click()
+     txtJS.ShowAbout
+End Sub
 
 Private Sub mnuSend2IDA_Click()
     Dim h As String
@@ -1627,9 +1649,7 @@ End Sub
 
 Private Sub mnuReplace_Click()
     On Error Resume Next
-    Dim f As Object
-    Set f = txtJS.ShowFindReplace
-    Set f.Icon = Me.Icon
+    txtJS.ShowFindReplace
 End Sub
 
 
@@ -1716,104 +1736,6 @@ Private Sub mnuSaveToFile_Click()
 hell:     MsgBox Err.Description
 End Sub
 
-'Private Sub mnuShellcode2Exe_Click(Index As Integer)
-'
-'    On Error Resume Next
-'
-'    Dim pth As String
-'    Dim f As Long
-'    Dim Shellcode() As Byte
-'    Dim husk() As Byte
-'    Dim hFile As String
-'    Dim simple_husk As Boolean
-'
-'    x = txtJS.SelText
-'
-'    If Len(x) = 0 Then
-'        MsgBox "No text selected", vbInformation
-'        Exit Sub
-'    End If
-'
-'
-'    'If MsgBox("Do you want to use the simple husk?", vbYesNo + vbQuestion) = vbYes Then
-'    '    simple_husk = True
-'    'End If
-'
-'    simple_husk = True
-'    If Index = 2 Then simple_husk = False
-'
-'    hFile = App.path & IIf(simple_husk, "\simple_husk.dat", "\husk.dat")
-'    If Not fso.FileExists(hFile) Then
-'        MsgBox "Husk.exe container was not found did your AV eat it?", vbInformation
-'        Exit Sub
-'    End If
-'
-'    hFile = fso.ReadFile(hFile)
-'
-'    If simple_husk Then
-'        hFile = HexStringUnescape(hFile)
-'        husk() = StrConv(hFile, vbFromUnicode, LANG_US)
-'        For i = 0 To UBound(husk): husk(i) = husk(i) Xor &H77: Next
-'    Else
-'        'husk() = StrConv(hFile, vbFromUnicode, LANG_US)
-'        hFile = HexStringUnescape(hFile)
-'        husk() = StrConv(hFile, vbFromUnicode, LANG_US)
-'        For i = 0 To UBound(husk): husk(i) = husk(i) Xor &H77: Next
-'    End If
-'
-'    x = PrepareShellcode(x)
-'    Shellcode() = StrConv(x, vbFromUnicode, LANG_US)
-'
-'    If simple_husk And UBound(Shellcode) > &H1A49 Then
-'        MsgBox "Shellcode is larger than buffer in husk..may cause errors"
-'    End If
-'
-'    If Not simple_husk And UBound(Shellcode) > 6000 Then
-'        MsgBox "Shellcode is larger than buffer in husk..may cause errors"
-'    End If
-'
-'    pth = dlg.SaveDialog(AllFiles, , "Save Shellcode Executable As", , Me.hwnd, "shellcode.exe_")
-'    If Len(pth) = 0 Then Exit Sub
-'
-'    If Err.Number <> 0 Then
-'        MsgBox Err.Description
-'        Exit Sub
-'    End If
-'
-'    f = FreeFile
-'    Open pth For Binary As f
-'    Put f, , husk
-'
-'    Dim offset As Long
-'
-'    Select Case Index
-'        Case 0: offset = &H1000
-'        Case 1: offset = &H1020
-'        Case 2: offset = &HC000
-'    End Select
-'
-'    Dim b As Byte
-'    If offset = &HC000 Then 'negative fuckers
-'        Seek f, &H7000
-'        For i = 0 To &H5000 'this is some stupid shit...
-'            Get f, , b
-'        Next
-'        Put f, , Shellcode()
-'    Else
-'        Put f, offset + 1, Shellcode()
-'    End If
-'
-'    Close
-'
-'    If Err.Number = 0 Then
-'        MsgBox "File generated successfully...", vbInformation
-'    Else
-'        MsgBox Err.Description
-'    End If
-'
-'End Sub
-
-
 Private Sub mnuSimplifySelection_Click()
     
     '"p"+"ar"+"ent"+""
@@ -1826,11 +1748,10 @@ Private Sub mnuSimplifySelection_Click()
     x = Replace(x, "+""""", Empty) 'remove + empty
     x = Replace(x, """+""", Empty) 'remove "+"
     
-    'txtJs.ReplaceSel x 'codemax
     txtJS.SelText = x
     txtJS.SelStart = ss
     txtJS.SelLength = Len(x)
-    txtJS.SetFocusSci
+    txtJS.SetFocus
 
 End Sub
 
@@ -1917,5 +1838,26 @@ Private Sub txtJS_AutoCompleteEvent(className As String)
     
 End Sub
 
+Private Sub lvFunc_ItemClick(ByVal Item As MSComctlLib.ListItem)
+    Dim word As String
+    word = Item.Text
+    Me.Caption = "  " & txtJS.hilightWord(word, , vbBinaryCompare) & " instances of '" & word & " ' found"
+End Sub
 
+Private Sub txtJS_DoubleClick()
+    Dim word As String
+    word = txtJS.CurrentWord
+    If Len(word) < 20 Then
+        Me.Caption = "  " & txtJS.hilightWord(word, , vbBinaryCompare) & " instances of '" & word & " ' found"
+    End If
+End Sub
 
+Private Sub txtJS_MouseUp(Button As Integer, Shift As Integer, x As Long, Y As Long)
+    On Error Resume Next
+    Dim sel As String
+    sel = txtJS.SelText
+    If InStr(sel, Chr(0)) > 0 Then MsgBox "found null!"
+    If Len(sel) > 0 And Len(sel) < 20 Then
+        Me.Caption = "  " & txtJS.hilightWord(sel, , vbBinaryCompare) & " instances of '" & sel & " ' found"
+    End If
+End Sub
