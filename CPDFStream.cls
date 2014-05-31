@@ -30,7 +30,6 @@ Public Header As String
 Public escapedHeader As String
 Public isBinary As Boolean
 
-Public RawObject As String
 Public ObjectStartOffset As Long
 Public ObjectEndOffset As Long
 
@@ -45,8 +44,10 @@ Public EndOffset As Long
 Public CompressedSize As Long
 Public DecompressedSize As Long
 
-Public OriginalData As String
-Public DecompressedData As String
+'these next three can be large memory hogs...malware is usually small though - should we cache to disk if size > xx?
+Public RawObject As String        'set in CPdfParser
+Public OriginalData As String     'set internally, and/or in CPdfParser
+Public DecompressedData As String 'set in CApplyFilters
 
 Public OriginalDataCRC As String
 Public DecompressedDataCRC As String
@@ -227,19 +228,19 @@ End Function
 
 Private Sub SetContentType(ad)
     
-    If VBA.Left(ad, 3) = "CWS" Then
+    If VBA.left(ad, 3) = "CWS" Then
         ContentType = Flash
         FileExtension = ".swf"
         FileType = "Flash File"
-    ElseIf VBA.Left(ad, 3) = "FWS" Then
+    ElseIf VBA.left(ad, 3) = "FWS" Then
         ContentType = Flash
         FileExtension = ".swf"
         FileType = "Flash File"
-    ElseIf VBA.Left(ad, 3) = "U3D" Then
+    ElseIf VBA.left(ad, 3) = "U3D" Then
         ContentType = U3d
         FileExtension = ".u3d"
         FileType = "U3d File"
-    ElseIf VBA.Left(ad, 3) = "PRC" Then
+    ElseIf VBA.left(ad, 3) = "PRC" Then
         ContentType = prc
         FileExtension = ".prc"
         FileType = "PRC File"
@@ -268,12 +269,12 @@ Private Function MyTrim(strin As String)
         
         s = strin
         
-        While Right(s, 1) = Chr(&HD) Or Right(s, 1) = Chr(&HA)
+        While right(s, 1) = Chr(&HD) Or right(s, 1) = Chr(&HA)
             s = Mid(s, 1, Len(s) - 1)
             EndOffset = EndOffset - 1
         Wend
         
-        While VBA.Left(s, 1) = Chr(&HD) Or Left(s, 1) = Chr(&HA)
+        While VBA.left(s, 1) = Chr(&HD) Or left(s, 1) = Chr(&HA)
             s = Mid(s, 2)
             startOffset = startOffset + 1
         Wend

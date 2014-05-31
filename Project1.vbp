@@ -4,8 +4,8 @@ Object={0E59F1D2-1FBE-11D0-8FF2-00A0D10038BC}#1.0#0; msscript.ocx
 Reference=*\G{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B}#1.0#0#C:\WINDOWS\system32\wshom.ocx#Windows Script Host Object Model
 Reference=*\G{3F4DACA7-160D-11D2-A8E9-00104B365C9F}#1.0#0#C:\WINDOWS\system32\vbscript.dll\2#Microsoft VBScript Regular Expressions 1.0
 Object={3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0; RICHTX32.OCX
-Object={831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0; mscomctl.ocx
-Object={9A143468-B450-48DD-930D-925078198E4D}#1.0#0; hexed.ocx
+Object={831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0; MSCOMCTL.OCX
+Object={9A143468-B450-48DD-930D-925078198E4D}#1.1#0; hexed.ocx
 Form=Form1.frm
 Module=Module4; Module4.bas
 Module=fso; simple-fso..bas
@@ -47,7 +47,7 @@ HelpContextID="0"
 CompatibleMode="0"
 MajorVer=0
 MinorVer=9
-RevisionVer=521
+RevisionVer=526
 AutoIncrementVer=1
 ServerSupportFiles=0
 VersionCompanyName="sandsprite"
@@ -70,3 +70,6 @@ DebugStartupOption=0
 
 [MS Transaction Server]
 AutoRefresh=1
+
+[fastBuild]
+fullPath=D:\_code\pdf_stream_dumper\PDFStreamDumper.exe

@@ -14,6 +14,14 @@ Attribute VB_Exposed = False
 'Author:   dzzie@yahoo.com
 'Site:     http://sandsprite.com
 
+'remember this was written specifically for malware which is almost always less than 1mb in size..
+'optimizations you could do for larger files:
+'
+'  1) use a string builder class
+'  2) write large data blocks to a disk cache and load on demand instead of holding in memory always
+
+
+
 Event NewStream(stream As CPDFStream)
 Event DebugMessage(msg As String)
 Event SetObjectCount(cnt As Long)

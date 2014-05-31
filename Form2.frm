@@ -1,13 +1,13 @@
 VERSION 5.00
 Object = "{0E59F1D2-1FBE-11D0-8FF2-00A0D10038BC}#1.0#0"; "msscript.ocx"
 Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
-Object = "{FBE17B58-A1F0-4B91-BDBD-C9AB263AC8B0}#75.0#0"; "scivb_lite.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
+Object = "{FBE17B58-A1F0-4B91-BDBD-C9AB263AC8B0}#78.0#0"; "scivb_lite.ocx"
 Begin VB.Form Form2 
    Caption         =   "PDF Stream Dumper - JS UI"
    ClientHeight    =   8310
    ClientLeft      =   165
-   ClientTop       =   735
+   ClientTop       =   1020
    ClientWidth     =   14460
    LinkTopic       =   "Form2"
    ScaleHeight     =   8310
@@ -433,7 +433,6 @@ Begin VB.Form Form2
    End
    Begin VB.Menu mnuPopup 
       Caption         =   "mnuPopup"
-      Visible         =   0   'False
       Begin VB.Menu mnuSaveAll 
          Caption         =   "Save All"
       End
@@ -464,7 +463,6 @@ Begin VB.Form Form2
    End
    Begin VB.Menu mnuPopup2 
       Caption         =   "mnuPopup2"
-      Visible         =   0   'False
       Begin VB.Menu mnuGotoLine 
          Caption         =   "Goto Line"
       End
@@ -495,14 +493,12 @@ Begin VB.Form Form2
    End
    Begin VB.Menu mnuPopup3 
       Caption         =   "mnuPopup3"
-      Visible         =   0   'False
       Begin VB.Menu mnuCopyAllDatalv2 
          Caption         =   "Copy All w/Data"
       End
    End
    Begin VB.Menu mnuPopupFuncs 
       Caption         =   "mnuPopupFuncs"
-      Visible         =   0   'False
       Begin VB.Menu mnuFunctionScan 
          Caption         =   "Rescan"
       End
@@ -514,6 +510,9 @@ Begin VB.Form Form2
       End
       Begin VB.Menu mnuCopyFuncNames 
          Caption         =   "Copy All Names"
+      End
+      Begin VB.Menu mnuSeqRenameFuncs 
+         Caption         =   "Sequential Rename All"
       End
       Begin VB.Menu mnuHighLightAllRefs 
          Caption         =   "Highlight All References"
@@ -1041,6 +1040,63 @@ End Sub
 '
 'End Sub
 
+Private Sub mnuSeqRenameFuncs_Click()
+    
+    On Error Resume Next
+    Dim fl As Long
+    Dim li As ListItem
+    Dim li2 As ListItem
+    Dim i As Long
+    Dim reGens As Long
+    Dim ignoreSelected As Boolean
+    Dim r As VbMsgBoxResult
+    
+    i = 1
+    fl = txtJS.FirstVisibleLine 'this can be buggy...
+    
+    r = MsgBox("Ignore Selected functions? ", vbYesNoCancel)
+    If r = vbCancel Then Exit Sub
+    If r = vbYes Then ignoreSelected = True
+    
+    For Each li In lvFunc.ListItems
+        
+        If li.Selected And ignoreSelected Then GoTo nextOne
+        
+        oldname = li.Text
+
+reGenerate:
+        NewName = "func_" & IIf(i < 10, "0" & i, i)
+        i = i + 1
+        
+        If reGens > 500 Then
+            MsgBox "Sorry I had a problem regenerating names in use?", vbInformation
+            Exit For
+        End If
+        
+        'see if name already exists..
+        For Each li2 In lvFunc.ListItems
+            If li2.Text = NewName Then
+                reGens = reGens + 1
+                GoTo reGenerate
+            End If
+        Next
+        
+        'does new name already exist?
+        If InStr(txtJS.Text, NewName) > 0 Then
+            reGens = reGens + 1
+            GoTo reGenerate
+        End If
+        
+        txtJS.Text = Replace(txtJS.Text, oldname, NewName)
+        li.Text = NewName
+nextOne:
+        
+    Next
+    
+    txtJS.FirstVisibleLine = fl
+    
+End Sub
+
 Private Sub mnuShowHelp_Click()
     toolbox.Help
 End Sub
@@ -1217,6 +1273,12 @@ Private Sub Form_Load()
     On Error Resume Next
     
     Me.Icon = Form1.Icon
+    
+    mnuPopup.Visible = False
+    mnuPopup2.Visible = False
+    mnuPopup3.Visible = False
+    mnuPopupFuncs.Visible = False
+    
     mnuWordWrap.Checked = IIf(GetMySetting("WordWrap", 1) = 1, True, False)
     mnuIndentGuide.Checked = IIf(GetMySetting("IndentGuide", 0) = 1, True, False)
     mnuCodeFolding.Checked = IIf(GetMySetting("CodeFolding", 0) = 1, True, False)
