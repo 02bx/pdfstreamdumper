@@ -68,6 +68,7 @@ Source: mupdf\jbig2dec\README; DestDir: {app}\mupdf\jbig2dec
 Source: mupdf\CONTRIBUTORS; DestDir: {app}\mupdf\
 Source: mupdf\COPYING; DestDir: {app}\mupdf\
 Source: mupdf\README; DestDir: {app}\mupdf\
+Source: lzma.exe; DestDir: {app}
 
 
 [Icons]

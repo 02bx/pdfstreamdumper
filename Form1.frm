@@ -91,7 +91,6 @@ Begin VB.Form Form1
       _ExtentX        =   15478
       _ExtentY        =   6059
       _Version        =   393217
-      Enabled         =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":1142
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -410,6 +409,7 @@ Begin VB.Form Form1
       _ExtentX        =   17383
       _ExtentY        =   7223
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":11C4
@@ -672,6 +672,9 @@ Begin VB.Form Form1
       End
       Begin VB.Menu mnuDecompressSWC 
          Caption         =   "Decompress Flash  (CWS Header)"
+      End
+      Begin VB.Menu mnuDecompressZWS 
+         Caption         =   "Decompress Flash  (ZWS Header)"
       End
       Begin VB.Menu mnuDecrypt 
          Caption         =   "Decrypt PDF (Force)"
@@ -975,11 +978,11 @@ End Sub
 Private Sub mn_b64EncClip_Click()
     
     On Error Resume Next
-    Dim x As String
-    x = Clipboard.GetText
-    x = b64.EncodeString(x)
+    Dim X As String
+    X = Clipboard.GetText
+    X = b64.EncodeString(X)
     Clipboard.Clear
-    Clipboard.SetText x
+    Clipboard.SetText X
     MsgBox "Clipboard text encoded (not binary safe)", vbInformation
     
 End Sub
@@ -1059,7 +1062,7 @@ Private Sub mnuBrowseHomeDir_Click()
 End Sub
 
 Private Sub mnuDebugBreakAtStream_Click()
-    Dim x As Long
+    Dim X As Long
     On Error GoTo hell
     Err.Clear
     parser.BreakAtStream = CLng(InputBox("Enter stream index to break at"))
@@ -1203,7 +1206,7 @@ Private Sub mnuDecompressSWC_Click()
     On Error Resume Next
     Dim f As String
     Dim ff As Long
-    Dim outFile As String
+    Dim outfile As String
     Dim Header() As Byte
     Dim b() As Byte
     Dim bOut() As Byte
@@ -1232,17 +1235,26 @@ Private Sub mnuDecompressSWC_Click()
     End If
     
     Header(0) = Asc("F")
-    outFile = f & ".decompressed"
+    outfile = f & ".decompressed"
     ff = FreeFile
     
-    Open outFile For Binary As ff
+    Open outfile For Binary As ff
     Put ff, , Header()
     Put ff, , bOut()
     Close f
     
-    MsgBox "Deompressed Data saved as " & vbCrLf & vbCrLf & outFile
+    MsgBox "Deompressed Data saved as " & vbCrLf & vbCrLf & outfile
     
     
+End Sub
+
+Private Sub mnuDecompressZWS_Click()
+    On Error Resume Next
+    Dim f As String
+    f = dlg.OpenDialog(AllFiles, , "Open Compressed Flash File (ZWS header)")
+    If Not fso.FileExists(f) Then Exit Sub
+    f = lzma.flash_decompress_zws(f)
+    MsgBox f
 End Sub
 
 Private Sub mnuDisableDecryption_Click()
@@ -1417,10 +1429,10 @@ hell: MsgBox Err.Description
 End Sub
 
 
-Function DoEventsFor(x) 'for scripts
+Function DoEventsFor(X) 'for scripts
     On Error Resume Next
     Dim i As Integer
-    For i = 0 To x
+    For i = 0 To X
         DoEvents
     Next
     If Err.Number <> 0 Then DoEvents
@@ -1538,7 +1550,7 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
     
 End Sub
 
-Private Sub lv2_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub lv2_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
     If Button = 2 Then PopupMenu mnuPopup2
 End Sub
 
@@ -1884,16 +1896,16 @@ Private Sub mnuFindReplace_Click()
 End Sub
 
 Private Sub mnuGotoObject_Click()
-    Dim x
+    Dim X
     Dim li As ListItem
     Dim s As CPDFStream
     
-    x = InputBox("Enter Object number to jump to")
-    If Len(x) = 0 Then Exit Sub
+    X = InputBox("Enter Object number to jump to")
+    If Len(X) = 0 Then Exit Sub
     
     For Each li In lv.ListItems
         Set s = li.tag
-        If s.Index = x Then
+        If s.Index = X Then
             li.Selected = True
             li.EnsureVisible
             lv_ItemClick li
@@ -2045,7 +2057,7 @@ Private Sub mnuSearchFilter_Click(Index As Integer)
     Dim s As CPDFStream
     Dim match As Boolean
     
-    Dim x
+    Dim X
     lvSearch.ListItems.Clear
         
     If lv.ListItems.Count = 0 And lv2.ListItems.Count = 0 Then
@@ -2530,7 +2542,7 @@ Private Sub Form_Unload(Cancel As Integer)
     
 End Sub
 
-Private Sub lv_MouseDown(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub lv_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     On Error Resume Next
     
     Dim stream As CPDFStream
@@ -2676,15 +2688,15 @@ Public Sub cmdDecode_Click()
 end_of_func:
 
     On Error Resume Next
-    Dim x As Procedure
+    Dim X As Procedure
     If AutomatationRun Then
     
         Me.Refresh
         DoEvents
         DoEvents
         
-        For Each x In scAuto.Procedures
-            If LCase(x.Name) = "decode_complete" Then
+        For Each X In scAuto.Procedures
+            If LCase(X.Name) = "decode_complete" Then
                 scAuto.eval "Decode_Complete()"
                 Exit For
             End If
@@ -2778,8 +2790,8 @@ End Function
 
 Function AryIsEmpty(ary) As Boolean
     On Error GoTo hell
-    Dim x
-    x = UBound(ary)
+    Dim X
+    X = UBound(ary)
     AryIsEmpty = False
     Exit Function
 hell: AryIsEmpty = True
@@ -3174,12 +3186,12 @@ Function GetActiveData(Item As ListItem, Optional load_ui As Boolean = False, Op
     
 End Function
 
-Function safe(ByVal x) As String
-    x = Replace(x, "#", Empty)
-    x = Replace(x, " ", "_")
-    x = Replace(x, "(", Empty)
-    x = Replace(x, ")", Empty)
-    safe = x
+Function safe(ByVal X) As String
+    X = Replace(X, "#", Empty)
+    X = Replace(X, " ", "_")
+    X = Replace(X, "(", Empty)
+    X = Replace(X, ")", Empty)
+    safe = X
 End Function
 
 Private Sub mnuAbout_Click()
@@ -3193,7 +3205,7 @@ Private Sub mnuSearch_Click()
     Dim sli As ListItem
     Dim s As CPDFStream
     
-    Dim x
+    Dim X
     lvSearch.ListItems.Clear
         
     If lv.ListItems.Count = 0 And lv2.ListItems.Count = 0 Then
@@ -3201,22 +3213,22 @@ Private Sub mnuSearch_Click()
         Exit Sub
     End If
     
-    x = InputBox("Enter text to search for")
-    If Len(x) = 0 Then Exit Sub
+    X = InputBox("Enter text to search for")
+    If Len(X) = 0 Then Exit Sub
     For Each li In lv.ListItems
         Set s = li.tag
-        If InStr(1, GetActiveData(li), x, vbTextCompare) > 0 Then
+        If InStr(1, GetActiveData(li), X, vbTextCompare) > 0 Then
             Set sli = lvSearch.ListItems.Add(, , li.Text)
             Set sli.tag = li.tag
         End If
-        If InStr(1, s.escapedHeader, x, vbTextCompare) > 0 Then
+        If InStr(1, s.escapedHeader, X, vbTextCompare) > 0 Then
             Set sli = lvSearch.ListItems.Add(, , li.Text)
             Set sli.tag = li.tag
         End If
     Next
     
     For Each li In lv2.ListItems
-        If InStr(1, GetActiveData(li), x, vbTextCompare) > 0 Then
+        If InStr(1, GetActiveData(li), X, vbTextCompare) > 0 Then
             Set sli = lvSearch.ListItems.Add(, , li.Text)
             Set sli.tag = li.tag
         End If
@@ -3236,7 +3248,7 @@ End Sub
 Private Sub Form_Load()
     On Error Resume Next
     Dim f As String
-    Dim x As String
+    Dim X As String
     
     Dim zlib As String
     Dim mupdf As String
@@ -3325,8 +3337,8 @@ Private Sub Form_Load()
         mnuHelp(i).tag = Trim(vid(1))
     Next
     
-    mnuDebugBreakAtStream.Visible = isIde()
-    mnuWipeStream.Visible = isIde()
+    mnuDebugBreakAtStream.Visible = IsIde()
+    mnuWipeStream.Visible = IsIde()
     
     mnuAutoEscapeHeaders.Checked = IIf(GetMySetting("EscapeHeaders", 1) = 1, True, False)
     mnuVisualFormatHeaders.Checked = IIf(GetMySetting("FormatHeaders", 1) = 1, True, False)
@@ -3374,9 +3386,9 @@ Private Sub Form_Load()
         If InStr(1, command, ".js", vbTextCompare) > 0 Then 'js files load in jseditor
             f = Replace(command, """", Empty)
             If fso.FileExists(f) Then
-                x = fso.ReadFile(f)
+                X = fso.ReadFile(f)
                 Form2.Show
-                Form2.txtJS.Text = x
+                Form2.txtJS.Text = X
                 Form2.mnuFunctionScan_Click
             End If
         ElseIf InStr(1, command, ".swf", vbTextCompare) > 0 Then 'its a flash file..
@@ -3392,11 +3404,11 @@ Private Sub Form_Load()
             'load a shellcode file for analysis
             f = Replace(command, """", Empty)
             If fso.FileExists(f) Then
-                x = fso.ReadFile(f)
-                x = HexDump(x, 1)
-                x = AddPercentToHexString(x)
+                X = fso.ReadFile(f)
+                X = HexDump(X, 1)
+                X = AddPercentToHexString(X)
                 Form2.Show
-                Form2.txtJS.Text = x
+                Form2.txtJS.Text = X
                 Form2.txtJS.SelectAll
             End If
         Else
@@ -3422,7 +3434,7 @@ End Sub
 
 Private Function RunAutomationScript(pth)
     On Error Resume Next
-    Dim x As Procedure
+    Dim X As Procedure
     Dim main_found As Boolean
     Dim Decode_Complete_found As Boolean
     
@@ -3442,10 +3454,10 @@ Private Function RunAutomationScript(pth)
         .AddObject "dlg", dlg, True
         .AddCode fso.ReadFile(pth)
         
-        For Each x In .Procedures
-            If LCase(x.Name) = "main" Then
+        For Each X In .Procedures
+            If LCase(X.Name) = "main" Then
                 main_found = True
-            ElseIf LCase(x.Name) = "decode_complete" Then
+            ElseIf LCase(X.Name) = "decode_complete" Then
                 Decode_Complete_found = True
             End If
         Next
@@ -3588,7 +3600,7 @@ Private Sub txtPDFPath_KeyDown(KeyCode As Integer, Shift As Integer)
     If KeyCode = 13 Then cmdDecode_Click
 End Sub
 
-Private Sub txtPDFPath_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub txtPDFPath_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
     On Error Resume Next
     AutomatationRun = False
     txtPDFPath = data.Files(1)
@@ -3596,9 +3608,9 @@ Private Sub txtPDFPath_OLEDragDrop(data As DataObject, Effect As Long, Button As
 End Sub
 
 Function GetParentFolder(pth)
-    Dim x() As String
-    x = Split(pth, "\")
-    GetParentFolder = Replace(pth, x(UBound(x)), Empty)
+    Dim X() As String
+    X = Split(pth, "\")
+    GetParentFolder = Replace(pth, X(UBound(X)), Empty)
 End Function
 
 
