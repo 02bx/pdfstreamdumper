@@ -238,6 +238,7 @@ Begin VB.Form Form2
       _ExtentX        =   20981
       _ExtentY        =   2249
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form2.frx":008A
@@ -544,7 +545,7 @@ Dim toolbox As New CScriptFunctions
 'even if i am the only one who would use that :P
 
 Private Capturing As Boolean
-Private Declare Function SetCapture Lib "user32" (ByVal hwnd As Long) As Long
+Private Declare Function SetCapture Lib "user32" (ByVal hWnd As Long) As Long
 Private Declare Function ReleaseCapture Lib "user32" () As Long
 Private objsAdded As Boolean
 Dim USING_MYMAIN As Boolean
@@ -808,7 +809,7 @@ End Sub
 Public Sub mnuLoadShellcode_Click()
     Dim f As String
     dlg.SetCustomFilter "Shellcode File (*.sc)", "*.sc"
-    f = dlg.OpenDialog(CustomFilter, "", "Open file", Me.hwnd)
+    f = dlg.OpenDialog(CustomFilter, "", "Open file", Me.hWnd)
     If Len(f) = 0 Then Exit Sub
     If Not fso.FileExists(f) Then Exit Sub
     x = HexDump(fso.ReadFile(f), 1)
@@ -933,7 +934,7 @@ Function Shellcode2Exe(Index As Long)
         MsgBox "Shellcode is larger than buffer in husk..may cause errors"
     End If
     
-    pth = dlg.SaveDialog(AllFiles, , "Save Shellcode Executable As", , Me.hwnd, "shellcode.exe_")
+    pth = dlg.SaveDialog(AllFiles, , "Save Shellcode Executable As", , Me.hWnd, "shellcode.exe_")
     If Len(pth) = 0 Then Exit Function
     
     If Err.Number <> 0 Then
@@ -994,7 +995,7 @@ Private Sub mnuSend2IDA_Click()
         
     If Len(h) = 0 Or Not fso.FileExists(h) Then
         If MsgBox("You have not yet configured the path to IDA install. select it now?", vbYesNo) = vbNo Then Exit Sub
-        h = dlg.OpenDialog(exeFiles, , "Select IDA", Me.hwnd)
+        h = dlg.OpenDialog(exeFiles, , "Select IDA", Me.hWnd)
         If fso.FileExists(h) Then
             SaveMySetting "idapath", h
         Else
@@ -1165,7 +1166,7 @@ Private Sub splitter_MouseMove(Button As Integer, Shift As Integer, x As Single,
     If Button = 1 Then 'The mouse is down
         If Capturing = False Then
             splitter.ZOrder
-            SetCapture splitter.hwnd
+            SetCapture splitter.hWnd
             Capturing = True
         End If
         With splitter
@@ -1655,7 +1656,7 @@ End Function
 Public Sub mnuLoadFile_Click()
     Dim f As String
     dlg.SetCustomFilter "Javascript File (*.js)", "*.js"
-    f = dlg.OpenDialog(CustomFilter, "", "Open file", Me.hwnd)
+    f = dlg.OpenDialog(CustomFilter, "", "Open file", Me.hWnd)
     If Len(f) = 0 Then Exit Sub
     If Not fso.FileExists(f) Then Exit Sub
     txtJS.Text = fso.ReadFile(f)
@@ -1721,7 +1722,7 @@ Private Sub mnuSaveAll_Click()
     Dim f As String
     On Error GoTo hell
     
-    f = dlg.FolderDialog("", Me.hwnd)
+    f = dlg.FolderDialog("", Me.hWnd)
     If Len(f) = 0 Then Exit Sub
     
     For Each li In lv.ListItems
@@ -1744,7 +1745,7 @@ Private Sub mnuSaveShellcode_Click()
     x = PrepareShellcode(x)
     
     Dim pth As String
-    pth = dlg.SaveDialog(AllFiles, , "Save shellcode as", , Me.hwnd, RecommendedName("bytes.sc"))
+    pth = dlg.SaveDialog(AllFiles, , "Save shellcode as", , Me.hWnd, RecommendedName("bytes.sc"))
     If Len(pth) = 0 Then Exit Sub
     
     fso.writeFile pth, x
@@ -1789,7 +1790,7 @@ Private Sub mnuSaveToFile_Click()
     
     If lv.SelectedItem Is Nothing Then Exit Sub
     
-    f = dlg.SaveDialog(AllFiles, "", "Save file", , Me.hwnd, "script_" & lv.SelectedItem.Index & ".js")
+    f = dlg.SaveDialog(AllFiles, "", "Save file", , Me.hWnd, "script_" & lv.SelectedItem.Index & ".js")
     If Len(f) = 0 Then Exit Sub
     
     fso.writeFile f, lv.SelectedItem.tag
@@ -1864,7 +1865,7 @@ Private Sub sc_Error()
         adjustedLine = .Line - IIf(USING_MYMAIN, 4, 0)
         
         txtOut.Text = "Time: " & Now & vbCrLf & "Error: " & .Description & vbCrLf & "Line: " & adjustedLine
-        txtOut.Text = txtOut.Text & vbCrLf & "Source: " & txtJS.GetLineText(adjustedLine) 'vbsci specific
+        txtOut.Text = txtOut.Text & vbCrLf & "Source: " & txtJS.GetLineText(adjustedLine - 1) 'vbsci specific
         lv2.ListItems.Add , , "Error: " & txtOut.Text
         
         tmp = Split(txtJS.Text, vbCrLf)
