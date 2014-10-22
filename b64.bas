@@ -199,9 +199,9 @@ End Function
 
 Public Sub LoadFile(fpath, ByRef out() As Byte)
   
-   fsize = FileLen(fpath) - 1
+   fSize = FileLen(fpath) - 1
    f = FreeFile
-   ReDim out(fsize)
+   ReDim out(fSize)
    
    Open fpath For Binary As f
    Get f, , out()
@@ -218,7 +218,9 @@ End Sub
 
 Function b64DecodeString(mimedata) As String
    Dim b() As Byte, b2() As Byte, tmp As String
-   b64.Str2ByteArray Replace(mimedata, vbCrLf, ""), b()
+   mimedata = Replace(mimedata, vbCr, "")
+   mimedata = Replace(mimedata, vbLf, "")
+   b64.Str2ByteArray CStr(mimedata), b()
    b64.b64Decode b(), b2()
    b64DecodeString = b64.ByteArrayToString(b2())
 End Function
@@ -246,17 +248,19 @@ End Sub
 
 Sub UnMimeStringToFile(fpath, mimedata)
     Dim b() As Byte, b2() As Byte
-    b64.Str2ByteArray Replace(mimedata, vbCrLf, ""), b()
+    mimedata = Replace(mimedata, vbCr, "")
+    mimedata = Replace(mimedata, vbLf, "")
+    b64.Str2ByteArray CStr(mimedata), b()
     b64.b64Decode b(), b2()
     b64.writeFile CStr(fpath), b2()
 End Sub
 
-Sub UnMimeFileToFile(inFile, outFile)
+Sub UnMimeFileToFile(infile, outfile)
     Dim b() As Byte, b2() As Byte, tmp As String
-    b64.LoadFile inFile, b()
+    b64.LoadFile infile, b()
     tmp = b64.ByteArrayToString(b)
     tmp = b64.Unspan(tmp)
     b64.Str2ByteArray tmp, b()
     b64.b64Decode b(), b2()
-    b64.writeFile outFile, b2()
+    b64.writeFile outfile, b2()
 End Sub

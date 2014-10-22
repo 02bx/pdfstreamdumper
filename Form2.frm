@@ -238,7 +238,6 @@ Begin VB.Form Form2
       _ExtentX        =   20981
       _ExtentY        =   2249
       _Version        =   393217
-      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form2.frx":008A
@@ -1133,17 +1132,18 @@ End Sub
 
 Private Sub mnuXorBruteForce_Click()
     On Error Resume Next
+    Dim inFile As String
     
     If Len(txtJS.SelText) = 0 Then
-        MsgBox "You must first select the shellcode to extract in the script window."
-        Exit Sub
+        If MsgBox("No Shellcode was selected, do you want to open a file to scan?", vbYesNo) = vbNo Then Exit Sub
+        inFile = dlg.OpenDialog(AllFiles, , "Open File to Xor Scan", Me.hWnd)
+        If Len(inFile) = 0 Then Exit Sub
+        x = fso.ReadFile(inFile)
+    Else
+        x = txtJS.SelText
+        'does not handle just hex blobs like 9090 other formats supported though with multiescape
+        x = PrepareShellcode(x)
     End If
-    
-    x = txtJS.SelText
-    
-    'does not handle just hex blobs like 9090 other formats supported though with multiescape
-    
-    x = PrepareShellcode(x)
     
     base = App.path & "\xor_bruteforcer"
     If fso.FileExists(base & "\sample.sc") Then Kill base & "\sample.sc"

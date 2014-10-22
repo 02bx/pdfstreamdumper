@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form Form1 
    Caption         =   "Xor Brute Forcer"
    ClientHeight    =   6435
@@ -10,6 +10,18 @@ Begin VB.Form Form1
    ScaleHeight     =   6435
    ScaleWidth      =   13125
    StartUpPosition =   3  'Windows Default
+   Begin MSComctlLib.ProgressBar pb 
+      Height          =   780
+      Left            =   675
+      TabIndex        =   8
+      Top             =   2385
+      Visible         =   0   'False
+      Width           =   12165
+      _ExtentX        =   21458
+      _ExtentY        =   1376
+      _Version        =   393216
+      Appearance      =   1
+   End
    Begin VB.CheckBox chkShowAll 
       Caption         =   "Show All"
       Height          =   330
@@ -207,6 +219,10 @@ Private Sub Form_Load()
     Dim h As CAPIHash
     On Error Resume Next
     
+    Me.Visible = True
+    Me.Refresh
+    DoEvents
+    
     tmp = Split(hh, vbCrLf)
     
     For Each X1 In tmp
@@ -256,8 +272,14 @@ Private Sub Command1_Click()
     
     fbuf() = X() 'save a copy for latter
     Dim found As String
+    pb.Visible = True
+    pb.Max = 255
+    pb.value = 1
     
     For i = 1 To 254
+        pb.value = i
+        DoEvents
+        pb.Refresh
         tmp = d(X(), i)
         sc_hex = UCase(HexDump(tmp, 1))
         If FindMatches(tmp, sc_hex, found) Or chkShowAll.value = 1 Then
@@ -286,6 +308,8 @@ Private Sub Command1_Click()
     Else
         Text3 = "No results found."
     End If
+    
+    pb.Visible = False
 
 End Sub
 
