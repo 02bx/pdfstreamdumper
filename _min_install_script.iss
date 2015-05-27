@@ -36,6 +36,7 @@ Source: dependancies\richtx32.ocx; DestDir: {win}; Flags: regserver uninsneverun
 Source: dependancies\scivb_lite.ocx; DestDir: {app}; Flags: regserver
 Source: dependancies\SciLexer.dll; DestDir: {app}
 Source: dependancies\hexed.ocx; DestDir: {app}; Flags: regserver
+Source: dependancies\WinGraphviz.dll; DestDir: {app}; Flags: regserver
 Source: iTextFilters.dll; DestDir: {app}; Flags: ignoreversion
 Source: iTextFilters.tlb; DestDir: {app}; Flags: regtypelib
 Source: iTextFilters\iText_Filters.reg; DestDir: {app}\iTextFilters\

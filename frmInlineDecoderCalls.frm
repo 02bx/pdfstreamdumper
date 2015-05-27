@@ -1,6 +1,6 @@
 VERSION 5.00
 Object = "{0E59F1D2-1FBE-11D0-8FF2-00A0D10038BC}#1.0#0"; "msscript.ocx"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmInlineDecoderCalls 
    Caption         =   "Eval and replace inline string decoder calls"
    ClientHeight    =   8475
@@ -384,14 +384,15 @@ End Sub
 
 Private Sub cmdTest_Click()
     On Error Resume Next
-    txtDecoder = example_decoder
-    tmp = "decoder('#o]l[o]m.e0g]b[if.[o0atp[sr.d0r.1#S]e.f0eaf0r]g[a0umfx]mf[pe.1',8609,211)"
-    If Not isIde() Then tmp = Empty
+    'If isIde() Then
+    '    txtDecoder = example_decoder
+    '    tmp = "decoder('#o]l[o]m.e0g]b[if.[o0atp[sr.d0r.1#S]e.f0eaf0r]g[a0umfx]mf[pe.1',8609,211)"
+    'End If
     x = InputBox("Enter a sample decoder call to test output:", , tmp)
     sc.AddCode txtDecoder.Text
     MsgBox sc.eval(x)
     If Err.Number <> 0 Then
-        MsgBox "Error: " & sc.error.Description & " Line:" & sc.error.line
+        MsgBox "Error: " & sc.error.Description & " Line:" & sc.error.Line
     End If
 End Sub
 
@@ -470,7 +471,7 @@ End Sub
 Private Sub mnuDeleteSelected_Click()
     On Error Resume Next
     For i = lv.ListItems.Count To 1 Step -1
-        If lv.ListItems(i).selected Then lv.ListItems.Remove i
+        If lv.ListItems(i).Selected Then lv.ListItems.Remove i
     Next
 End Sub
 

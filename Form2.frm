@@ -523,6 +523,15 @@ Begin VB.Form Form2
       Begin VB.Menu mnuFindFuncDependancies 
          Caption         =   "Function Dependancies"
       End
+      Begin VB.Menu mnuCopyRenameMap 
+         Caption         =   "Copy Rename Map"
+      End
+      Begin VB.Menu mnuGraphTo 
+         Caption         =   "Graph Xrefs To"
+      End
+      Begin VB.Menu mnuiGraphFrom 
+         Caption         =   "Graph Xrefs From"
+      End
    End
 End
 Attribute VB_Name = "Form2"
@@ -549,6 +558,7 @@ Private Declare Function ReleaseCapture Lib "user32" () As Long
 Private objsAdded As Boolean
 Dim USING_MYMAIN As Boolean
 Private Declare Function SetFilePointer Lib "kernel32" (ByVal hFile As Long, ByVal lDistanceToMove As Long, lpDistanceToMoveHigh As Long, ByVal dwMoveMethod As Long) As Long
+Dim renames() As String
 
 Public Function StandardizeLineBreaks(ByVal x)
     x = Replace(x, vbCrLf, Chr(5))
@@ -643,10 +653,16 @@ Private Sub mnuCopyFuncsNames_Click()
     MsgBox UBound(Split(tmp, vbCrLf)) & " lines copied to clipboard"
 End Sub
 
+Private Sub mnuCopyRenameMap_Click()
+    Clipboard.Clear
+    Clipboard.SetText Join(renames, vbCrLf)
+End Sub
+
 Private Sub mnuCopyToJs_Click()
     On Error Resume Next
     If lv.SelectedItem Is Nothing Then Exit Sub
     txtJS.Text = lv.SelectedItem.tag
+    Erase renames
 End Sub
 
 Private Sub mnuCopyToLower_Click()
@@ -655,7 +671,7 @@ Private Sub mnuCopyToLower_Click()
     txtOut.Text = lv.SelectedItem.tag
 End Sub
 
-Private Function ExtractFunction(startLine As Long, Optional ByRef foundEnd) As String
+Public Function ExtractFunction(startLine As Long, Optional ByRef foundEnd) As String
 
     data = vbCrLf & vbCrLf
     startLine = startLine - 1
@@ -708,19 +724,19 @@ Private Sub mnuFindFuncDependancies_Click()
     Dim foundEnd As Boolean
     Dim func() As String
      
-    startFunc = lvFunc.SelectedItem.Text
+    startfunc = lvFunc.SelectedItem.Text
     
     data = ExtractFunction(CLng(lvFunc.SelectedItem.tag), foundEnd)
     
     For Each li In lvFunc.ListItems
-        If li.Text <> startFunc Then li.Selected = False
-        If InStr(data, li.Text & "(") > 0 And li.Text <> startFunc Then
+        If li.Text <> startfunc Then li.Selected = False
+        If InStr(data, li.Text & "(") > 0 And li.Text <> startfunc Then
             push func, li.Text
             li.Selected = True
         End If
     Next
     
-    report = "Non Recursive function references found within: " & startFunc & vbCrLf & vbCrLf
+    report = "Non Recursive function references found within: " & startfunc & vbCrLf & vbCrLf
     report = report & vbTab & Join(func, vbCrLf & vbTab)
     
     tmp = fso.GetFreeFileName(Environ("temp"))
@@ -771,6 +787,12 @@ Private Sub mnuGotoLine_Click()
     txtJS.ShowGoto
 End Sub
 
+Private Sub mnuGraphTo_Click()
+    If lvFunc.SelectedItem Is Nothing Then Exit Sub
+    Dim f As New frmFuncGraph
+    f.GraphTo lvFunc.SelectedItem.Text
+End Sub
+
 Private Sub mnuHex2Unicode_Click()
     On Error Resume Next
     x = Replace(txtJS.SelText, vbCrLf, Empty)
@@ -798,6 +820,12 @@ Private Sub mnuHighLightAllRefs_Click()
     find = lvFunc.SelectedItem.Text
     If Len(find) = 0 Then Exit Sub
     Me.Caption = "  " & txtJS.hilightWord(find, , vbBinaryCompare) & " instances of " & find & " found"
+End Sub
+
+Private Sub mnuiGraphFrom_Click()
+    If lvFunc.SelectedItem Is Nothing Then Exit Sub
+    Dim f As New frmFuncGraph
+    f.GraphFrom lvFunc.SelectedItem.Text
 End Sub
 
 Private Sub mnuIndentGuide_Click()
@@ -849,6 +877,7 @@ Private Sub mnuRenameFunc_Click()
         Exit Sub
     End If
     
+    push renames, oldname & " -> " & NewName
     txtJS.Text = Replace(txtJS.Text, oldname, NewName)
     txtJS.FirstVisibleLine = fl
     
@@ -1132,13 +1161,13 @@ End Sub
 
 Private Sub mnuXorBruteForce_Click()
     On Error Resume Next
-    Dim inFile As String
+    Dim infile As String
     
     If Len(txtJS.SelText) = 0 Then
         If MsgBox("No Shellcode was selected, do you want to open a file to scan?", vbYesNo) = vbNo Then Exit Sub
-        inFile = dlg.OpenDialog(AllFiles, , "Open File to Xor Scan", Me.hWnd)
-        If Len(inFile) = 0 Then Exit Sub
-        x = fso.ReadFile(inFile)
+        infile = dlg.OpenDialog(AllFiles, , "Open File to Xor Scan", Me.hWnd)
+        If Len(infile) = 0 Then Exit Sub
+        x = fso.ReadFile(infile)
     Else
         x = txtJS.SelText
         'does not handle just hex blobs like 9090 other formats supported though with multiescape
@@ -1227,7 +1256,7 @@ Private Sub cmdRun_Click()
     USING_MYMAIN = False
     If fso.FileExists(user_lib) And fso.FileExists(main_wrapper) Then USING_MYMAIN = True
         
-    If chkNoResest.Value = 0 Or objsAdded = False Then
+    If chkNoResest.value = 0 Or objsAdded = False Then
         lv2.ListItems.Clear
         objsAdded = True
         sc.Reset
@@ -1383,7 +1412,7 @@ End Sub
 Public Sub SaveToListView(data As String, Optional nameAs As String)
     Dim li As ListItem
     On Error Resume Next
-    If Len(nameAs) = 0 Then nameAs = (lv.ListItems.Count + 1) & " len - " & Len(txtJS.Text)
+    If Len(nameAs) = 0 Then nameAs = (lv.ListItems.count + 1) & " len - " & Len(txtJS.Text)
     Set li = lv.ListItems.Add(, , nameAs)
     li.tag = data
     li.ToolTipText = data
@@ -1400,6 +1429,7 @@ Private Sub lblClipboard_Click(Index As Integer)
         Case 2:
             txtJS.Text = txtOut.Text
             txtOut.Text = Empty
+            Erase renames
     End Select
     
 End Sub
@@ -1442,7 +1472,7 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
     
     If KeyCode = 68 And Shift = 2 Then 'ctrl-d - delete selected
         If MsgBox("Are you sure you want to deleted the selected entries?", vbYesNo) = vbYes Then
-            For i = lv.ListItems.Count To 1 Step -1
+            For i = lv.ListItems.count To 1 Step -1
                 If li.Selected = True Then
                     lv.ListItems.Remove i
                 End If
@@ -1661,6 +1691,7 @@ Public Sub mnuLoadFile_Click()
     If Not fso.FileExists(f) Then Exit Sub
     txtJS.Text = fso.ReadFile(f)
     mnuFunctionScan_Click
+    Erase renames
 End Sub
 
 Private Sub mnuManualEscape_Click(Index As Integer)
