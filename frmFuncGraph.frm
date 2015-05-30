@@ -1,26 +1,50 @@
 VERSION 5.00
 Begin VB.Form frmFuncGraph 
    Caption         =   "Function Graph"
-   ClientHeight    =   5250
+   ClientHeight    =   5580
    ClientLeft      =   60
    ClientTop       =   345
-   ClientWidth     =   6915
+   ClientWidth     =   7020
    LinkTopic       =   "Form3"
-   ScaleHeight     =   5250
-   ScaleWidth      =   6915
-   StartUpPosition =   3  'Windows Default
+   ScaleHeight     =   5580
+   ScaleWidth      =   7020
+   StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton cmdSource 
+      Caption         =   "View Source"
+      Height          =   375
+      Left            =   1395
+      TabIndex        =   6
+      Top             =   45
+      Width           =   1545
+   End
+   Begin VB.HScrollBar HScroll1 
+      Height          =   255
+      Left            =   90
+      Max             =   100
+      TabIndex        =   4
+      Top             =   5130
+      Width           =   6540
+   End
+   Begin VB.VScrollBar VScroll1 
+      Height          =   4710
+      Left            =   6660
+      Max             =   100
+      TabIndex        =   3
+      Top             =   450
+      Width           =   255
+   End
    Begin VB.CommandButton Command2 
       Caption         =   "Save Image"
       Height          =   375
-      Left            =   180
+      Left            =   3600
       TabIndex        =   1
       Top             =   45
       Width           =   1455
    End
-   Begin VB.PictureBox Picture1 
-      AutoSize        =   -1  'True
+   Begin VB.PictureBox pictParent 
+      BackColor       =   &H00FFFFFF&
       Height          =   4605
-      Left            =   135
+      Left            =   90
       ScaleHeight     =   4545
       ScaleWidth      =   6435
       TabIndex        =   0
@@ -36,12 +60,23 @@ Begin VB.Form frmFuncGraph
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         Height          =   3615
-         Left            =   360
+         Height          =   2040
+         Left            =   315
          MultiLine       =   -1  'True
          TabIndex        =   2
-         Top             =   360
-         Width           =   5415
+         Text            =   "frmFuncGraph.frx":0000
+         Top             =   315
+         Width           =   4110
+      End
+      Begin VB.PictureBox Picture1 
+         AutoSize        =   -1  'True
+         Height          =   1725
+         Left            =   1305
+         ScaleHeight     =   1665
+         ScaleWidth      =   1620
+         TabIndex        =   5
+         Top             =   2520
+         Width           =   1680
       End
    End
 End
@@ -53,12 +88,42 @@ Attribute VB_Exposed = False
 Dim img As BinaryImage
 Dim pGraph As CGraph
 Dim loaded As Boolean
+Dim dlg As New clsCmnDlg2
+Dim defName As String
+
+
+'note using instr funcName as only indication of function being called withint another is not
+'enough to be safe (func1, func11 etc) this should help...
+Function Basic_Safetify(ByVal data As String) As String
+        data = Replace(data, vbLf, vbLf & " ")
+        data = Replace(data, "(", "( ") 'func11(func1(
+        data = Replace(data, "{", "{ ")
+        data = Replace(data, "[", "[ ")
+        data = Replace(data, "!", "! ")
+        data = Replace(data, "this.", " ")
+        data = Replace(data, vbTab, " ")
+        Basic_Safetify = data
+End Function
+
+
+Private Sub cmdSource_Click()
+    If InStr(cmdSource.Caption, "View") > 0 Then
+        Text1.Visible = True
+        cmdSource.Caption = "Hide Source"
+    Else
+        Text1.Visible = False
+        cmdSource.Caption = "View Source"
+    End If
+End Sub
 
 Private Sub Command2_Click()
 
    If img Is Nothing Then Exit Sub
    
-   pth = App.path & "\sample.gif"
+   Dim pth As String
+   pth = dlg.SaveDialog(AllFiles, , , , Me.hWnd, defName)
+   If Len(pth) = 0 Then Exit Sub
+
    If img.Save(pth) Then
         MsgBox "Saved to " & pth, vbInformation
    Else
@@ -86,6 +151,7 @@ Function GraphFrom(startfunc As String, Optional pNode As CNode)
     If pGraph Is Nothing Then Set pGraph = New CGraph
     
     If pNode Is Nothing Then
+        defName = "from_" & startfunc & ".gif"
         Set pNode = pGraph.AddNode(startfunc)
         topLevel = True
     End If
@@ -102,9 +168,10 @@ Function GraphFrom(startfunc As String, Optional pNode As CNode)
     'now we trim off the function xx(){ part..
     a = InStr(data, "{")
     If a > 0 Then data = Mid(data, a)
+    data = Basic_Safetify(data)
     
     For Each li In Form2.lvFunc.ListItems
-        If InStr(data, li.Text & "(") > 0 Then
+        If InStr(data, " " & li.Text & "(") > 0 Then
             Set existingNode = pGraph.NodeExists(li.Text)
             If Not existingNode Is Nothing Then
                 existingNode.ConnectTo pNode
@@ -126,78 +193,156 @@ Function GraphFrom(startfunc As String, Optional pNode As CNode)
         Text1.Visible = True
         Text1.Text = "Graph generation failed?" & vbCrLf & vbCrLf & pGraph.lastGraph
     Else
+        Text1.Text = pGraph.lastGraph
         Set Picture1.Picture = img.Picture
-        Me.Width = Picture1.Width
-        Me.height = Picture1.height
+        If Picture1.Width < pictParent.Width Then HScroll1.value = 50
     End If
 
 End Function
 
-Function GraphTo(func As String)
-
-    MsgBox "todo!", vbExclamation
+Function GraphTo(startfunc As String, Optional pNode As CNode)
     
-' 'On Error Resume Next
-'
-'    Dim li As ListItem
-'    Dim data As String
-'    Dim foundEnd As Boolean
-'    Dim func() As String
-'    Dim n As CNode
-'    Dim existingNode As CNode
-'    Dim startLine As Long
-'    Dim topLevel As Boolean
-'
-'    If Not loaded Then Form_Load
-'    If pGraph Is Nothing Then Set pGraph = New CGraph
-'
-'    If pNode Is Nothing Then
-'        Set pNode = pGraph.AddNode(startfunc)
-'        topLevel = True
-'    End If
-'
-'    For Each li In Form2.lvFunc.ListItems
-'        If li.Text = startfunc Then
-'            startLine = CLng(li.tag)
-'            Exit For
-'        End If
-'    Next
-'
-'    data = Form2.ExtractFunction(startLine, foundEnd)
-'
-'    'now we trim off the function xx(){ part..
-'    a = InStr(data, "{")
-'    If a > 0 Then data = Mid(data, a)
-'
-'    For Each li In Form2.lvFunc.ListItems
-'        If InStr(data, li.Text & "(") > 0 Then
-'            Set existingNode = pGraph.NodeExists(li.Text)
-'            If Not existingNode Is Nothing Then
-'                existingNode.ConnectTo pNode
-'            Else
-'                Set n = pGraph.AddNode(li.Text)
-'                pNode.ConnectTo n
-'                GraphFrom li.Text, n
-'            End If
-'        End If
-'    Next
-'
-'    If Not topLevel Then Exit Function
-'
-'    pGraph.GenerateGraph
-'
-'    Set img = pGraph.dot.ToGIF(pGraph.lastGraph)
-'
-'    If img Is Nothing Then
-'        Text1.Visible = True
-'        Text1.Text = "Graph generation failed?" & vbCrLf & vbCrLf & pGraph.lastGraph
-'    Else
-'        Set Picture1.Picture = img.Picture
-'        Me.Width = Picture1.Width
-'        Me.height = Picture1.height
-'    End If
-'
+ 'On Error Resume Next
+
+    Dim li As ListItem
+    Dim data As String
+    Dim foundEnd As Boolean
+    Dim func() As String
+    Dim n As CNode
+    Dim existingNode As CNode
+    Dim startLine As Long
+    Dim topLevel As Boolean
+
+    If Not loaded Then Form_Load
+    If pGraph Is Nothing Then Set pGraph = New CGraph
+
+    If pNode Is Nothing Then
+        defName = "to_" & startfunc & ".gif"
+        Set pNode = pGraph.AddNode(startfunc)
+        topLevel = True
+    End If
+
+    For Each li In Form2.lvFunc.ListItems
+        
+        If li.Text <> startfunc Then
+            startLine = CLng(li.tag)
+            data = Form2.ExtractFunction(startLine, foundEnd)
+    
+            'now we trim off the function xx(){ part..
+            a = InStr(data, "{")
+            If a > 0 Then data = Mid(data, a)
+            data = Basic_Safetify(data)
+            
+            If InStr(data, " " & startfunc & "(") > 0 Then
+                Set existingNode = pGraph.NodeExists(li.Text)
+                If Not existingNode Is Nothing Then
+                    existingNode.ConnectTo pNode
+                Else
+                    Set n = pGraph.AddNode(li.Text)
+                    n.ConnectTo pNode
+                    GraphTo li.Text, n
+                End If
+            End If
+            
+        End If
+         
+    Next
+
+    If Not topLevel Then Exit Function
+
+    pGraph.GenerateGraph
+
+    Set img = pGraph.dot.ToGIF(pGraph.lastGraph)
+
+    If img Is Nothing Then
+        Text1.Visible = True
+        Text1.Text = "Graph generation failed?" & vbCrLf & vbCrLf & pGraph.lastGraph
+    Else
+        Text1.Text = pGraph.lastGraph
+        Set Picture1.Picture = img.Picture
+        If Picture1.Width < pictParent.Width Then HScroll1.value = 50
+    End If
+
 End Function
+
+
+
+Private Sub Form_Load()
+    Picture1.Appearance = 0
+    Text1.Visible = False
+    With pictParent
+        Text1.Move 0, 0, .Width, .height
+        Picture1.Move 0, 0, .Width, .height
+    End With
+    Me.Visible = True
+    loaded = True
+End Sub
+
+Private Sub Form_Resize()
+    On Error Resume Next
+    With pictParent
+        VScroll1.left = Me.Width - VScroll1.Width - 100
+        .Width = Me.Width - .left - VScroll1.Width - 100
+        .height = Me.height - .Top - 200 - HScroll1.height - 250
+        VScroll1.height = .height
+        HScroll1.Top = .height + .Top + 50
+        HScroll1.Width = Me.Width - 200
+        Text1.Move 0, 0, .Width, .height
+    End With
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    Set pGraph = Nothing
+    Set img = Nothing
+    loaded = False
+End Sub
+
+
+'''''''''''''''''''''''''''''''''''
+'Author: Zelimir Ikovic [photo_map@yahoo.com]
+'http://www.activexy.com
+'''''''''''''''''''''''''''''''''''
+Private Sub VScroll1_Change()
+   Call tp
+End Sub
+
+Private Sub VScroll1_Scroll()
+   Call tp
+End Sub
+Private Sub HScroll1_Change()
+   Call lft
+End Sub
+
+Private Sub HScroll1_Scroll()
+   Call lft
+End Sub
+
+Private Sub tp()
+   Dim xx As Double
+   Dim a As Double
+   Dim x As Double
+   
+   x = VScroll1.value
+   a = Picture1.height - pictParent.height
+   xx = (a * x) / 100
+   Picture1.Top = -xx
+
+End Sub
+
+Private Sub lft()
+   Dim xx As Double
+   Dim a As Double
+   Dim x As Double
+   
+   x = HScroll1.value
+   a = Picture1.Width - pictParent.Width
+   xx = (a * x) / 100
+   Picture1.left = -xx
+
+End Sub
+
+
+
 
 'example
 'Dim g As New CGraph
@@ -229,26 +374,4 @@ End Function
 '
 '   Set Picture1.Picture = img.Picture
 
-Private Sub Form_Load()
-    Text1.Visible = False
-    With Picture1
-        Text1.Move .left, .Top, .Width, .height
-    End With
-    Me.Visible = True
-    loaded = True
-End Sub
 
-Private Sub Form_Resize()
-    On Error Resume Next
-    With Picture1
-        .Width = Me.Width - .left - 200
-        .height = Me.height - .Top - 200
-        Text1.Move .left, .Top, .Width, .height
-    End With
-End Sub
-
-Private Sub Form_Unload(Cancel As Integer)
-    Set pGraph = Nothing
-    Set img = Nothing
-    loaded = False
-End Sub

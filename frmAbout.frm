@@ -37,6 +37,7 @@ Begin VB.Form frmAbout
       _ExtentX        =   19711
       _ExtentY        =   10821
       _Version        =   393217
+      Enabled         =   -1  'True
       ReadOnly        =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"frmAbout.frx":4B1E
@@ -93,14 +94,20 @@ Private Sub Form_Load()
                 "http://home.t-online.de/home/Ollydbg/\n\n" & _
                 "Interface by dzzie@yahoo.com\nhttp://sandsprite.com\n\n" & _
                 "Other thanks to Didier Stevens for the info on his blog on tags and encodings.\n" & _
-                "http://blog.didierstevens.com/2008/04/29/pdf-let-me-count-the-ways/"
+                "http://blog.didierstevens.com/2008/04/29/pdf-let-me-count-the-ways/\n\n"
+                       
+    Const m3 = "WinGraphViz - OOD Tsen oodtsen@gmail.com\n" & _
+                "http://wingraphviz.sourceforge.net/wingraphviz/index.htm\n\n" & _
+                "GraphViz - AT&T Labs\n" & _
+                "http://graphviz.org/\n\n"
+                 
 
     Dim Header
     Header = "        PDFStreamDumper v" & App.Major & "." & App.Minor & "." & App.Revision & vbCrLf & vbCrLf
     Header = Header & "Developer: David Zimmer <dzzie@yahoo.com>" & vbCrLf & vbCrLf
     Header = Header & "Homepage:" & vbCrLf & "http://sandsprite.com/blogs/index.php?uid=7&pid=57"
     
-    tmp = Split(Header & Replace(m1 & m2, "\n", vbCrLf), vbCrLf)
+    tmp = Split(Header & Replace(m1 & m2 & m3, "\n", vbCrLf), vbCrLf)
      
     On Error GoTo hell
     Dim first As Boolean

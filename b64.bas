@@ -264,3 +264,12 @@ Sub UnMimeFileToFile(infile, outfile)
     b64.b64Decode b(), b2()
     b64.writeFile outfile, b2()
 End Sub
+
+
+
+Function CountOccurances(it, find) As Integer
+    Dim tmp() As String
+    If InStr(1, it, find, vbTextCompare) < 1 Then CountOccurances = 0: Exit Function
+    tmp = Split(it, find, , vbTextCompare)
+    CountOccurances = UBound(tmp)
+End Function

@@ -1,6 +1,6 @@
 [Setup]
 AppName=PDFStreamDumper
-AppVerName=PDFStreamDumper 0.9.3xx
+AppVerName=PDFStreamDumper 0.9.5xx
 DefaultDirName=c:\PDFStreamDumper
 DefaultGroupName=PDFStreamDumper
 UninstallDisplayIcon={app}\unins000.exe

@@ -186,6 +186,12 @@ Credits:
 	Interface by dzzie@yahoo.com 
 	http://sandsprite.com
 	
+        WinGraphViz OOD Tsen oodtsen@gmail.com
+        http://wingraphviz.sourceforge.net/wingraphviz/index.htm
+
+        GraphViz - AT&T Labs
+        http://graphviz.org/
+
 	Other thanks to Didier Stevens for the info on his blog on tags and encodings.
 	http://blog.didierstevens.com/2008/04/29/pdf-let-me-count-the-ways
 	

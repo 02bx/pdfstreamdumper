@@ -142,6 +142,12 @@ function setRefs(obj){  //we make one big obj for simplicity
     obj.clearInterval =function(){}
     obj.clearTimeout = function(){}
     
+    //for some basic html support..you can add more here..
+    obj.write = function(x){ tb.DebugLog("document.write",x); }
+    obj.writeln = function(x){ tb.DebugLog("document.writeln",x); }
+    
+    //set innerHTML(x) { tb.DebugLog("innerHTML",x); } does not work in ms script control...
+  
 }
 
 var myplugIns = new Array()
@@ -155,6 +161,7 @@ var Collab = bullshit
 var collab = bullshit
 var spell = bullshit
 var console = bullshit
+
 
 try{
    var info = new InfoClass();
@@ -170,6 +177,8 @@ var Doc = doc
 var event = doc
 var App = doc
 var app = doc
+var document = doc
+document.body = doc
 
 //Overrides
 eeval = eval         //we keep a real copy in case we need it.

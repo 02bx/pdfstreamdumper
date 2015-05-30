@@ -272,9 +272,14 @@ Begin VB.Form Form2
       BackColor       =   -2147483643
       BorderStyle     =   1
       Appearance      =   1
-      NumItems        =   1
+      NumItems        =   2
       BeginProperty ColumnHeader(1) {BDD1F052-858B-11D1-B16A-00C0F0283628} 
          Text            =   "Functions"
+         Object.Width           =   2540
+      EndProperty
+      BeginProperty ColumnHeader(2) {BDD1F052-858B-11D1-B16A-00C0F0283628} 
+         SubItemIndex    =   1
+         Text            =   "loc"
          Object.Width           =   2540
       EndProperty
    End
@@ -676,13 +681,13 @@ Public Function ExtractFunction(startLine As Long, Optional ByRef foundEnd) As S
     data = vbCrLf & vbCrLf
     startLine = startLine - 1
     tmp = Split(txtJS.Text, vbCrLf)
-    i = -1
+    j = -1
     data = vbCrLf & vbCrLf
     foundEnd = False
     
     For Each x In tmp
-        i = i + 1
-        If i > startLine Then
+        j = j + 1
+        If j > startLine Then
             data = data & x & vbCrLf
             If RTrim(x) = "}" Then
                 foundEnd = True
@@ -762,19 +767,26 @@ Public Sub mnuFunctionScan_Click()
     On Error Resume Next
     
     Dim li As ListItem
+    Dim loc As Long, i As Long, x As String
+    
     lvFunc.ListItems.Clear
     
     i = -1
-    tmp = Split(txtJS.Text, vbCrLf)
-    For Each x In tmp
-        i = i + 1
+    'tmp = Split(txtJS.Text, vbCrLf)
+    'For Each x In tmp
+    For i = 0 To txtJS.DirectSCI.GetLineCount
+        'i = i + 1
+        x = txtJS.GetLineText(i)
         func = Empty
-        If x Like "function *(*)*" And GetCount(x, "function") = 2 Then
+        'If x Like "function *(*)*" And GetCount(x, "function") = 2 Then
+        If InStr(x, "function") > 0 And InStr(x, "(") > 0 And InStr(x, "{") > 0 Then
             a = InStr(x, "(")
             b = InStrRev(x, " ", a)
             func = Trim(Mid(x, b, a - b))
             If Len(func) > 0 Then
                 Set li = lvFunc.ListItems.Add(, , func)
+                loc = CountOccurances(ExtractFunction((i)), vbCrLf)
+                li.SubItems(1) = VBA.right("    " & loc, 5) 'for sorting
                 li.tag = i
             End If
         End If
@@ -1319,7 +1331,7 @@ Private Sub Form_Load()
     txtJS.Folding = mnuCodeFolding.Checked
     txtJS.DisplayCallTips = True
    
-    lvFunc.ColumnHeaders(1).Width = lv.Width - 200
+    lvFunc.ColumnHeaders(1).Width = lv.Width - 800
     lv.ColumnHeaders(1).Width = lv.Width - 200
     FormPos Me, True
     splitter.Top = GetMySetting("SplitterTop", splitter.Top)
