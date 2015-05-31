@@ -21,6 +21,7 @@ Public fontcolor As String
 
 
 Public Sub ConnectTo(n As CNode)
+    'If id = "node_3" And n.id = "node_4" Then Stop
     connections.Add n.id
 End Sub
 
@@ -40,7 +41,7 @@ End Function
 Friend Function getConnections() As String
     Dim x As String, n
     
-    If connections.Count = 0 Then Exit Function
+    If connections.count = 0 Then Exit Function
     
     For Each n In connections
         x = x & vbTab & id & " -> " & n & ";" & vbCrLf

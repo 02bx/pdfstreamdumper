@@ -238,6 +238,7 @@ Begin VB.Form Form2
       _ExtentX        =   20981
       _ExtentY        =   2249
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form2.frx":008A
@@ -676,13 +677,12 @@ Private Sub mnuCopyToLower_Click()
     txtOut.Text = lv.SelectedItem.tag
 End Sub
 
-Public Function ExtractFunction(startLine As Long, Optional ByRef foundEnd) As String
+Public Function ExtractFunction(ByVal startLine As Long, Optional ByRef foundEnd, Optional includeSpacer As Boolean = True) As String
 
-    data = vbCrLf & vbCrLf
+    data = IIf(includeSpacer, vbCrLf & vbCrLf, Empty)
     startLine = startLine - 1
     tmp = Split(txtJS.Text, vbCrLf)
     j = -1
-    data = vbCrLf & vbCrLf
     foundEnd = False
     
     For Each x In tmp
@@ -696,7 +696,7 @@ Public Function ExtractFunction(startLine As Long, Optional ByRef foundEnd) As S
         End If
     Next
     
-    ExtractFunction = data & vbCrLf & vbCrLf
+    ExtractFunction = data & IIf(includeSpacer, vbCrLf & vbCrLf, Empty)
     
 End Function
 
@@ -785,7 +785,7 @@ Public Sub mnuFunctionScan_Click()
             func = Trim(Mid(x, b, a - b))
             If Len(func) > 0 Then
                 Set li = lvFunc.ListItems.Add(, , func)
-                loc = CountOccurances(ExtractFunction((i)), vbCrLf)
+                loc = CountOccurances(ExtractFunction(i, , False), vbCrLf)
                 li.SubItems(1) = VBA.right("    " & loc, 5) 'for sorting
                 li.tag = i
             End If

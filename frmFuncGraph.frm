@@ -9,6 +9,14 @@ Begin VB.Form frmFuncGraph
    ScaleHeight     =   5580
    ScaleWidth      =   7020
    StartUpPosition =   2  'CenterScreen
+   Begin VB.CheckBox Check1 
+      Caption         =   "Top Most"
+      Height          =   285
+      Left            =   5490
+      TabIndex        =   7
+      Top             =   90
+      Width           =   1140
+   End
    Begin VB.CommandButton cmdSource 
       Caption         =   "View Source"
       Height          =   375
@@ -91,6 +99,15 @@ Dim loaded As Boolean
 Dim dlg As New clsCmnDlg2
 Dim defName As String
 
+Private Declare Sub SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long)
+Const HWND_TOPMOST = -1
+Const HWND_NOTOPMOST = -2
+
+Sub SetWindowTopMost(f As Form, Optional topMost As Integer = 0)
+   SetWindowPos f.hwnd, _
+        IIf(topMost = 0, HWND_NOTOPMOST, HWND_TOPMOST), _
+        f.left / 15, f.Top / 15, f.Width / 15, f.height / 15, Empty
+End Sub
 
 'note using instr funcName as only indication of function being called withint another is not
 'enough to be safe (func1, func11 etc) this should help...
@@ -105,6 +122,11 @@ Function Basic_Safetify(ByVal data As String) As String
         Basic_Safetify = data
 End Function
 
+
+Private Sub Check1_Click()
+    SetWindowTopMost Me, Check1.value
+    SaveMySetting "graphTopMost", Check1.value
+End Sub
 
 Private Sub cmdSource_Click()
     If InStr(cmdSource.Caption, "View") > 0 Then
@@ -121,7 +143,7 @@ Private Sub Command2_Click()
    If img Is Nothing Then Exit Sub
    
    Dim pth As String
-   pth = dlg.SaveDialog(AllFiles, , , , Me.hWnd, defName)
+   pth = dlg.SaveDialog(AllFiles, , , , Me.hwnd, defName)
    If Len(pth) = 0 Then Exit Sub
 
    If img.Save(pth) Then
@@ -146,6 +168,8 @@ Function GraphFrom(startfunc As String, Optional pNode As CNode)
     Dim existingNode As CNode
     Dim startLine As Long
     Dim topLevel As Boolean
+    
+    'If startfunc = "fix_it" Then Stop
     
     If Not loaded Then Form_Load
     If pGraph Is Nothing Then Set pGraph = New CGraph
@@ -174,7 +198,7 @@ Function GraphFrom(startfunc As String, Optional pNode As CNode)
         If InStr(data, " " & li.Text & "(") > 0 Then
             Set existingNode = pGraph.NodeExists(li.Text)
             If Not existingNode Is Nothing Then
-                existingNode.ConnectTo pNode
+                pNode.ConnectTo existingNode
             Else
                 Set n = pGraph.AddNode(li.Text)
                 pNode.ConnectTo n
@@ -276,6 +300,7 @@ Private Sub Form_Load()
     End With
     Me.Visible = True
     loaded = True
+    Check1.value = GetMySetting("graphTopMost", 1)
 End Sub
 
 Private Sub Form_Resize()
