@@ -297,10 +297,10 @@ Sub FormPos(fform As Form, Optional andSize As Boolean = False, Optional save_mo
     For i = 1 To sz
         If save_mode Then
             ff = CallByName(fform, f(i), VbGet)
-            SaveSetting App.EXEName, fform.Name & ".FormPos", f(i), ff
+            SaveSetting App.EXEName, fform.name & ".FormPos", f(i), ff
         Else
             def = CallByName(fform, f(i), VbGet)
-            ff = GetSetting(App.EXEName, fform.Name & ".FormPos", f(i), def)
+            ff = GetSetting(App.EXEName, fform.name & ".FormPos", f(i), def)
             CallByName fform, f(i), VbLet, ff
         End If
     Next
@@ -649,6 +649,31 @@ End Function
 Function pop(ary) 'this modifies parent ary obj
     On Error Resume Next
     pop = ary(UBound(ary))
-    ReDim Preserve ary(UBound(ary) - 1)
+    If UBound(ary) = 0 Then
+        Erase ary
+    Else
+        ReDim Preserve ary(UBound(ary) - 1)
+    End If
 End Function
 
+Function SaveTopXElements(ary() As Long, count As Long) As Long()
+    
+    Dim ret() As Long
+    If AryIsEmpty(ary) Then
+        SaveTopXElements = ret
+        Exit Function
+    End If
+    
+    If count > UBound(ary) Then
+        SaveTopXElements = ary
+        Exit Function
+    End If
+    
+    For i = UBound(ary) - count To UBound(ary)
+        push ret, ary(i)
+        'Debug.Print ary(i)
+    Next
+    
+    SaveTopXElements = ret
+    
+End Function

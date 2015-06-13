@@ -596,14 +596,24 @@ Dim toolbox As New CScriptFunctions
 Private Capturing As Boolean
 Private Declare Function SetCapture Lib "user32" (ByVal hwnd As Long) As Long
 Private Declare Function ReleaseCapture Lib "user32" () As Long
+Private Declare Function GetKeyState Lib "user32" (ByVal nVirtKey As Long) As Integer
+Private Const VK_LBUTTON = &H1
+
+Private Declare Function GetCursorPos Lib "user32" (lpPoint As POINTAPI) As Long
+Private Declare Function ScreenToClient Lib "user32" (ByVal hwnd As Long, lpPoint As POINTAPI) As Long
+Private Type POINTAPI
+        x As Long
+        Y As Long
+End Type
+
 Private objsAdded As Boolean
 Dim USING_MYMAIN As Boolean
 Private Declare Function SetFilePointer Lib "kernel32" (ByVal hFile As Long, ByVal lDistanceToMove As Long, lpDistanceToMoveHigh As Long, ByVal dwMoveMethod As Long) As Long
 Dim renames() As String
 
-'if the user navigates from the findall dialog..we cant caputre those
-'because in ocx..so this feature can not be complete so nevermind :-\
-'Dim navPoints() As Long
+Dim navPoints() As Long
+Dim curTopLine As Long
+Dim ignoreNavPoint As Boolean
 
 Public Function StandardizeLineBreaks(ByVal x)
     x = Replace(x, vbCrLf, Chr(5))
@@ -920,7 +930,7 @@ Private Sub mnuMain_Click(Index As Integer)
      
     On Error Resume Next
     Dim f As Object
-    Dim hexString As String
+    Dim hexstring As String
     
     Select Case Index
         Case 0: lvFunc_DblClick
@@ -947,8 +957,8 @@ Private Sub mnuMain_Click(Index As Integer)
                 
         Case 5: txtJS.Paste
         Case 6:
-                hexString = LongHex(CDbl(txtJS.CurrentWord))
-                If Err.Number = 0 Then txtJS.ReplaceAll txtJS.CurrentWord, "0x" & hexString
+                hexstring = LongHex(CDbl(txtJS.CurrentWord))
+                If Err.Number = 0 Then txtJS.ReplaceAll txtJS.CurrentWord, "0x" & hexstring
     End Select
     
 End Sub
@@ -2129,4 +2139,54 @@ Private Sub txtJS_MouseUp(Button As Integer, Shift As Integer, x As Long, Y As L
         PopupMenu mnuMainPopup
     End If
     
+End Sub
+
+'everytime first visible line changes..
+Private Sub txtJS_PosChanged(Position As Long)
+
+On Error Resume Next
+
+    Dim p As POINTAPI, txtJSScrollBarPos As Long, tmpPoints() As Long, i As Long
+    
+    'dont track position changes if they are scrolling the editor window
+    'detected as having mouse over scroll bar region and position changing..
+    If GetCursorPos(p) <> 0 Then
+        If ScreenToClient(Me.hwnd, p) <> 0 Then
+            txtJSScrollBarPos = (txtJS.left + txtJS.Width) / 15
+            'Me.Caption = p.x & " " & txtJSScrollBarPos
+            If Abs(txtJSScrollBarPos - p.x) < 40 Then Exit Sub
+        End If
+    End If
+        
+    'this means they just hit escape to nav back so ignore this change too..
+    If ignoreNavPoint Then
+        ignoreNavPoint = False
+        Exit Sub
+    End If
+    
+    If Abs(curTopLine - Position) > 10 Then
+        
+        push navPoints, curTopLine
+        curTopLine = Position
+        'Debug.Print Now & "new pos saved: " & Position
+        
+        If UBound(navPoints) > 70 Then
+            'Debug.Print "compacting navpoints.."
+            navPoints = SaveTopXElements(navPoints, 45)
+        End If
+        
+    End If
+    
+End Sub
+
+Private Sub Form_KeyPress(KeyAscii As Integer)
+    Dim lastPos As Long
+    If KeyAscii = 27 Then 'escape key pressed
+        lastPos = pop(navPoints)
+        If lastPos <> 0 Then
+            ignoreNavPoint = True
+            'Debug.Print "nav back to: " & lastPos
+            txtJS.GotoLine lastPos
+        End If
+    End If
 End Sub

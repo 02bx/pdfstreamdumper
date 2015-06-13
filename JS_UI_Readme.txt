@@ -1,6 +1,26 @@
 
 This is the readme file for the script interface.
 
+couple newer ui behaviors for jsui code pane...
+
+- custom rt click menu, several options only appear when you are rt clicking on function names
+  that are listed in the function list on the left. to hex option only shows up when over
+  numeric values. (all instance of it replaced throughout document)
+
+- a navigation list is kept now. if you click around the document or navigate functions or
+  use the findall dialog..your top line index is being saved as the document scrolls. it
+  will store between 45-70 jumps before compacting. hit escape to navigate back. (there is
+  no forward)
+
+- there are a bunch of options in the function list right click, hot keys in ()
+- there is a new graph xrefs to/from
+
+- double click a word to select all instances (instance count shown in caption bar)
+  this also works if you select a string normally (or partial)
+
+- deobsfuscation tools -> ActionScript processor just added. assumes as3 sourcer output
+
+
 In addition to the standard JS features a toolbox class has been 
 added with some additional functions use tb. to access
 
