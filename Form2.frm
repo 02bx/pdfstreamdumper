@@ -9,6 +9,7 @@ Begin VB.Form Form2
    ClientLeft      =   165
    ClientTop       =   1020
    ClientWidth     =   14460
+   KeyPreview      =   -1  'True
    LinkTopic       =   "Form2"
    ScaleHeight     =   8310
    ScaleWidth      =   14460
@@ -436,6 +437,9 @@ Begin VB.Form Form2
       Begin VB.Menu mnuStripInlineDecoderCalls 
          Caption         =   "Strip Inline Decoder Calls"
       End
+      Begin VB.Menu mnuProcessActionScript 
+         Caption         =   "Process ActionScript"
+      End
    End
    Begin VB.Menu mnuPopup 
       Caption         =   "mnuPopup"
@@ -506,7 +510,7 @@ Begin VB.Form Form2
    Begin VB.Menu mnuPopupFuncs 
       Caption         =   "mnuPopupFuncs"
       Begin VB.Menu mnuFunctionScan 
-         Caption         =   "Rescan"
+         Caption         =   "Rescan   (F5)"
       End
       Begin VB.Menu mnuRenameFunc 
          Caption         =   "Rename  (N)"
@@ -524,7 +528,7 @@ Begin VB.Form Form2
          Caption         =   "Highlight All References"
       End
       Begin VB.Menu mnuFindFuncRefs 
-         Caption         =   "Find All References"
+         Caption         =   "Find All References  (R)"
       End
       Begin VB.Menu mnuFindFuncDependancies 
          Caption         =   "Function Dependancies"
@@ -533,10 +537,10 @@ Begin VB.Form Form2
          Caption         =   "Copy Rename Map"
       End
       Begin VB.Menu mnuGraphTo 
-         Caption         =   "Graph Xrefs To"
+         Caption         =   "Graph Xrefs To  (X)"
       End
       Begin VB.Menu mnuiGraphFrom 
-         Caption         =   "Graph Xrefs From"
+         Caption         =   "Graph Xrefs From (Z)"
       End
    End
 End
@@ -559,7 +563,7 @@ Dim toolbox As New CScriptFunctions
 'even if i am the only one who would use that :P
 
 Private Capturing As Boolean
-Private Declare Function SetCapture Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare Function SetCapture Lib "user32" (ByVal hwnd As Long) As Long
 Private Declare Function ReleaseCapture Lib "user32" () As Long
 Private objsAdded As Boolean
 Dim USING_MYMAIN As Boolean
@@ -600,10 +604,30 @@ Private Sub lvFunc_DblClick()
     End If
 End Sub
 
+Private Sub lvFunc_KeyDown(KeyCode As Integer, Shift As Integer)
+    'MsgBox KeyCode
+    If KeyCode = 116 Then 'f5
+        mnuFunctionScan_Click
+    End If
+End Sub
+
 Private Sub lvFunc_KeyPress(KeyAscii As Integer)
+    'MsgBox KeyAscii
     If KeyAscii = Asc("N") Or KeyAscii = Asc("n") Then
         mnuRenameFunc_Click
         KeyAscii = 0
+    End If
+    If KeyAscii = Asc("R") Or KeyAscii = Asc("r") Then
+       mnuFindFuncRefs_Click
+       KeyAscii = 0
+    End If
+    If KeyAscii = Asc("X") Or KeyAscii = Asc("x") Then
+       mnuGraphTo_Click
+       KeyAscii = 0
+    End If
+    If KeyAscii = Asc("Z") Or KeyAscii = Asc("z") Then
+       mnuiGraphFrom_Click
+       KeyAscii = 0
     End If
 End Sub
 
@@ -848,12 +872,23 @@ End Sub
 Public Sub mnuLoadShellcode_Click()
     Dim f As String
     dlg.SetCustomFilter "Shellcode File (*.sc)", "*.sc"
-    f = dlg.OpenDialog(CustomFilter, "", "Open file", Me.hWnd)
+    f = dlg.OpenDialog(CustomFilter, "", "Open file", Me.hwnd)
     If Len(f) = 0 Then Exit Sub
     If Not fso.FileExists(f) Then Exit Sub
     x = HexDump(fso.ReadFile(f), 1)
     txtJS.Text = AddPercentToHexString(x)
     txtJS.SelectAll
+End Sub
+
+Private Sub mnuProcessActionScript_Click()
+    On Error Resume Next
+    tmp = ProcessActionScript(txtJS.Text)
+    If Len(tmp) = 0 Then
+        MsgBox "Had an error processing the text, assumes output from as3 sourcerer", vbInformation
+    Else
+        txtJS.Text = tmp
+        mnuBeautify_Click
+    End If
 End Sub
 
 Private Sub mnuQuickEval_Click()
@@ -974,7 +1009,7 @@ Function Shellcode2Exe(Index As Long)
         MsgBox "Shellcode is larger than buffer in husk..may cause errors"
     End If
     
-    pth = dlg.SaveDialog(AllFiles, , "Save Shellcode Executable As", , Me.hWnd, "shellcode.exe_")
+    pth = dlg.SaveDialog(AllFiles, , "Save Shellcode Executable As", , Me.hwnd, "shellcode.exe_")
     If Len(pth) = 0 Then Exit Function
     
     If Err.Number <> 0 Then
@@ -1035,7 +1070,7 @@ Private Sub mnuSend2IDA_Click()
         
     If Len(h) = 0 Or Not fso.FileExists(h) Then
         If MsgBox("You have not yet configured the path to IDA install. select it now?", vbYesNo) = vbNo Then Exit Sub
-        h = dlg.OpenDialog(exeFiles, , "Select IDA", Me.hWnd)
+        h = dlg.OpenDialog(exeFiles, , "Select IDA", Me.hwnd)
         If fso.FileExists(h) Then
             SaveMySetting "idapath", h
         Else
@@ -1101,7 +1136,7 @@ Private Sub mnuSeqRenameFuncs_Click()
     
     For Each li In lvFunc.ListItems
         
-        If li.Selected And ignoreSelected Then GoTo nextOne
+        If li.Selected And ignoreSelected Then GoTo nextone
         
         oldname = li.Text
 
@@ -1130,7 +1165,7 @@ reGenerate:
         
         txtJS.Text = Replace(txtJS.Text, oldname, NewName)
         li.Text = NewName
-nextOne:
+nextone:
         
     Next
     
@@ -1177,7 +1212,7 @@ Private Sub mnuXorBruteForce_Click()
     
     If Len(txtJS.SelText) = 0 Then
         If MsgBox("No Shellcode was selected, do you want to open a file to scan?", vbYesNo) = vbNo Then Exit Sub
-        infile = dlg.OpenDialog(AllFiles, , "Open File to Xor Scan", Me.hWnd)
+        infile = dlg.OpenDialog(AllFiles, , "Open File to Xor Scan", Me.hwnd)
         If Len(infile) = 0 Then Exit Sub
         x = fso.ReadFile(infile)
     Else
@@ -1207,7 +1242,7 @@ Private Sub splitter_MouseMove(Button As Integer, Shift As Integer, x As Single,
     If Button = 1 Then 'The mouse is down
         If Capturing = False Then
             splitter.ZOrder
-            SetCapture splitter.hWnd
+            SetCapture splitter.hwnd
             Capturing = True
         End If
         With splitter
@@ -1698,7 +1733,7 @@ End Function
 Public Sub mnuLoadFile_Click()
     Dim f As String
     dlg.SetCustomFilter "Javascript File (*.js)", "*.js"
-    f = dlg.OpenDialog(CustomFilter, "", "Open file", Me.hWnd)
+    f = dlg.OpenDialog(CustomFilter, "", "Open file", Me.hwnd)
     If Len(f) = 0 Then Exit Sub
     If Not fso.FileExists(f) Then Exit Sub
     txtJS.Text = fso.ReadFile(f)
@@ -1765,7 +1800,7 @@ Private Sub mnuSaveAll_Click()
     Dim f As String
     On Error GoTo hell
     
-    f = dlg.FolderDialog("", Me.hWnd)
+    f = dlg.FolderDialog("", Me.hwnd)
     If Len(f) = 0 Then Exit Sub
     
     For Each li In lv.ListItems
@@ -1788,7 +1823,7 @@ Private Sub mnuSaveShellcode_Click()
     x = PrepareShellcode(x)
     
     Dim pth As String
-    pth = dlg.SaveDialog(AllFiles, , "Save shellcode as", , Me.hWnd, RecommendedName("bytes.sc"))
+    pth = dlg.SaveDialog(AllFiles, , "Save shellcode as", , Me.hwnd, RecommendedName("bytes.sc"))
     If Len(pth) = 0 Then Exit Sub
     
     fso.writeFile pth, x
@@ -1833,7 +1868,7 @@ Private Sub mnuSaveToFile_Click()
     
     If lv.SelectedItem Is Nothing Then Exit Sub
     
-    f = dlg.SaveDialog(AllFiles, "", "Save file", , Me.hWnd, "script_" & lv.SelectedItem.Index & ".js")
+    f = dlg.SaveDialog(AllFiles, "", "Save file", , Me.hwnd, "script_" & lv.SelectedItem.Index & ".js")
     If Len(f) = 0 Then Exit Sub
     
     fso.writeFile f, lv.SelectedItem.tag
@@ -1905,7 +1940,7 @@ Private Sub sc_Error()
     With sc.error
     
         curLine = txtJS.CurrentLine
-        adjustedLine = .Line - IIf(USING_MYMAIN, 4, 0)
+        adjustedLine = .line - IIf(USING_MYMAIN, 4, 0)
         
         txtOut.Text = "Time: " & Now & vbCrLf & "Error: " & .Description & vbCrLf & "Line: " & adjustedLine
         txtOut.Text = txtOut.Text & vbCrLf & "Source: " & txtJS.GetLineText(adjustedLine - 1) 'vbsci specific

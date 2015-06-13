@@ -171,6 +171,11 @@ Function GraphFrom(startfunc As String, Optional pNode As CNode)
     
     'If startfunc = "fix_it" Then Stop
     
+    If pNode Is Nothing Then 'top level call..
+        Me.Caption = Me.Caption & " from " & startfunc
+    End If
+
+
     If Not loaded Then Form_Load
     If pGraph Is Nothing Then Set pGraph = New CGraph
     
@@ -195,7 +200,8 @@ Function GraphFrom(startfunc As String, Optional pNode As CNode)
     data = Basic_Safetify(data)
     
     For Each li In Form2.lvFunc.ListItems
-        If InStr(data, " " & li.Text & "(") > 0 Then
+        'If InStr(data, " " & li.Text & "(") > 0 Then
+        If InStr(data, li.Text & "(") > 0 Then
             Set existingNode = pGraph.NodeExists(li.Text)
             If Not existingNode Is Nothing Then
                 pNode.ConnectTo existingNode
@@ -240,6 +246,11 @@ Function GraphTo(startfunc As String, Optional pNode As CNode)
     If Not loaded Then Form_Load
     If pGraph Is Nothing Then Set pGraph = New CGraph
 
+    
+    If pNode Is Nothing Then 'top level call..
+        Me.Caption = Me.Caption & " to " & startfunc
+    End If
+    
     If pNode Is Nothing Then
         defName = "to_" & startfunc & ".gif"
         Set pNode = pGraph.AddNode(startfunc)
@@ -257,7 +268,8 @@ Function GraphTo(startfunc As String, Optional pNode As CNode)
             If a > 0 Then data = Mid(data, a)
             data = Basic_Safetify(data)
             
-            If InStr(data, " " & startfunc & "(") > 0 Then
+            'If InStr(data, " " & startfunc & "(") > 0 Then
+            If InStr(data, startfunc & "(") > 0 Then
                 Set existingNode = pGraph.NodeExists(li.Text)
                 If Not existingNode Is Nothing Then
                     existingNode.ConnectTo pNode
