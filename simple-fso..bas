@@ -98,7 +98,7 @@ Public Function GetShortName(sFile As String) As String
     Len(sShortFile))
 
     'Trim out unused characters from the string.
-    GetShortName = Left$(sShortFile, lResult)
+    GetShortName = left$(sShortFile, lResult)
     
     If Len(GetShortName) = 0 Then GetShortName = sFile
 
@@ -109,9 +109,9 @@ Sub DebugMsg(x As String)
     Form1.lvDebug.ListItems.Add , , x
 End Sub
 
-Function TopMost(f As Form, Optional ontop As Boolean = True)
+Function topMost(f As Form, Optional ontop As Boolean = True)
     s = IIf(ontop, HWND_TOPMOST, HWND_NOTOPMOST)
-    SetWindowPos f.hwnd, s, f.Left / 15, f.Top / 15, f.Width / 15, f.height / 15, 0
+    SetWindowPos f.hwnd, s, f.left / 15, f.Top / 15, f.Width / 15, f.height / 15, 0
 End Function
 
 
@@ -153,7 +153,7 @@ Function VisualFormatHeader(ByVal h) As String
     h = Split(h, ">>")
     h = Join(h, vbCrLf & ">>" & vbCrLf)
     
-    If VBA.Left(h, 2) = vbCrLf Then h = Mid(h, 3)
+    If VBA.left(h, 2) = vbCrLf Then h = Mid(h, 3)
     
     h = Split(h, vbCrLf)
     indentLevel = 1
@@ -189,22 +189,22 @@ Function VisualFormatHeader(ByVal h) As String
 End Function
 
 
-Function ContainsExploit(Data, ByVal sig, Optional offset As Long, Optional stream As CPDFStream) As Boolean
+Function ContainsExploit(data, ByVal sig, Optional offset As Long, Optional stream As CPDFStream) As Boolean
         Dim tmp() As String
         On Error Resume Next
         
         If InStr(sig, "*") > 0 Then 'its a like expression
             
-            If Data Like sig Then
+            If data Like sig Then
                 tmp = Split(sig, "*")
                 sig = tmp(1) 'they should all start with * so 0=empty
-                offset = InStr(Data, sig)
+                offset = InStr(data, sig)
                 ContainsExploit = True
             End If
             
-        ElseIf VBA.Left(sig, 1) = "^" Then
+        ElseIf VBA.left(sig, 1) = "^" Then
             sig = Mid(sig, 2)
-            If sig = VBA.Left(Data, Len(sig)) Then
+            If sig = VBA.left(data, Len(sig)) Then
                 ContainsExploit = True
                 offset = 1
             End If
@@ -221,7 +221,7 @@ Function ContainsExploit(Data, ByVal sig, Optional offset As Long, Optional stre
             End If
             
         Else
-            offset = InStr(1, Data, sig, vbTextCompare)
+            offset = InStr(1, data, sig, vbTextCompare)
             If offset > 0 Then ContainsExploit = True
         End If
         
@@ -307,8 +307,8 @@ Sub FormPos(fform As Form, Optional andSize As Boolean = False, Optional save_mo
     
 End Sub
 
-Sub SaveMySetting(key, Value)
-    SaveSetting App.EXEName, "Settings", key, Value
+Sub SaveMySetting(key, value)
+    SaveSetting App.EXEName, "Settings", key, value
 End Sub
 
 Function GetMySetting(key, Optional defaultval = "")
@@ -325,9 +325,9 @@ Function GetFolderFiles(folder, Optional filter = ".*") As String()
         Exit Function
    End If
    
-   folder = IIf(Right(folder, 1) = "\", folder, folder & "\")
-   If Left(filter, 1) = "*" Then extension = Mid(filter, 2, Len(filter))
-   If Left(filter, 1) <> "." Then filter = "." & filter
+   folder = IIf(right(folder, 1) = "\", folder, folder & "\")
+   If left(filter, 1) = "*" Then extension = Mid(filter, 2, Len(filter))
+   If left(filter, 1) <> "." Then filter = "." & filter
    
    fs = Dir(folder & "*" & filter, vbHidden Or vbNormal Or vbReadOnly Or vbSystem)
    While fs <> ""
@@ -347,11 +347,11 @@ Function GetSubFolders(folder) As String()
         Exit Function
     End If
     
-   If Right(folder, 1) <> "\" Then folder = folder & "\"
+   If right(folder, 1) <> "\" Then folder = folder & "\"
 
    fd = Dir(folder, vbDirectory)
    While fd <> ""
-     If Left(fd, 1) <> "." Then
+     If left(fd, 1) <> "." Then
         If (GetAttr(folder & fd) And vbDirectory) = vbDirectory Then
            push fnames(), fd
         End If
@@ -441,7 +441,7 @@ Function GetBaseName(path) As String
 End Function
 
 Function ChangeExt(path, ext)
-    ext = IIf(Left(ext, 1) = ".", ext, "." & ext)
+    ext = IIf(left(ext, 1) = ".", ext, "." & ext)
     If fso.FileExists(path) Then
         fso.Rename path, fso.GetBaseName(path) & ext
     Else
@@ -486,8 +486,8 @@ End Function
 Function GetFreeFileName(folder, Optional extension = ".txt") As String
     
     If Not fso.FolderExists(folder) Then Exit Function
-    If Right(folder, 1) <> "\" Then folder = folder & "\"
-    If Left(extension, 1) <> "." Then extension = "." & extension
+    If right(folder, 1) <> "\" Then folder = folder & "\"
+    If left(extension, 1) <> "." Then extension = "." & extension
     
     Dim tmp As String
     Do
@@ -553,7 +553,7 @@ End Sub
 Sub Copy(fpath, toFolder)
    If FolderExists(toFolder) Then
        baseName = fso.FileNameFromPath(fpath)
-       toFolder = IIf(Right(toFolder, 1) = "\", toFolder, toFolder & "\")
+       toFolder = IIf(right(toFolder, 1) = "\", toFolder, toFolder & "\")
        FileCopy fpath, toFolder & baseName
    Else 'assume tofolder is actually new desired file path
        FileCopy fpath, toFolder
@@ -595,13 +595,13 @@ Private Sub delTree(folderpath, force As Boolean)
    Call RmDir(folderpath)
 End Sub
 
-Sub push(ary, Value) 'this modifies parent ary object
+Sub push(ary, value) 'this modifies parent ary object
     On Error GoTo init
     x = UBound(ary) '<-throws Error If Not initalized
     ReDim Preserve ary(UBound(ary) + 1)
-    ary(UBound(ary)) = Value
+    ary(UBound(ary)) = value
     Exit Sub
-init: ReDim ary(0): ary(0) = Value
+init: ReDim ary(0): ary(0) = value
 End Sub
 
 Function AryIsEmpty(ary) As Boolean
@@ -628,12 +628,12 @@ Function AddKey(t As String, c As Collection) As Boolean
 hell:
 End Function
 
-Function AnyofTheseInstr(Data, match, Optional compare As VbCompareMethod = vbTextCompare) As Boolean
+Function AnyofTheseInstr(data, match, Optional compare As VbCompareMethod = vbTextCompare) As Boolean
     Dim tmp() As String
     Dim x
     tmp = Split(match, ",")
     For Each x In tmp
-        If InStr(1, Data, x, compare) > 0 Then
+        If InStr(1, data, x, compare) > 0 Then
             AnyofTheseInstr = True
             Exit Function
         End If
@@ -644,5 +644,11 @@ Function GetCount(str, what) 'as long
     On Error Resume Next
     GetCount = UBound(Split(str, what)) + 1
     If Len(GetCount) = 0 Then GetCount = 0
+End Function
+
+Function pop(ary) 'this modifies parent ary obj
+    On Error Resume Next
+    pop = ary(UBound(ary))
+    ReDim Preserve ary(UBound(ary) - 1)
 End Function
 

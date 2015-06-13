@@ -543,6 +543,37 @@ Begin VB.Form Form2
          Caption         =   "Graph Xrefs From (Z)"
       End
    End
+   Begin VB.Menu mnuMainPopup 
+      Caption         =   "mnuMainPopup"
+      Begin VB.Menu mnuMain 
+         Caption         =   "Jump To"
+         Index           =   0
+      End
+      Begin VB.Menu mnuMain 
+         Caption         =   "Find Refs"
+         Index           =   1
+      End
+      Begin VB.Menu mnuMain 
+         Caption         =   "Graph To"
+         Index           =   2
+      End
+      Begin VB.Menu mnuMain 
+         Caption         =   "Graph From"
+         Index           =   3
+      End
+      Begin VB.Menu mnuMain 
+         Caption         =   "Copy"
+         Index           =   4
+      End
+      Begin VB.Menu mnuMain 
+         Caption         =   "Paste"
+         Index           =   5
+      End
+      Begin VB.Menu mnuMain 
+         Caption         =   "To Hex"
+         Index           =   6
+      End
+   End
 End
 Attribute VB_Name = "Form2"
 Attribute VB_GlobalNameSpace = False
@@ -569,6 +600,10 @@ Private objsAdded As Boolean
 Dim USING_MYMAIN As Boolean
 Private Declare Function SetFilePointer Lib "kernel32" (ByVal hFile As Long, ByVal lDistanceToMove As Long, lpDistanceToMoveHigh As Long, ByVal dwMoveMethod As Long) As Long
 Dim renames() As String
+
+'if the user navigates from the findall dialog..we cant caputre those
+'because in ocx..so this feature can not be complete so nevermind :-\
+'Dim navPoints() As Long
 
 Public Function StandardizeLineBreaks(ByVal x)
     x = Replace(x, vbCrLf, Chr(5))
@@ -598,6 +633,7 @@ Private Sub lvFunc_DblClick()
     On Error Resume Next
     If Not lvFunc.SelectedItem Is Nothing Then
          'txtJS.GotoLine lvFunc.SelectedItem.tag
+         'push navPoints, CLng(lvFunc.SelectedItem.tag)
          txtJS.FirstVisibleLine = CLng(lvFunc.SelectedItem.tag)
          txtJS.SelectLine
          txtJS.SetFocus
@@ -879,6 +915,55 @@ Public Sub mnuLoadShellcode_Click()
     txtJS.Text = AddPercentToHexString(x)
     txtJS.SelectAll
 End Sub
+
+Private Sub mnuMain_Click(Index As Integer)
+     
+    On Error Resume Next
+    Dim f As Object
+    Dim hexString As String
+    
+    Select Case Index
+        Case 0: lvFunc_DblClick
+        Case 1:
+                If Len(txtJS.CurrentWord) > 0 Then
+                    If isWordFunctionName(txtJS.CurrentWord) Then
+                        mnuFindFuncRefs_Click   'func already selected by mouse up event code
+                    Else
+                        Set f = txtJS.ShowFindReplace
+                        f.Text1 = txtJS.CurrentWord
+                        f.cmdFindAll_Click
+                    End If
+                End If
+                
+        Case 2: mnuGraphTo_Click
+        Case 3: mnuiGraphFrom_Click
+        Case 4:
+                If txtJS.SelLength > 0 Then
+                    txtJS.Copy
+                Else
+                    Clipboard.Clear
+                    Clipboard.SetText txtJS.CurrentWord
+                End If
+                
+        Case 5: txtJS.Paste
+        Case 6:
+                hexString = LongHex(CDbl(txtJS.CurrentWord))
+                If Err.Number = 0 Then txtJS.ReplaceAll txtJS.CurrentWord, "0x" & hexString
+    End Select
+    
+End Sub
+
+'thanks wof: http://forums.codeguru.com/showthread.php?477230-Converting-large-decimal-numbers-to-Hex
+Function LongHex(ByVal Number As Double) As String
+  Dim i#, r#, h$
+  Do
+     i = Int(Number / 16)
+     r = Number - i * 16
+     h = Hex$(r) + h
+     Number = i
+  Loop While Number > 0
+  LongHex = h$
+End Function
 
 Private Sub mnuProcessActionScript_Click()
     On Error Resume Next
@@ -1355,6 +1440,8 @@ Private Sub Form_Load()
     mnuPopup2.Visible = False
     mnuPopup3.Visible = False
     mnuPopupFuncs.Visible = False
+    mnuMainPopup.Visible = False
+    txtJS.ContextMenu = False
     
     mnuWordWrap.Checked = IIf(GetMySetting("WordWrap", 1) = 1, True, False)
     mnuIndentGuide.Checked = IIf(GetMySetting("IndentGuide", 0) = 1, True, False)
@@ -1987,18 +2074,59 @@ End Sub
 
 Private Sub txtJS_DoubleClick()
     Dim word As String
+    Dim li As ListItem
+    
     word = txtJS.CurrentWord
     If Len(word) < 20 Then
         Me.Caption = "  " & txtJS.hilightWord(word, , vbBinaryCompare) & " instances of '" & word & " ' found"
+        If isWordFunctionName(word) Then selectFunction word
     End If
 End Sub
 
+ 
+
+Function isWordFunctionName(word As String) As Boolean
+    Dim li As ListItem
+    For Each li In lvFunc.ListItems
+        If li.Text = word Then
+            isWordFunctionName = True
+            Exit For
+        End If
+    Next
+End Function
+
+Function selectFunction(name As String)
+    Dim li As ListItem
+    For Each li In lvFunc.ListItems
+        If li.Text = name Then li.Selected = True Else li.Selected = False
+    Next
+End Function
+
 Private Sub txtJS_MouseUp(Button As Integer, Shift As Integer, x As Long, Y As Long)
+    
     On Error Resume Next
+    
     Dim sel As String
+    Dim word As String 'word mouse is currently over..
+    Dim isFuncName As Boolean
+ 
+    
     sel = txtJS.SelText
     If InStr(sel, Chr(0)) > 0 Then MsgBox "found null!"
     If Len(sel) > 0 And Len(sel) < 20 Then
         Me.Caption = "  " & txtJS.hilightWord(sel, , vbBinaryCompare) & " instances of '" & sel & " ' found"
     End If
+    
+    If Button = 2 Then
+        word = txtJS.CurrentWord
+        'Me.Caption = word
+        isFuncName = isWordFunctionName(word)
+        If isFuncName Then selectFunction word
+        mnuMain(0).Visible = isFuncName 'jump to
+        mnuMain(2).Visible = isFuncName 'graph to
+        mnuMain(3).Visible = isFuncName 'graph from
+        mnuMain(6).Visible = IsNumeric(word)
+        PopupMenu mnuMainPopup
+    End If
+    
 End Sub
