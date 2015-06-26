@@ -3,9 +3,11 @@ Attribute VB_Name = "modActionScript"
 'quick and dirty processor..
 Function ProcessActionScript(buffer As String) As String
 
+    
     tmp = Replace(buffer, "public", Empty, , , vbTextCompare)
     tmp = Replace(tmp, "private", Empty, , , vbTextCompare)
     tmp = Replace(tmp, "static", Empty, , , vbTextCompare)
+    tmp = Replace(tmp, Chr(&HEF) & Chr(&HBB) & Chr(&HBF), Empty)
     
     'i dont want to loose this info..but it screws with the formatter which then
     'screws with the function scan feature..
@@ -43,6 +45,7 @@ Function ProcessActionScript(buffer As String) As String
     
     Dim gvars() As String
     Dim funcs() As String
+    Dim Index As String
     
     push gvars, Empty 'never empty
     push funcs, Empty
@@ -77,9 +80,13 @@ Function ProcessActionScript(buffer As String) As String
                 ss = extractSafeStr(t(i), a)
                 If Len(ss) > 0 Then
                     If Not inFuncs Then 'global variables
-                        push gvars, ss & "->" & "g_var" & UBound(gvars)
+                        Index = UBound(gvars)
+                        If Len(Index) = 1 Then Index = "0" & Index
+                        push gvars, ss & "->" & "g_var" & Index
                     Else
-                        push funcs, ss & "->" & "func_" & UBound(funcs)
+                        Index = UBound(funcs)
+                        If Len(Index) = 1 Then Index = "0" & Index
+                        push funcs, ss & "->" & "func_" & Index
                     End If
                 End If
             End If
@@ -110,7 +117,7 @@ nextone:
    For Each x In funcs
       If Len(x) > 0 Then
          Y = Split(x, "->")
-         tmp = Replace(tmp, Y(0), Y(1))
+         tmp = Replace(tmp, Y(0) & "(", Y(1) & "(")
       End If
    Next
 
@@ -121,7 +128,14 @@ nextone:
       End If
    Next
    
-   ProcessActionScript = tmp
+   Dim map As String
+   map = vbCrLf & _
+         "/*" & vbCrLf & vbTab & _
+            Join(gvars, vbCrLf & vbTab) & vbCrLf & vbTab & _
+            Join(funcs, vbCrLf & vbTab) & vbCrLf & _
+         "*/"
+         
+   ProcessActionScript = tmp & Replace(map, "->", " -> ")
     
 End Function
 
@@ -185,4 +199,59 @@ Private Function mltrim(ByVal x) As String
     mltrim = x
     
 End Function
+
+'this is a quick and dirty scan as a cheap shot..just to check basics..
+Function flash_as_cveScan(asScript As String) As String
+
+    Dim cves() As String
+    Dim hits As Long
+    Dim ret() As String
+    
+    push cves, "CVE-2015-3113:play,info,code,video,attachNetStream"
+    push cves, "CVE-2015-0556:copyPixelsToByteArray"
+    push cves, "CVE-2015-0313:createMessageChannel,createWorker"
+    push cves, "CVE-2015-0310 or CVE-2013-0634:new RegExp"
+    push cves, "CVE-2015-0311:domainMemory,uncompress"
+    push cves, "CVE-2014-9163:parseFloat"
+    push cves, "CVE-2014-0515 (if in while loop):byteCode,Shader"
+    push cves, "CVE-2014-0502:setSharedProperty,createWorker,.start,SharedObject"
+    push cves, "CVE-2014-0497:writeUTFBytes,domainMemory"
+    push cves, "CVE-2012-0779:defaultObjectEncoding,AMF0,NetConnection"
+    push cves, "CVE-2012-0754:NetStream,NetConnection,attachNetStream,play"
+    push cves, "CVE-2012-5054:Matrix3D"
+    push cves, "CVE-2012-0779:Responder,NetConnection,AMF0"
+    push cves, "CVE-2012-1535:FontDescription,FontLookup"
+    push cves, "CVE-2011-0609:MovieClip,TimelineMax,TweenMax"
+    push cves, "CVE-2011-2110:Number(_args["
+    push cves, "Loads embedded flash object:loadbytes"
+    
+    If asScript = "cvelist" Then
+        flash_as_cveScan = ";there are more than this, these are some I had on hand" & vbCrLf & _
+                            ";that were agreeable to script level detections. " & vbCrLf & _
+                            vbCrLf & Join(cves, vbCrLf)
+        Exit Function
+    End If
+    
+    If FileExists(asScript) Then
+        dat = ReadFile(fPath)
+    Else
+        dat = asScript
+    End If
+    
+    For Each CVE In cves
+        c = Split(CVE, ":")
+        checks = Split(c(1), ",")
+        hits = 0
+        For Each k In checks
+            If InStr(1, dat, k, vbTextCompare) > 0 Then hits = hits + 1
+        Next
+        If hits = UBound(checks) + 1 Then push ret, CVE
+    Next
+    
+    flash_as_cveScan = Join(ret, vbCrLf)
+    
+End Function
+
+
+
 

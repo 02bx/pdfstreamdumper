@@ -1,6 +1,6 @@
 VERSION 5.00
 Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmBruteZLib 
    Caption         =   "Zlib Brute Forcer - find zlib compressed sections of file"
    ClientHeight    =   8055
@@ -179,7 +179,6 @@ Begin VB.Form frmBruteZLib
       _ExtentX        =   19235
       _ExtentY        =   9313
       _Version        =   393217
-      Enabled         =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"frmBruteZLib.frx":0000
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -337,7 +336,7 @@ Private Sub cmdLoadNewStream_Click()
                                 " " & IIf(c.CompressedSize > .CompressedSize, "SMALLER", "BIGGER") & _
                                 " than original"
             If .CompressedSize > c.CompressedSize Then
-                chkPadifSmaller.Value = 0
+                chkPadifSmaller.value = 0
                 chkPadifSmaller.enabled = False
             End If
         End With
@@ -373,7 +372,7 @@ Private Sub Command1_Click()
     
     abort = False
     lv.ListItems.Clear
-    pb.Value = 0
+    pb.value = 0
     rtf.Text = Empty
     txtDetails = Empty
     
@@ -391,9 +390,9 @@ Private Sub Command1_Click()
         DoEvents
         If abort Then Exit For
         
-        If csharp.QuickDeflate(b(), bOut(), i, optZlib.Value) Then
+        If csharp.QuickDeflate(b(), bOut(), i, optZlib.value) Then
         
-            Module4.CompressData bOut, tmp 'figure out how big compressed block was
+            modZLIB.CompressData bOut, tmp 'figure out how big compressed block was
             Set c = New CPDFStream
             c.startOffset = i - 1
             
@@ -418,8 +417,8 @@ Private Sub Command1_Click()
         End If
     Next
     
-    pb.Value = 0
-    MsgBox lv.ListItems.Count & " Streams found!", vbInformation
+    pb.value = 0
+    MsgBox lv.ListItems.count & " Streams found!", vbInformation
             
         
 End Sub
@@ -469,7 +468,7 @@ End Sub
 '
 '        csharp.decode Mid(d, i), FlateDecode
 '
-'        'Module4.UncompressData b, bout, i
+'        'modzlib.UncompressData b, bout, i
 '        setPB i, UBound(b)
 '        DoEvents
 '        Me.Refresh
@@ -479,7 +478,7 @@ End Sub
 '        'If Not AryIsEmpty(bout) Then
 '        If Len(csharp.DecodedBuffer) > 0 Then
 '            bOut = StrConv(csharp.DecodedBuffer, vbFromUnicode, LANG_US)
-'            Module4.CompressData bOut, tmp 'figure out how big compressed block was
+'            modzlib.CompressData bOut, tmp 'figure out how big compressed block was
 '            Set c = New CPDFStream
 '            c.startOffset = i - 1
 '
@@ -518,7 +517,7 @@ End Function
 Sub setPB(i, tot)
     On Error Resume Next
     pcent = CInt((i / tot) * 100)
-    If pcent >= 100 Then pb.Value = 0 Else pb.Value = pcent
+    If pcent >= 100 Then pb.value = 0 Else pb.value = pcent
 End Sub
 
 Private Sub Command2_Click()
@@ -557,8 +556,8 @@ Private Sub Command4_Click()
     If Len(txtNew) = 0 Then Exit Sub
     
     With replacementStream
-        If .CompressedSize < c.CompressedSize And chkPadifSmaller.Value = 1 Then
-            If Option1(0).Value = True Then 'pad before recompression...
+        If .CompressedSize < c.CompressedSize And chkPadifSmaller.value = 1 Then
+            If Option1(0).value = True Then 'pad before recompression...
                 MsgBox "do stuff here"
                 Exit Sub
             Else
@@ -608,7 +607,7 @@ End Sub
 
 Private Sub Form_Load()
     Me.Icon = Form1.Icon
-    pb.Value = 0
+    pb.value = 0
     lv.ColumnHeaders(1).Width = lv.Width - 100
     txtFile = Form1.txtPDFPath
     optLZW.Visible = isIde()
@@ -655,17 +654,17 @@ Private Sub mnuCompareWithMain_Click()
     Dim li As ListItem
     Dim matches As Long
     
-    If lv.ListItems.Count = 0 Then
+    If lv.ListItems.count = 0 Then
         MsgBox "No streams loaded in zlib brute. This feature will compare streams found by bruting with streams found by pdf parsing and remove all common streams from this form to see if any were hidden.", vbInformation
         Exit Sub
     End If
     
-    If Form1.lv.ListItems.Count = 0 Then
+    If Form1.lv.ListItems.count = 0 Then
         MsgBox "No streams loaded in main UI listview nothing to do", vbInformation
         Exit Sub
     End If
     
-    For i = lv.ListItems.Count To 1 Step -1
+    For i = lv.ListItems.count To 1 Step -1
         Set li = lv.ListItems(i)
         Set c = li.tag
         If FindStreamInMain(c) Then
@@ -674,7 +673,7 @@ Private Sub mnuCompareWithMain_Click()
         End If
     Next
     
-    MsgBox matches & " made - " & lv.ListItems.Count & " hidden streams identified!"
+    MsgBox matches & " made - " & lv.ListItems.count & " hidden streams identified!"
     
 End Sub
 
@@ -697,7 +696,7 @@ Private Sub mnuCopyAllStats_Click()
     Dim c As CPDFStream
     Dim li As ListItem
     
-    If lv.ListItems.Count = 0 Then Exit Sub
+    If lv.ListItems.count = 0 Then Exit Sub
     
     For Each li In lv.ListItems
         Set c = li.tag
@@ -740,7 +739,7 @@ Private Sub mnuSaveAll_Click()
     Dim f As String
     Dim ok As Long
     
-    If lv.ListItems.Count = 0 Then Exit Sub
+    If lv.ListItems.count = 0 Then Exit Sub
     
     d = Form1.dlg.FolderDialog(, Me.hwnd)
     If Len(d) = 0 Then Exit Sub
@@ -752,7 +751,7 @@ Private Sub mnuSaveAll_Click()
         If SaveStream(c, f) Then ok = ok + 1
     Next
     
-    MsgBox ok & "/" & lv.ListItems.Count & " Streams saved successfully!", vbInformation
+    MsgBox ok & "/" & lv.ListItems.count & " Streams saved successfully!", vbInformation
     
 End Sub
 
@@ -769,14 +768,14 @@ Private Sub mnuSaveToFile_Click()
     
 End Sub
 
-Function SaveStream(c As CPDFStream, fpath) As Boolean
+Function SaveStream(c As CPDFStream, fPath) As Boolean
     On Error Resume Next
     Dim b() As Byte
     Dim f As Long
     
     b() = StrConv(c.DecompressedData, vbFromUnicode, LANG_US)
     f = FreeFile
-    Open fpath For Binary As f
+    Open fPath For Binary As f
     Put f, , b()
     Close f
     
@@ -794,7 +793,7 @@ Private Sub mnuSearchStreams_Click()
     Dim f As String
     Dim ok As Long
     
-    If lv.ListItems.Count = 0 Then Exit Sub
+    If lv.ListItems.count = 0 Then Exit Sub
     
     d = InputBox("Search for:")
     If Len(d) = 0 Then Exit Sub

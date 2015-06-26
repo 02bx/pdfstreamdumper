@@ -402,13 +402,13 @@ Function WebFileNameFromPath(fullpath)
     End If
 End Function
 
-Sub Move(fpath, toFolder)
-    Copy fpath, toFolder
-    Kill fpath
+Sub Move(fPath, toFolder)
+    Copy fPath, toFolder
+    Kill fPath
 End Sub
 
-Sub DeleteFile(fpath)
-    Kill fpath
+Sub DeleteFile(fPath)
+    Kill fPath
 End Sub
 
 Sub Rename(fullpath, NewName)
@@ -416,8 +416,8 @@ Sub Rename(fullpath, NewName)
   Name fullpath As pf & "\" & NewName
 End Sub
 
-Sub SetAttribute(fpath, it As VbFileAttribute)
-   SetAttr fpath, it
+Sub SetAttribute(fPath, it As VbFileAttribute)
+   SetAttr fPath, it
 End Sub
 
 Function GetExtension(path) As String
@@ -550,20 +550,20 @@ Sub AppendFile(path, it) 'not binary safe
 End Sub
 
 
-Sub Copy(fpath, toFolder)
+Sub Copy(fPath, toFolder)
    If FolderExists(toFolder) Then
-       baseName = fso.FileNameFromPath(fpath)
+       baseName = fso.FileNameFromPath(fPath)
        toFolder = IIf(right(toFolder, 1) = "\", toFolder, toFolder & "\")
-       FileCopy fpath, toFolder & baseName
+       FileCopy fPath, toFolder & baseName
    Else 'assume tofolder is actually new desired file path
-       FileCopy fpath, toFolder
+       FileCopy fPath, toFolder
    End If
 End Sub
 
-Sub CreateFile(fpath)
+Sub CreateFile(fPath)
     f = FreeFile
-    If fso.FileExists(fpath) Then Exit Sub
-    Open fpath For Binary As f
+    If fso.FileExists(fPath) Then Exit Sub
+    Open fPath For Binary As f
     Close f
 End Sub
 
@@ -677,3 +677,4 @@ Function SaveTopXElements(ary() As Long, count As Long) As Long()
     SaveTopXElements = ret
     
 End Function
+

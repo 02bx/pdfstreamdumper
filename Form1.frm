@@ -91,7 +91,6 @@ Begin VB.Form Form1
       _ExtentX        =   15478
       _ExtentY        =   6059
       _Version        =   393217
-      Enabled         =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":1142
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -410,6 +409,7 @@ Begin VB.Form Form1
       _ExtentX        =   17383
       _ExtentY        =   7223
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":11C4
@@ -869,7 +869,7 @@ Attribute VB_Exposed = False
 '          - header _CHR(0)_ replaced with empty now (seems only to cause bug) also replaced py in header with empty
 '          - added progress bar and doevents me.refresh to keep ui from freezing on big files
 
-Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hWnd As Long, ByVal lpszOp As String, ByVal lpszFile As String, ByVal lpszParams As String, ByVal LpszDir As String, ByVal FsShowCmd As Long) As Long
+Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hwnd As Long, ByVal lpszOp As String, ByVal lpszFile As String, ByVal lpszParams As String, ByVal LpszDir As String, ByVal FsShowCmd As Long) As Long
 Private Declare Function GetTickCount Lib "kernel32" () As Long
 
 Dim WithEvents parser As CPdfParser
@@ -956,7 +956,7 @@ Function RegisterPlugin(intMenu As Integer, strMenuName As String, intStartupArg
     Dim i As Integer
     
     'If intMenu = 0 Then
-        i = mnuPluginList.Count
+        i = mnuPluginList.count
         Load mnuPluginList(i)
         mnuPluginList(i).Caption = strMenuName
         mnuPluginList(i).Visible = True
@@ -970,7 +970,7 @@ Private Sub cmdAbortProcessing_Click()
     On Error Resume Next
     parser.abort = True
     ucAsyncDownload1.AbortDownload
-    pb.Value = 0
+    pb.value = 0
 End Sub
 
 Private Sub lblClosePictViewer_Click()
@@ -1188,7 +1188,7 @@ Private Sub mnuDecompileFlashTools_Click()
     Dim p As String
     Dim exe As String
     
-    p = dlg.OpenDialog(AllFiles, , "Select Flash file to decompile", Me.hWnd)
+    p = dlg.OpenDialog(AllFiles, , "Select Flash file to decompile", Me.hwnd)
     If Len(p) = 0 Or Not fso.FileExists(p) Then Exit Sub
     
     exe = GetShortName(exe_path)
@@ -1231,7 +1231,7 @@ Private Sub mnuDecompressSWC_Click()
     Get ff, , b()
     Close ff
     
-    If Not Module4.UncompressData(b(), bOut()) Then
+    If Not modZLIB.UncompressData(b(), bOut()) Then
         MsgBox "Decompression Failed", vbInformation
         Exit Sub
     End If
@@ -1281,7 +1281,7 @@ End Sub
 
 Private Sub mnuErrorSaveRawAll_Click()
     
-    If lv2.ListItems.Count = 0 Then
+    If lv2.ListItems.count = 0 Then
         MsgBox "No Error streams to save?"
         Exit Sub
     End If
@@ -1313,7 +1313,7 @@ Private Sub mnuErrorSaveRawAll_Click()
     
     Next
     
-    MsgBox lv2.ListItems.Count & " error Streams Saved to Folder: " & pf, vbInformation
+    MsgBox lv2.ListItems.count & " error Streams Saved to Folder: " & pf, vbInformation
     
 End Sub
 
@@ -1434,7 +1434,7 @@ Private Sub mnuNewHexEditorWin_Click()
     h = GetMySetting("hexeditor")
     If Len(h) = 0 Or Not fso.FileExists(h) Then
         If MsgBox("You have not yet configured which hexeditor to use select it now?", vbYesNo) = vbNo Then Exit Sub
-        h = dlg.OpenDialog(exeFiles, , "Select hexeditor to use", Me.hWnd)
+        h = dlg.OpenDialog(exeFiles, , "Select hexeditor to use", Me.hwnd)
         If fso.FileExists(h) Then
             SaveMySetting "hexeditor", h
         Else
@@ -1575,7 +1575,7 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
     End If
     
     If KeyCode = 68 And Shift = 2 Then 'ctrl-d - delete selected
-        For i = lv.ListItems.Count To 1 Step -1
+        For i = lv.ListItems.count To 1 Step -1
             If li.Selected = True Then
                 lv.ListItems.Remove i
             End If
@@ -1642,7 +1642,7 @@ Private Sub mnuErrorSaveRaw_Click()
     GetActiveData lv2.SelectedItem, , c
     
     b() = StrConv(c.OriginalData, vbFromUnicode, LANG_US)
-    pth = dlg.SaveDialog(AllFiles, pf, "Save Stream", , Me.hWnd, "error_stream_0x" & Hex(c.startOffset) & ".txt")
+    pth = dlg.SaveDialog(AllFiles, pf, "Save Stream", , Me.hwnd, "error_stream_0x" & Hex(c.startOffset) & ".txt")
     
     If Len(pth) = 0 Then Exit Sub
     
@@ -1728,7 +1728,7 @@ Private Sub mnuHexEditor_Click()
     h = GetMySetting("hexeditor")
     If Len(h) = 0 Or Not fso.FileExists(h) Then
         If MsgBox("You have not yet configured which hexeditor to use select it now?", vbYesNo) = vbNo Then Exit Sub
-        h = dlg.OpenDialog(exeFiles, , "Select hexeditor to use", Me.hWnd)
+        h = dlg.OpenDialog(exeFiles, , "Select hexeditor to use", Me.hwnd)
         If fso.FileExists(h) Then
             SaveMySetting "hexeditor", h
         Else
@@ -1748,7 +1748,7 @@ Private Sub mnuHideUnselected_Click()
     On Error Resume Next
     Dim i As Long
     
-    For i = lv.ListItems.Count To 1 Step -1
+    For i = lv.ListItems.count To 1 Step -1
         If lv.ListItems(i).Selected = False Then
             lv.ListItems.Remove i
         End If
@@ -1760,7 +1760,7 @@ Private Sub mnuLoadAutomationScript_Click()
     
     Dim f As String
     dlg.SetCustomFilter "VBScripts", "*.vbs"
-    f = dlg.OpenDialog(CustomFilter, App.path & "\scripts\", "Load automation script", Me.hWnd)
+    f = dlg.OpenDialog(CustomFilter, App.path & "\scripts\", "Load automation script", Me.hwnd)
     If Len(f) = 0 Then Exit Sub
     RunAutomationScript f
     
@@ -1848,7 +1848,7 @@ Private Sub mnuSecureDownload_Click()
     a = InStr(f, "?")
     If a > 2 Then f = Mid(f, 1, a - 1)
     
-    f = dlg.SaveDialog(AllFiles, "", "Save file as...", False, Me.hWnd, f)
+    f = dlg.SaveDialog(AllFiles, "", "Save file as...", False, Me.hwnd, f)
     If Len(f) = 0 Then Exit Sub
     
     If fso.FileExists(f) Then
@@ -1968,7 +1968,7 @@ Private Sub mnuHideDups_Click()
     If mnuHideDups.Checked = False Then
         cmdDecode_Click
     Else
-        For i = lv.ListItems.Count To 1 Step -1
+        For i = lv.ListItems.count To 1 Step -1
             Set s = lv.ListItems(i).tag
             If s.ContainsStream Then
                 If keyExists(s.OriginalDataCRC, c) Then
@@ -1989,7 +1989,7 @@ Private Sub mnuHideDups_Click()
         If Not surpressHideWarnings Then MsgBox "Hid " & h & " duplicates", vbInformation
     End If
     
-    lv.ColumnHeaders(1).Text = lv.ListItems.Count & " Objects Shown"
+    lv.ColumnHeaders(1).Text = lv.ListItems.count & " Objects Shown"
     
 End Sub
 
@@ -1999,7 +1999,7 @@ Private Sub mnuHideSelected_Click()
     On Error Resume Next
     Dim i As Long
     
-    For i = lv.ListItems.Count To 1 Step -1
+    For i = lv.ListItems.count To 1 Step -1
         If lv.ListItems(i).Selected = True Then
             lv.ListItems.Remove i
         End If
@@ -2020,7 +2020,7 @@ Private Sub mnuHideHeaderStreams_Click()
     If mnuHideHeaderStreams.Checked = False Then
         cmdDecode_Click
     Else
-        For i = lv.ListItems.Count To 1 Step -1
+        For i = lv.ListItems.count To 1 Step -1
             Set s = lv.ListItems(i).tag
             If s.startOffset = 0 Then ' no stream
                 lv.ListItems.Remove i
@@ -2030,7 +2030,7 @@ Private Sub mnuHideHeaderStreams_Click()
         If Not surpressHideWarnings Then MsgBox "Hid " & h & " header only fields"
     End If
     
-    lv.ColumnHeaders(1).Text = lv.ListItems.Count & " Objects Shown"
+    lv.ColumnHeaders(1).Text = lv.ListItems.count & " Objects Shown"
                 
     
 End Sub
@@ -2100,7 +2100,7 @@ Private Sub mnuSearchFilter_Click(Index As Integer)
     Dim x
     lvSearch.ListItems.Clear
         
-    If lv.ListItems.Count = 0 And lv2.ListItems.Count = 0 Then
+    If lv.ListItems.count = 0 And lv2.ListItems.count = 0 Then
         MsgBox "No streams loaded nothing to search!", vbCritical
         Exit Sub
     End If
@@ -2155,7 +2155,7 @@ Private Sub mnuSearchFilter_Click(Index As Integer)
         TabStrip1.Tabs(2).Selected = True
     'End If
     
-    lvSearch.ColumnHeaders(1).Text = lvSearch.ListItems.Count & " Search Results"
+    lvSearch.ColumnHeaders(1).Text = lvSearch.ListItems.count & " Search Results"
     
 End Sub
 
@@ -2235,7 +2235,7 @@ Private Sub mnuUpdateCurrent_Click()
     new_data = txtUncompressed.Text
     new_bytes() = StrConv(new_data, vbFromUnicode, LANG_US)
     
-    If Not Module4.CompressData(new_bytes(), bOut()) Then
+    If Not modZLIB.CompressData(new_bytes(), bOut()) Then
         MsgBox "Compression Failed", vbInformation
         Exit Sub
     End If
@@ -2421,12 +2421,12 @@ End Sub
 
 Private Sub parser_Complete()
     On Error Resume Next
-    pb.Value = 0
+    pb.value = 0
 End Sub
 
 Private Sub IncProgressBar()
     On Error Resume Next
-    pb.Value = pb.Value + 1
+    pb.value = pb.value + 1
 End Sub
 
 Private Sub parser_DebugMessage(msg As String)
@@ -2529,7 +2529,7 @@ End Sub
 Private Sub cmdBrowse_Click()
     Dim p As String
     AutomatationRun = False
-    p = dlg.OpenDialog(AllFiles, RecommendedPath(), "Load PDF File", Me.hWnd)
+    p = dlg.OpenDialog(AllFiles, RecommendedPath(), "Load PDF File", Me.hwnd)
     If Len(p) > 0 Then
         txtPDFPath = p
         cmdDecode_Click
@@ -2543,7 +2543,7 @@ End Function
 
 Private Sub Command1_Click()
         On Error Resume Next
-        Call ShellExecute(Me.hWnd, "Open", txtPDFPath, "", "C:\", 1)
+        Call ShellExecute(Me.hwnd, "Open", txtPDFPath, "", "C:\", 1)
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
@@ -2601,7 +2601,7 @@ Private Sub mnuCompress_Click()
     Dim b() As Byte
     Dim bOut() As Byte
     
-    base_file = dlg.OpenDialog(AllFiles, , "Select File to compress", Me.hWnd)
+    base_file = dlg.OpenDialog(AllFiles, , "Select File to compress", Me.hwnd)
     If Len(base_file) = 0 Then Exit Sub
     
     out_file = base_file & ".compressed"
@@ -2609,7 +2609,7 @@ Private Sub mnuCompress_Click()
     tmp = fso.ReadFile(base_file)
     b() = StrConv(tmp, vbFromUnicode, LANG_US)
     
-    If Not Module4.CompressData(b(), bOut()) Then
+    If Not modZLIB.CompressData(b(), bOut()) Then
         MsgBox "Compression Failed", vbInformation
         Exit Sub
     End If
@@ -2631,7 +2631,7 @@ Private Sub mnuDecompress_Click()
     Dim b() As Byte
     Dim bOut() As Byte
     
-    base_file = dlg.OpenDialog(AllFiles, , "Select File to compress", Me.hWnd)
+    base_file = dlg.OpenDialog(AllFiles, , "Select File to compress", Me.hwnd)
     If Len(base_file) = 0 Then Exit Sub
     
     out_file = base_file & ".decompressed"
@@ -2639,7 +2639,7 @@ Private Sub mnuDecompress_Click()
     tmp = fso.ReadFile(base_file)
     b() = StrConv(tmp, vbFromUnicode, LANG_US)
     
-    If Not Module4.UncompressData(b(), bOut()) Then
+    If Not modZLIB.UncompressData(b(), bOut()) Then
         MsgBox "Decompression Failed", vbInformation
         Exit Sub
     End If
@@ -2698,13 +2698,13 @@ Public Sub cmdDecode_Click()
     '    parser.Old_ParseFile txtPDFPath
     'End If
     
-    If lv.ListItems.Count = 0 And lv2.ListItems.Count = 0 Then
+    If lv.ListItems.count = 0 And lv2.ListItems.count = 0 Then
        'MsgBox "No stream markers found in this file", vbInformation
        GoTo end_of_func
     End If
     
-    lv.ColumnHeaders(1).Text = lv.ListItems.Count & " Objects"
-    lv2.ColumnHeaders(1).Text = lv2.ListItems.Count & " Decompression Errors"
+    lv.ColumnHeaders(1).Text = lv.ListItems.count & " Objects"
+    lv2.ColumnHeaders(1).Text = lv2.ListItems.count & " Decompression Errors"
     
     With StatusBar
         .Panels(1).Text = "Streams:" & streamCount
@@ -2736,7 +2736,7 @@ end_of_func:
         DoEvents
         
         For Each x In scAuto.Procedures
-            If LCase(x.Name) = "decode_complete" Then
+            If LCase(x.name) = "decode_complete" Then
                 scAuto.eval "Decode_Complete()"
                 Exit For
             End If
@@ -2773,7 +2773,7 @@ end_of_func:
     
     If Not csharp.Initilized Then lvDebug.ListItems.Add , , "C# Filters not initilized. See Tools->Manual Filters and click on iText Filters = false link"
     
-    TabStrip1.Tabs(3).Caption = "Debug" & IIf(lvDebug.ListItems.Count > 0, " (" & lvDebug.ListItems.Count & ")", "")
+    TabStrip1.Tabs(3).Caption = "Debug" & IIf(lvDebug.ListItems.count > 0, " (" & lvDebug.ListItems.count & ")", "")
     
     If Len(ExtractToFolder) > 0 Then ExtractTo ExtractToFolder
         
@@ -2982,7 +2982,7 @@ Private Sub mnuReplaceStream_Click()
     
     
     pf = GetParentFolder(txtPDFPath)
-    new_file = dlg.OpenDialog(AllFiles, pf, "Open Compressed Replacement Stream", Me.hWnd)
+    new_file = dlg.OpenDialog(AllFiles, pf, "Open Compressed Replacement Stream", Me.hwnd)
     If Len(new_file) = 0 Then Exit Sub
     
     new_data = fso.ReadFile(new_file)
@@ -2990,7 +2990,7 @@ Private Sub mnuReplaceStream_Click()
     
     If MsgBox("Do i need to compress this file before inserting it?", vbYesNo) = vbYes Then
         Dim tmp_bytes() As Byte
-        If Not Module4.CompressData(new_bytes(), tmp_bytes()) Then
+        If Not modZLIB.CompressData(new_bytes(), tmp_bytes()) Then
             MsgBox "Compression failed!", vbExclamation
             Exit Sub
         End If
@@ -3003,7 +3003,7 @@ Private Sub mnuReplaceStream_Click()
     
     If MsgBox(msg, vbYesNo) = vbNo Then Exit Sub
     
-    new_file = dlg.SaveDialog(AllFiles, pf, "Save New PDF As", , Me.hWnd)
+    new_file = dlg.SaveDialog(AllFiles, pf, "Save New PDF As", , Me.hwnd)
     If Len(new_file) = 0 Then Exit Sub
     
     f = FreeFile
@@ -3071,7 +3071,7 @@ Private Sub mnuSaveAllRaw_Click()
         Close f
     Next
     
-    MsgBox lv.ListItems.Count & " Streams dumped to " & pf, vbInformation
+    MsgBox lv.ListItems.count & " Streams dumped to " & pf, vbInformation
     
 End Sub
 
@@ -3092,7 +3092,7 @@ Private Sub mnuSaveStream_Click()
         
     b() = StrConv(GetActiveData(lv.SelectedItem, , c), vbFromUnicode, LANG_US)
     
-    pth = dlg.SaveDialog(AllFiles, pf, "Save Stream", , Me.hWnd, "decomp_stream_0x" & Hex(c.startOffset) & ".txt")
+    pth = dlg.SaveDialog(AllFiles, pf, "Save Stream", , Me.hwnd, "decomp_stream_0x" & Hex(c.startOffset) & ".txt")
     
     If Len(pth) = 0 Then Exit Sub
     
@@ -3123,7 +3123,7 @@ Private Sub mnusSaveRawStream_Click()
     pf = GetParentFolder(txtPDFPath)
     GetActiveData lv.SelectedItem, False, c
     
-    pth = dlg.SaveDialog(AllFiles, pf, "Save Raw Stream", , Me.hWnd, "raw_stream_0x" & Hex(c.startOffset) & ".txt")
+    pth = dlg.SaveDialog(AllFiles, pf, "Save Raw Stream", , Me.hwnd, "raw_stream_0x" & Hex(c.startOffset) & ".txt")
     If Len(pth) = 0 Then Exit Sub
   
     b() = StrConv(c.OriginalData, vbFromUnicode, LANG_US)
@@ -3169,7 +3169,7 @@ Private Sub mnuSaveAllStreams_Click()
         Close f
     Next
     
-    MsgBox lv.ListItems.Count & " Streams dumped to " & pf, vbInformation
+    MsgBox lv.ListItems.count & " Streams dumped to " & pf, vbInformation
     
 End Sub
 
@@ -3248,7 +3248,7 @@ Private Sub mnuSearch_Click()
     Dim x
     lvSearch.ListItems.Clear
         
-    If lv.ListItems.Count = 0 And lv2.ListItems.Count = 0 Then
+    If lv.ListItems.count = 0 And lv2.ListItems.count = 0 Then
         MsgBox "No streams loaded nothing to search!", vbCritical
         Exit Sub
     End If
@@ -3274,13 +3274,13 @@ Private Sub mnuSearch_Click()
         End If
     Next
     
-    If lvSearch.ListItems.Count > 0 Then
+    If lvSearch.ListItems.count > 0 Then
         TabStrip1.Tabs(2).Selected = True
     Else
         MsgBox "0 Search Results", vbInformation
     End If
     
-    lvSearch.ColumnHeaders(1).Text = lvSearch.ListItems.Count & " Search Results"
+    lvSearch.ColumnHeaders(1).Text = lvSearch.ListItems.count & " Search Results"
     
 
 End Sub
@@ -3372,7 +3372,7 @@ Private Sub Form_Load()
     Dim vid, i
     For Each vid In help_vids
         vid = Split(vid, ";")
-        i = mnuHelp.Count
+        i = mnuHelp.count
         Load mnuHelp(i)
         mnuHelp(i).Caption = vid(0)
         mnuHelp(i).tag = Trim(vid(1))
@@ -3424,7 +3424,9 @@ Private Sub Form_Load()
     
 
     If Len(command) > 0 Then 'handle files draged and droped on icon or on command line...
-        If InStr(1, command, ".js", vbTextCompare) > 0 Then 'js files load in jseditor
+        If InStr(1, command, ".js", vbTextCompare) > 0 Or _
+            InStr(1, command, ".as", vbTextCompare) > 0 _
+        Then 'js files load in jseditor
             f = Replace(command, """", Empty)
             If fso.FileExists(f) Then
                 x = fso.ReadFile(f)
@@ -3496,9 +3498,9 @@ Private Function RunAutomationScript(pth)
         .AddCode fso.ReadFile(pth)
         
         For Each x In .Procedures
-            If LCase(x.Name) = "main" Then
+            If LCase(x.name) = "main" Then
                 main_found = True
-            ElseIf LCase(x.Name) = "decode_complete" Then
+            ElseIf LCase(x.name) = "decode_complete" Then
                 Decode_Complete_found = True
             End If
         Next
@@ -3566,6 +3568,7 @@ Private Sub mnuViewExploitDetections_Click()
     report = Join(exploits, vbCrLf)
     report = Replace(report, "=", vbTab)
     report = report & vbCrLf & vbCrLf & "Flash CVE's: " & vbCrLf & String(50, "-") & vbCrLf & Join(flash_exploits, vbCrLf)
+    report = report & vbCrLf & vbCrLf & flash_as_cveScan("cvelist")
     
     tmp = fso.GetFreeFileName(Environ("temp"))
     fso.writeFile tmp, report
@@ -3577,19 +3580,19 @@ End Sub
 Private Sub parser_SetObjectCount(cnt As Long)
     On Error Resume Next
     pb.max = cnt
-    pb.Value = 0
+    pb.value = 0
 End Sub
 
 
 Private Sub sc_Error()
-    MsgBox "Script Error: " & sc.error.Description & "  " & sc.error.Text
+    MsgBox "Script Error: " & sc.Error.Description & "  " & sc.Error.Text
 End Sub
 
 Private Sub scAuto_Error()
-     MsgBox "Automation Script Error: " & scAuto.error.Description & vbCrLf & _
-            "Line: " & scAuto.error.Line & vbCrLf & _
-            "Source: " & scAuto.error.Source & vbCrLf & _
-            "Text: " & scAuto.error.Text
+     MsgBox "Automation Script Error: " & scAuto.Error.Description & vbCrLf & _
+            "Line: " & scAuto.Error.line & vbCrLf & _
+            "Source: " & scAuto.Error.Source & vbCrLf & _
+            "Text: " & scAuto.Error.Text
 End Sub
 
 Private Sub TabStrip1_Click()
@@ -3710,7 +3713,7 @@ End Function
 '            stream.Index = cnt
 '
 '            'Decode this portion
-'            Module4.UncompressData TheBytes, xbBufferOut
+'            modzlib.UncompressData TheBytes, xbBufferOut
 '
 '            If aryIsEmpty(xbBufferOut) Then 'decompress error
 '                stream.Message = "Decompression Error. Probably Not Compressed"
@@ -3740,15 +3743,15 @@ End Function
 '
 'Loop
 '
-Private Sub ucAsyncDownload1_DownloadComplete(fpath As String)
+Private Sub ucAsyncDownload1_DownloadComplete(fPath As String)
     Dim f As String
     Dim a As Long
     
     On Error GoTo hell
     
-    pb.Value = 0
-    Name fpath As DownloadPath
-    If fso.FileExists(fpath) Then Kill fpath
+    pb.value = 0
+    Name fPath As DownloadPath
+    If fso.FileExists(fPath) Then Kill fPath
     
     Exit Sub
 hell:
@@ -3770,6 +3773,6 @@ End Sub
 Private Sub ucAsyncDownload1_Progress(current As Long, total As Long)
     On Error Resume Next 'bug if total > pb.max capability? (single)
     pb.max = total + 1
-    pb.Value = current
+    pb.value = current
 End Sub
 '

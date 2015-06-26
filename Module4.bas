@@ -1,4 +1,4 @@
-Attribute VB_Name = "Module4"
+Attribute VB_Name = "modZLIB"
  Option Explicit
 
  Private Const Z_FINISH As Long = 4
@@ -46,8 +46,8 @@ Public Property Get ZLIB_ChunkSize() As Long
     End If
     ZLIB_ChunkSize = mnChunkSize
 End Property
-Public Property Let ZLIB_ChunkSize(ByVal Value As Long)
-    mnChunkSize = Value
+Public Property Let ZLIB_ChunkSize(ByVal value As Long)
+    mnChunkSize = value
 End Property
 
 Public Property Get ZLIB_Version() As String
@@ -57,8 +57,8 @@ Public Property Get ZLIB_Version() As String
     ZLIB_Version = msVersion
 End Property
 
-Public Property Let ZLIB_Version(ByRef Value As String)
-    msVersion = Value
+Public Property Let ZLIB_Version(ByRef value As String)
+    msVersion = value
 End Property
 
 Public Function CompressData(ByRef vxbInput() As Byte, ByRef vxbOutput() As Byte, Optional vnStart As Long = 0, Optional vnMaxSize As Long = 0, Optional veCompressionLevel As ZLIB_CompressionLevelConstants = Z_DEFAULT_COMPRESSION) As Boolean

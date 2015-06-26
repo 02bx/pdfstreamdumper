@@ -353,7 +353,6 @@ Begin VB.Form frmManualFilters
       _ExtentX        =   22251
       _ExtentY        =   9922
       _Version        =   393217
-      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"frmManualFilters.frx":0000
@@ -470,7 +469,7 @@ Private Sub cmdDecode_Click(Index As Integer)
         Exit Sub
     End If
     
-    If chkDebug.Value = 1 Then dbugMode = True
+    If chkDebug.value = 1 Then dbugMode = True
     
     If Index = FlateDecode Then
         If NativeFlateDecompress(buf) Then
@@ -547,14 +546,14 @@ End Function
 Private Function DisplayData() As String
     On Error Resume Next
     
-    If chkHexdump.Value = 1 Then
+    If chkHexdump.value = 1 Then
         txtUncompressed.Text = HexDump(buf)
     Else
         txtUncompressed.Text = buf 'this can throw out of memory error sometimes on binary data? weird..
     End If
     
-    If Err.Number <> 0 And chkHexdump.Value = 0 Then
-        chkHexdump.Value = 1
+    If Err.Number <> 0 And chkHexdump.value = 0 Then
+        chkHexdump.value = 1
         txtUncompressed.Text = HexDump(buf)
     End If
     
@@ -567,7 +566,7 @@ Private Function NativeFlateDecompress(ByVal s As String) As Boolean
     
     b = StrConv(s, vbFromUnicode, LANG_US)
                 
-    Module4.UncompressData b(), bOut()
+    modZLIB.UncompressData b(), bOut()
     
     If Not AryIsEmpty(bOut) Then
         buf = StrConv(bOut, vbUnicode, LANG_US)
@@ -675,7 +674,7 @@ Private Sub Command4_Click()
         Exit Sub
     End If
     
-    If optFaxCode(0).Value = True Then
+    If optFaxCode(0).value = True Then
         buf = mupdf.muCCITTFaxDecode(buf, columns, rows, k, endofline, encodedbytealign, endofblock, blackis1)
         DisplayData
     Else
@@ -697,9 +696,9 @@ Private Sub Form_Load()
     Dim enabled As Boolean, i As Long
     
     optFaxCode(1).enabled = csharp.Initilized
-    If Not csharp.Initilized Then optFaxCode(0).Value = True
+    If Not csharp.Initilized Then optFaxCode(0).value = True
     
-    For i = 0 To cmdDecode.Count - 1
+    For i = 0 To cmdDecode.count - 1
         cmdDecode(i).Caption = FilterNameFromIndex(i, enabled)
         cmdDecode(i).enabled = enabled
     Next

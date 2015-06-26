@@ -239,7 +239,6 @@ Begin VB.Form Form2
       _ExtentX        =   20981
       _ExtentY        =   2249
       _Version        =   393217
-      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form2.frx":008A
@@ -926,13 +925,13 @@ Public Sub mnuLoadShellcode_Click()
     txtJS.SelectAll
 End Sub
 
-Private Sub mnuMain_Click(Index As Integer)
+Private Sub mnuMain_Click(index As Integer)
      
     On Error Resume Next
     Dim f As Object
     Dim hexstring As String
     
-    Select Case Index
+    Select Case index
         Case 0: lvFunc_DblClick
         Case 1:
                 If Len(txtJS.CurrentWord) > 0 Then
@@ -1020,7 +1019,7 @@ Private Sub mnuRenameFunc_Click()
     End If
     
     push renames, oldname & " -> " & NewName
-    txtJS.Text = Replace(txtJS.Text, oldname, NewName)
+    txtJS.Text = Replace(txtJS.Text, oldname & "(", NewName & "(")
     txtJS.FirstVisibleLine = fl
     
     'MsgBox txtJS.SCI.ReplaceAll(CStr(oldname), CStr(NewName), True) 'buggy...
@@ -1047,7 +1046,7 @@ Private Sub mnuSc2ExeMain_Click()
     End If
 End Sub
 
-Function Shellcode2Exe(Index As Long)
+Function Shellcode2Exe(index As Long)
     '0 = simple no wsa, 1 = simple w/wsa, 2 = adv husk
     
     On Error Resume Next
@@ -1072,7 +1071,7 @@ Function Shellcode2Exe(Index As Long)
     'End If
     
     simple_husk = True
-    If Index = 2 Then simple_husk = False
+    If index = 2 Then simple_husk = False
     
     hFile = App.path & IIf(simple_husk, "\simple_husk.dat", "\husk.dat")
     If Not fso.FileExists(hFile) Then
@@ -1118,7 +1117,7 @@ Function Shellcode2Exe(Index As Long)
     
     Dim offset As Long
     
-    Select Case Index
+    Select Case index
         Case 0: offset = &H1000
         Case 1: offset = &H1020
         Case 2: offset = &HC000
@@ -1435,7 +1434,7 @@ Private Sub cmdRun_Click()
     
 End Sub
 
-Private Sub lblToolbox_Click(Index As Integer)
+Private Sub lblToolbox_Click(index As Integer)
     PopupMenu mnuPopup2
 End Sub
 
@@ -1562,12 +1561,12 @@ Public Sub SaveToListView(data As String, Optional nameAs As String)
     li.ToolTipText = data
 End Sub
 
-Private Sub lblClipboard_Click(Index As Integer)
+Private Sub lblClipboard_Click(index As Integer)
     
     Dim li As ListItem
     On Error Resume Next
     
-    Select Case Index
+    Select Case index
         Case 0: SaveToListView txtJS.Text
         Case 1: SaveToListView txtOut.Text
         Case 2:
@@ -1736,6 +1735,10 @@ Private Sub mnuExploitScan_Click()
             End If
     Next
     
+    If InStr(txtJS.Text, "import") > 0 Then  'its an as3 sourcer decompilation of a flash file?
+        push report, vbCrLf & "Flash CVE Scan: " & vbCrLf & flash_as_cveScan(txtJS.Text)
+    End If
+    
     If AryIsEmpty(report) Then
         MsgBox "No exploits found", vbInformation
         Exit Sub
@@ -1756,7 +1759,7 @@ End Sub
 
  
 
-Private Sub mnuLaunchSclog_Click(Index As Integer)
+Private Sub mnuLaunchSclog_Click(index As Integer)
     
     'If Len(txtJS.SelText) = 0 Then
     '    MsgBox "You must first select the shellcode to extract in the script window."
@@ -1769,7 +1772,7 @@ Private Sub mnuLaunchSclog_Click(Index As Integer)
     
     x = PrepareShellcode(x)
     
-    If Index = 0 Then
+    If index = 0 Then
         frmSclog.InitInterface CStr(x)
     Else
         frmScTest.InitInterface CStr(x)
@@ -1838,7 +1841,7 @@ Public Sub mnuLoadFile_Click()
     Erase renames
 End Sub
 
-Private Sub mnuManualEscape_Click(Index As Integer)
+Private Sub mnuManualEscape_Click(index As Integer)
     
     Dim t As String
     Dim ss As Long
@@ -1852,7 +1855,7 @@ Private Sub mnuManualEscape_Click(Index As Integer)
         Exit Sub
     End If
     
-    Select Case Index
+    Select Case index
         Case 0: t = HexStringUnescape(t)
         Case 1: t = HexStringUnescape(t, True)
         Case 2: t = unescape(t)
@@ -1871,7 +1874,7 @@ End Sub
 Private Sub mnuRemoveEntry_Click()
     
     If lv.SelectedItem Is Nothing Then Exit Sub
-    lv.ListItems.Remove lv.SelectedItem.Index
+    lv.ListItems.Remove lv.SelectedItem.index
     
 End Sub
 
@@ -1901,7 +1904,7 @@ Private Sub mnuSaveAll_Click()
     If Len(f) = 0 Then Exit Sub
     
     For Each li In lv.ListItems
-        fso.writeFile f & "\script_" & li.Index & ".js", li.tag
+        fso.writeFile f & "\script_" & li.index & ".js", li.tag
     Next
     
     Exit Sub
@@ -1965,7 +1968,7 @@ Private Sub mnuSaveToFile_Click()
     
     If lv.SelectedItem Is Nothing Then Exit Sub
     
-    f = dlg.SaveDialog(AllFiles, "", "Save file", , Me.hwnd, "script_" & lv.SelectedItem.Index & ".js")
+    f = dlg.SaveDialog(AllFiles, "", "Save file", , Me.hwnd, "script_" & lv.SelectedItem.index & ".js")
     If Len(f) = 0 Then Exit Sub
     
     fso.writeFile f, lv.SelectedItem.tag

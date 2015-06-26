@@ -123,7 +123,7 @@ Private Function NativeDecompress(ByVal s As String)
     
     b = StrConv(s, vbFromUnicode, LANG_US)
                 
-    Module4.UncompressData b(), bOut()
+    modZLIB.UncompressData b(), bOut()
     
     If AryIsEmpty(bOut) Then
         parent.Message = "FlateDecode Decompression Error. Input data length = 0x" & Hex(Len(s))
@@ -325,15 +325,15 @@ Private Function sanitize(ByVal x)
     found = True
     Do While found
         found = False
-        If Right(x, 1) = vbCr Then x = stripLastChar(x, found)
-        If Right(x, 1) = vbLf Then x = stripLastChar(x, found)
-        If Right(x, 1) = "]" Then x = stripLastChar(x, found)
-        If Right(x, 1) = "[" Then x = stripLastChar(x, found)
-        If Right(x, 1) = " " Then x = stripLastChar(x, found)
-        If Right(x, 1) = ">" Then x = stripLastChar(x, found)
-        If Right(x, 1) = "<" Then x = stripLastChar(x, found)
-        If Right(x, 1) = Chr(0) Then x = stripLastChar(x, found)
-        If Right(x, 1) = vbTab Then x = stripLastChar(x, found)
+        If right(x, 1) = vbCr Then x = stripLastChar(x, found)
+        If right(x, 1) = vbLf Then x = stripLastChar(x, found)
+        If right(x, 1) = "]" Then x = stripLastChar(x, found)
+        If right(x, 1) = "[" Then x = stripLastChar(x, found)
+        If right(x, 1) = " " Then x = stripLastChar(x, found)
+        If right(x, 1) = ">" Then x = stripLastChar(x, found)
+        If right(x, 1) = "<" Then x = stripLastChar(x, found)
+        If right(x, 1) = Chr(0) Then x = stripLastChar(x, found)
+        If right(x, 1) = vbTab Then x = stripLastChar(x, found)
     Loop
         
     sanitize = x
@@ -346,13 +346,13 @@ Private Function stripLastChar(x, ByRef setBool As Boolean)
     If Err.Number = 0 Then setBool = True
 End Function
 
-Private Sub push(ary, Value) 'this modifies parent ary object
+Private Sub push(ary, value) 'this modifies parent ary object
     On Error GoTo init
     x = UBound(ary) '<-throws Error If Not initalized
     ReDim Preserve ary(UBound(ary) + 1)
-    ary(UBound(ary)) = Value
+    ary(UBound(ary)) = value
     Exit Sub
-init: ReDim ary(0): ary(0) = Value
+init: ReDim ary(0): ary(0) = value
 End Sub
 
 Private Function AnyofTheseInstr(data, match, Optional compare As VbCompareMethod = vbTextCompare) As Boolean

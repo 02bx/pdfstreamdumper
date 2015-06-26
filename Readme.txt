@@ -194,4 +194,9 @@ Credits:
 
 	Other thanks to Didier Stevens for the info on his blog on tags and encodings.
 	http://blog.didierstevens.com/2008/04/29/pdf-let-me-count-the-ways
+
+        HexEd hexeditor control codebase by Rang3r
+        http://www.Planet-Source-Code.com/vb/scripts/ShowCode.asp?txtCodeId=34729&lngWId=1
+
+
 	
