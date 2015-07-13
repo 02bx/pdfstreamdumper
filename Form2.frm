@@ -59,14 +59,14 @@ Begin VB.Form Form2
       Top             =   90
       _ExtentX        =   1005
       _ExtentY        =   1005
-      Language        =   "javascript"
+      Language        =   "jscript"
    End
    Begin MSScriptControlCtl.ScriptControl sc2 
       Left            =   13140
       Top             =   90
       _ExtentX        =   1005
       _ExtentY        =   1005
-      Language        =   "Javascript"
+      Language        =   "jscript"
    End
    Begin VB.Frame splitter 
       BackColor       =   &H00808080&
@@ -85,6 +85,14 @@ Begin VB.Form Form2
       TabIndex        =   3
       Top             =   6180
       Width           =   11895
+      Begin VB.CheckBox chkDebug 
+         Caption         =   "Debug"
+         Height          =   285
+         Left            =   9810
+         TabIndex        =   18
+         Top             =   225
+         Width           =   825
+      End
       Begin VB.TextBox txtPageNum 
          Height          =   285
          Left            =   5220
@@ -97,12 +105,12 @@ Begin VB.Form Form2
       Begin VB.CheckBox chkNoResest 
          Caption         =   "No Reset"
          Height          =   195
-         Left            =   10665
+         Left            =   10755
          TabIndex        =   12
          TabStop         =   0   'False
          ToolTipText     =   "Check this to not reset the script control between runs (reset clears vars from old scripts which may be needed)"
          Top             =   270
-         Width           =   1005
+         Width           =   1050
       End
       Begin VB.ComboBox cboVersion 
          Height          =   315
@@ -115,7 +123,7 @@ Begin VB.Form Form2
       Begin VB.CommandButton cmdRun 
          Caption         =   "Run"
          Height          =   375
-         Left            =   8730
+         Left            =   8145
          TabIndex        =   4
          TabStop         =   0   'False
          Top             =   180
@@ -151,7 +159,7 @@ Begin VB.Form Form2
          ForeColor       =   &H00FF0000&
          Height          =   255
          Index           =   3
-         Left            =   8010
+         Left            =   7335
          TabIndex        =   7
          Top             =   270
          Width           =   585
@@ -333,7 +341,7 @@ Begin VB.Form Form2
       Caption         =   "Format_Javascript"
    End
    Begin VB.Menu mnuUnescapeSelection 
-      Caption         =   "Unescape_Selection"
+      Caption         =   "Unescape_Selection (F6)"
    End
    Begin VB.Menu mnuManualEscapes 
       Caption         =   "Manual_Escapes"
@@ -370,6 +378,9 @@ Begin VB.Form Form2
       End
       Begin VB.Menu mnuVarPrefix 
          Caption         =   "Prefix Sel Lines with var"
+      End
+      Begin VB.Menu mnuUniAsciiToHex 
+         Caption         =   "\u00 -> \x"
       End
       Begin VB.Menu mnuHex2Unicode 
          Caption         =   "HexString to %u encoded"
@@ -436,8 +447,14 @@ Begin VB.Form Form2
       Begin VB.Menu mnuStripInlineDecoderCalls 
          Caption         =   "Strip Inline Decoder Calls"
       End
+      Begin VB.Menu mnuReplaceHexAscii 
+         Caption         =   "Replace Hex Ascii Strings"
+      End
       Begin VB.Menu mnuProcessActionScript 
          Caption         =   "Process ActionScript"
+      End
+      Begin VB.Menu mnuStrAryReplace 
+         Caption         =   "String Array Elem Replace"
       End
    End
    Begin VB.Menu mnuPopup 
@@ -592,6 +609,12 @@ Dim toolbox As New CScriptFunctions
 ' savedVar1 = tb.lv.listitems(index).tag
 'even if i am the only one who would use that :P
 
+
+'so the ms script debugger comes with IE, MS Office, Visual Studio, or an old standalone download.
+'Note that when Office 2003 is installed, an internet explorer needs to be "re-registered" again :'
+'Go to "C:\Program Files\Internet Explorer" (or "C:\Program Files (x86)\Internet Explorer" under x64 installs).
+'Run "regsvr32 msdbg2.dll"
+
 Private Capturing As Boolean
 Private Declare Function SetCapture Lib "user32" (ByVal hwnd As Long) As Long
 Private Declare Function ReleaseCapture Lib "user32" () As Long
@@ -620,6 +643,20 @@ Public Function StandardizeLineBreaks(ByVal x)
     x = Replace(x, vbLf, Chr(5))
     StandardizeLineBreaks = Replace(x, Chr(5), vbCrLf)
 End Function
+
+Private Sub chkDebug_Click()
+    Dim reg As New clsRegistry2
+    Dim v
+    reg.hive = HKEY_CURRENT_USER
+    v = reg.ReadValue("\Software\Microsoft\Windows Script\Settings", "JITDebug")
+    
+    If v = chkDebug.value Then Exit Sub
+    
+    If Not reg.SetValue("\Software\Microsoft\Windows Script\Settings", "JITDebug", chkDebug.value, REG_DWORD) Then
+        MsgBox "Could not set registry value", vbExclamation
+    End If
+    
+End Sub
 
 Private Sub lv2_ItemClick(ByVal Item As MSComctlLib.ListItem)
     On Error Resume Next
@@ -847,18 +884,27 @@ Public Sub mnuFunctionScan_Click()
         'i = i + 1
         x = txtJS.GetLineText(i)
         func = Empty
-        'If x Like "function *(*)*" And GetCount(x, "function") = 2 Then
-        If InStr(x, "function") > 0 And InStr(x, "(") > 0 And InStr(x, "{") > 0 Then
+        
+        a = InStr(x, " = function(")
+        
+        If a > 0 Then
+            func = Trim(Mid(x, 1, a))
+            func = Trim(Replace(func, vbTab, Empty))
+        ElseIf InStr(x, "function") > 0 And InStr(x, "(") > 0 And InStr(x, "{") > 0 Then
             a = InStr(x, "(")
             b = InStrRev(x, " ", a)
             func = Trim(Mid(x, b, a - b))
-            If Len(func) > 0 Then
-                Set li = lvFunc.ListItems.Add(, , func)
-                loc = CountOccurances(ExtractFunction(i, , False), vbCrLf)
-                li.SubItems(1) = VBA.right("    " & loc, 5) 'for sorting
-                li.tag = i
-            End If
         End If
+        
+        If AnyofTheseInstr(func, "[,(") Then func = "????"
+        
+        If Len(func) > 0 Then
+            Set li = lvFunc.ListItems.Add(, , func)
+            loc = CountOccurances(ExtractFunction(i, , False), vbCrLf)
+            li.SubItems(1) = VBA.right("    " & loc, 5) 'for sorting
+            li.tag = i
+        End If
+        
     Next
     
 End Sub
@@ -925,13 +971,13 @@ Public Sub mnuLoadShellcode_Click()
     txtJS.SelectAll
 End Sub
 
-Private Sub mnuMain_Click(index As Integer)
+Private Sub mnuMain_Click(Index As Integer)
      
     On Error Resume Next
     Dim f As Object
     Dim hexstring As String
     
-    Select Case index
+    Select Case Index
         Case 0: lvFunc_DblClick
         Case 1:
                 If Len(txtJS.CurrentWord) > 0 Then
@@ -1028,6 +1074,53 @@ Private Sub mnuRenameFunc_Click()
     
 End Sub
 
+Private Sub mnuReplaceHexAscii_Click()
+    Dim r As New RegExp
+    Dim m As match
+    Dim tmp As String
+    Dim b() As Byte
+    Dim i As Long
+    Dim a As Byte
+    Dim Z As Byte
+    Dim isOk As Boolean
+    Dim topLine As Long
+    
+    On Error Resume Next
+    
+    topLine = Form2.txtJS.FirstVisibleLine
+    mnuUniAsciiToHex_Click
+    
+    a = Asc("A")
+    Z = Asc("Z")
+    r.Global = True
+    r.IgnoreCase = True
+    r.Pattern = "(\\[xX][0-9a-fA-F]+)+" 'find all \x__\x__ strings
+
+    Set mm = r.Execute(txtJS.Text)
+    
+    For Each m In mm
+        
+        'Debug.Print m.Value
+        tmp = js_unescape(m.value)
+        If Len(tmp) > 0 Then
+            isOk = False
+            b() = StrConv(UCase(tmp), vbUnicode, LANG_US)
+            For i = 0 To UBound(b)
+                If b(i) = 20 Or b(i) = 9 Then isOk = True
+                If b(i) >= a And b(i) <= Z Then isOk = True
+                If Not isOk Then Exit For
+            Next
+            If i = UBound(b) + 1 And isOk Then
+                txtJS.ReplaceAll m.value, tmp, True
+            End If
+        End If
+        
+    Next
+    
+    Form2.txtJS.FirstVisibleLine = topLine
+    
+End Sub
+
 Private Sub mnuSc2ExeMain_Click()
     'built in shellcode 2 exe removed because to many AV vendors complain about the husks..not sure how many people use them.
     On Error Resume Next
@@ -1046,7 +1139,7 @@ Private Sub mnuSc2ExeMain_Click()
     End If
 End Sub
 
-Function Shellcode2Exe(index As Long)
+Function Shellcode2Exe(Index As Long)
     '0 = simple no wsa, 1 = simple w/wsa, 2 = adv husk
     
     On Error Resume Next
@@ -1071,7 +1164,7 @@ Function Shellcode2Exe(index As Long)
     'End If
     
     simple_husk = True
-    If index = 2 Then simple_husk = False
+    If Index = 2 Then simple_husk = False
     
     hFile = App.path & IIf(simple_husk, "\simple_husk.dat", "\husk.dat")
     If Not fso.FileExists(hFile) Then
@@ -1117,7 +1210,7 @@ Function Shellcode2Exe(index As Long)
     
     Dim offset As Long
     
-    Select Case index
+    Select Case Index
         Case 0: offset = &H1000
         Case 1: offset = &H1020
         Case 2: offset = &HC000
@@ -1271,8 +1364,17 @@ Private Sub mnuShowHelp_Click()
     toolbox.Help
 End Sub
 
+Private Sub mnuStrAryReplace_Click()
+    frmAryReplace.Show
+End Sub
+
 Private Sub mnuStripInlineDecoderCalls_Click()
     frmInlineDecoderCalls.Show
+End Sub
+
+Private Sub mnuUniAsciiToHex_Click()
+    txtJS.Text = Replace(txtJS.Text, "\u00", "\x", , , vbTextCompare)
+    txtJS.Text = Replace(txtJS.Text, "%u00", "\x", , , vbTextCompare)
 End Sub
 
 Private Sub mnuVarPrefix_Click()
@@ -1423,18 +1525,19 @@ Private Sub cmdRun_Click()
     End If
     
     toolbox.RefreshObjBrowserData
+    sc.Timeout = IIf(chkDebug.value = 1, -1, 10000) ' we should verify a JIT script debugger is setup on system..
     
     If USING_MYMAIN = True Then
         main_wrapper = fso.ReadFile(main_wrapper)
-        main_wrapper = Replace(main_wrapper, "//real script here", txtJS.Text)
+        main_wrapper = Replace(main_wrapper, "//real script here", IIf(chkDebug.value = 1, "debugger" & vbCrLf, "") & txtJS.Text)
         sc.AddCode main_wrapper
     Else
-        sc.AddCode txtJS.Text
+        sc.AddCode IIf(chkDebug.value = 1, "debugger" & vbCrLf, "") & txtJS.Text
     End If
     
 End Sub
 
-Private Sub lblToolbox_Click(index As Integer)
+Private Sub lblToolbox_Click(Index As Integer)
     PopupMenu mnuPopup2
 End Sub
 
@@ -1456,6 +1559,12 @@ Private Sub Form_Load()
     mnuIndentGuide.Checked = IIf(GetMySetting("IndentGuide", 0) = 1, True, False)
     mnuCodeFolding.Checked = IIf(GetMySetting("CodeFolding", 0) = 1, True, False)
     mnuAutoComplete.Checked = IIf(GetMySetting("AutoComplete", 0) = 1, True, False)
+    
+    Dim reg As New clsRegistry2
+    Dim v
+    reg.hive = HKEY_CURRENT_USER
+    v = reg.ReadValue("\Software\Microsoft\Windows Script\Settings", "JITDebug")
+    If IsNumeric(v) And CLng(v) > 0 Then chkDebug.value = 1
     
     txtJS.WordWrap = mnuWordWrap.Checked
     txtJS.ShowIndentationGuide = mnuIndentGuide.Checked
@@ -1561,12 +1670,12 @@ Public Sub SaveToListView(data As String, Optional nameAs As String)
     li.ToolTipText = data
 End Sub
 
-Private Sub lblClipboard_Click(index As Integer)
+Private Sub lblClipboard_Click(Index As Integer)
     
     Dim li As ListItem
     On Error Resume Next
     
-    Select Case index
+    Select Case Index
         Case 0: SaveToListView txtJS.Text
         Case 1: SaveToListView txtOut.Text
         Case 2:
@@ -1759,7 +1868,7 @@ End Sub
 
  
 
-Private Sub mnuLaunchSclog_Click(index As Integer)
+Private Sub mnuLaunchSclog_Click(Index As Integer)
     
     'If Len(txtJS.SelText) = 0 Then
     '    MsgBox "You must first select the shellcode to extract in the script window."
@@ -1772,7 +1881,7 @@ Private Sub mnuLaunchSclog_Click(index As Integer)
     
     x = PrepareShellcode(x)
     
-    If index = 0 Then
+    If Index = 0 Then
         frmSclog.InitInterface CStr(x)
     Else
         frmScTest.InitInterface CStr(x)
@@ -1841,7 +1950,7 @@ Public Sub mnuLoadFile_Click()
     Erase renames
 End Sub
 
-Private Sub mnuManualEscape_Click(index As Integer)
+Private Sub mnuManualEscape_Click(Index As Integer)
     
     Dim t As String
     Dim ss As Long
@@ -1855,7 +1964,7 @@ Private Sub mnuManualEscape_Click(index As Integer)
         Exit Sub
     End If
     
-    Select Case index
+    Select Case Index
         Case 0: t = HexStringUnescape(t)
         Case 1: t = HexStringUnescape(t, True)
         Case 2: t = unescape(t)
@@ -1874,7 +1983,7 @@ End Sub
 Private Sub mnuRemoveEntry_Click()
     
     If lv.SelectedItem Is Nothing Then Exit Sub
-    lv.ListItems.Remove lv.SelectedItem.index
+    lv.ListItems.Remove lv.SelectedItem.Index
     
 End Sub
 
@@ -1904,7 +2013,7 @@ Private Sub mnuSaveAll_Click()
     If Len(f) = 0 Then Exit Sub
     
     For Each li In lv.ListItems
-        fso.writeFile f & "\script_" & li.index & ".js", li.tag
+        fso.writeFile f & "\script_" & li.Index & ".js", li.tag
     Next
     
     Exit Sub
@@ -1968,7 +2077,7 @@ Private Sub mnuSaveToFile_Click()
     
     If lv.SelectedItem Is Nothing Then Exit Sub
     
-    f = dlg.SaveDialog(AllFiles, "", "Save file", , Me.hwnd, "script_" & lv.SelectedItem.index & ".js")
+    f = dlg.SaveDialog(AllFiles, "", "Save file", , Me.hwnd, "script_" & lv.SelectedItem.Index & ".js")
     If Len(f) = 0 Then Exit Sub
     
     fso.writeFile f, lv.SelectedItem.tag
@@ -2115,6 +2224,12 @@ Function selectFunction(name As String)
     Next
 End Function
 
+Private Sub txtJS_KeyDown(KeyCode As Long, Shift As Long)
+    If KeyCode = 117 Then 'f6
+        If txtJS.SelLength > 0 Then mnuUnescapeSelection_Click
+    End If
+End Sub
+
 Private Sub txtJS_MouseUp(Button As Integer, Shift As Integer, x As Long, Y As Long)
     
     On Error Resume Next
@@ -2189,7 +2304,8 @@ Private Sub Form_KeyPress(KeyAscii As Integer)
         If lastPos <> 0 Then
             ignoreNavPoint = True
             'Debug.Print "nav back to: " & lastPos
-            txtJS.GotoLine lastPos
+            'txtJS.GotoLine lastPos
+            txtJS.FirstVisibleLine = lastPos
         End If
     End If
 End Sub

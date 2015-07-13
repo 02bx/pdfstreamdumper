@@ -72,7 +72,7 @@ Begin VB.Form frmInlineDecoderCalls
          Height          =   315
          Left            =   900
          TabIndex        =   14
-         Text            =   "\([0-9\*\+ ]+\)"
+         Text            =   "\([0-9\*\+\- ]+\)"
          Top             =   240
          Width           =   2295
       End
@@ -260,6 +260,8 @@ Dim abort As Boolean
 Dim example_decoder As String
 Dim example_script As String
 
+'instead of searching for numeric expansions only between () and [] why not just generic? easier? more false positives?
+
 Private Sub cmdAbort_Click()
     abort = True
 End Sub
@@ -274,7 +276,9 @@ End Sub
 Private Sub cmdHandleNumericExpansions_Click()
     
     On Error Resume Next
+    Dim topLine As Long
     
+    topLine = Form2.txtJS.FirstVisibleLine
     d.Pattern = txtNumeric '"\([0-9\*\+ ]+\)"
     d.Global = True
     
@@ -283,25 +287,34 @@ Private Sub cmdHandleNumericExpansions_Click()
     Dim i As Long
     Dim stripEq As Boolean
     Dim stripSemi As Boolean
+    Dim cycles As Long
     
     If InStr(txtNumeric, "=") > 0 Then stripEq = True
     If InStr(txtNumeric, ";") > 0 Then stripSemi = True
     
     lv.ListItems.Clear
+    
+runAgain:
     Set mc = d.Execute(Form2.txtJS.Text)
-    x = mc.Count
+    x = mc.count
     abort = False
     
     For Each m In mc
         If abort Then Exit For
         Set li = lv.ListItems.Add(, , m.FirstIndex)
-        li.SubItems(1) = m.Value
+        li.SubItems(1) = m.value
         li.tag = m.Length
         
         tmp = li.SubItems(1)
         
-        If (VBA.left(li.SubItems(1), 1)) <> "(" And VBA.right(li.SubItems(1), 1) = ")" Then 'they tweaked regex lets balance it out..
-            tmp = "(" & tmp
+        If cycles = 0 Then
+            If (VBA.left(li.SubItems(1), 1)) <> "(" And VBA.right(li.SubItems(1), 1) = ")" Then 'they tweaked regex lets balance it out..
+                tmp = "(" & tmp
+            End If
+        ElseIf cycles = 1 Then
+            If (VBA.left(li.SubItems(1), 1)) <> "[" And VBA.right(li.SubItems(1), 1) = "]" Then 'they tweaked regex lets balance it out..
+                tmp = "[" & tmp
+            End If
         End If
 
         If stripEq Then tmp = Replace(tmp, "=", Empty)
@@ -309,7 +322,7 @@ Private Sub cmdHandleNumericExpansions_Click()
         
         tmp = sc.eval(tmp)
         
-        If chkUseHex.Value Then
+        If chkUseHex.value Then
             Err.Clear
             li.SubItems(2) = "0x" & Hex(tmp)
             If Err.Number <> 0 Then li.SubItems(2) = tmp
@@ -319,11 +332,18 @@ Private Sub cmdHandleNumericExpansions_Click()
         li.Ghosted = True
         li.EnsureVisible
         i = i + 1
-        setPB i, mc.Count
+        setPB i, mc.count
     Next
+    cycles = cycles + 1
+    pb.value = 0
     
-    pb.Value = 0
+    If cycles = 1 Then
+        d.Pattern = Replace(d.Pattern, "\(", "\[") '"\([0-9\*\+ ]+\)"
+        d.Pattern = Replace(d.Pattern, "\)", "\]")
+        GoTo runAgain
+    End If
     
+    Form2.txtJS.FirstVisibleLine = topLine
     
 End Sub
 
@@ -357,9 +377,9 @@ Private Sub cmdParse_Click()
     
     lv.ListItems.Clear
     Set mc = d.Execute(Form2.txtJS.Text)
-    x = mc.Count
+    x = mc.count
     
-    pb.Value = 0
+    pb.value = 0
     i = 0
     
     sc.AddCode txtDecoder
@@ -368,16 +388,16 @@ Private Sub cmdParse_Click()
     For Each m In mc
         If abort Then Exit For
         Set li = lv.ListItems.Add(, , m.FirstIndex)
-        li.SubItems(1) = m.Value
+        li.SubItems(1) = m.value
         li.tag = m.Length
         tmp = sc.eval(li.SubItems(1))
         li.SubItems(2) = tmp
         li.EnsureVisible
         i = i + 1
-        setPB i, mc.Count
+        setPB i, mc.count
     Next
     
-    pb.Value = 0
+    pb.value = 0
      
 
 End Sub
@@ -392,7 +412,7 @@ Private Sub cmdTest_Click()
     sc.AddCode txtDecoder.Text
     MsgBox sc.eval(x)
     If Err.Number <> 0 Then
-        MsgBox "Error: " & sc.error.Description & " Line:" & sc.error.Line
+        MsgBox "Error: " & sc.error.Description & " Line:" & sc.error.line
     End If
 End Sub
 
@@ -400,9 +420,11 @@ Private Sub Command1_Click()
     On Error Resume Next
     Dim li As ListItem
     Dim i As Long
+    Dim topLine As Long
     
+    topLine = Form2.txtJS.FirstVisibleLine
     x = Form2.txtJS.Text
-    pb.Value = 0
+    pb.value = 0
     abort = False
     
     For Each li In lv.ListItems
@@ -410,24 +432,29 @@ Private Sub Command1_Click()
         If Len(li.SubItems(2)) > 0 Then
             If li.Ghosted Then
                 'support more regex? like =xxx; or t+xxx) ? this would need to change to support it...
-                x = Replace(x, li.SubItems(1), "(" & li.SubItems(2) & ")", , , vbBinaryCompare)
+                If left(li.SubItems(1), 1) = "(" Then
+                    x = Replace(x, li.SubItems(1), "(" & li.SubItems(2) & ")", , , vbBinaryCompare)
+                ElseIf left(li.SubItems(1), 1) = "[" Then
+                    x = Replace(x, li.SubItems(1), "[" & li.SubItems(2) & "]", , , vbBinaryCompare)
+                End If
             Else
                 x = Replace(x, li.SubItems(1), """" & li.SubItems(2) & """", , , vbBinaryCompare)
             End If
         End If
         i = i + 1
-        setPB i, lv.ListItems.Count
+        setPB i, lv.ListItems.count
     Next
     
     Form2.SaveToListView Form2.txtJS.Text, "Before Strip Inline" 'save a copy of the original
     Form2.txtJS.Text = x
+    Form2.txtJS.FirstVisibleLine = topLine
     'Unload Me
     
 End Sub
 
 Private Function setPB(cur As Long, max As Long)
     On Error Resume Next
-    pb.Value = CInt((cur / max) * 100)
+    pb.value = CInt((cur / max) * 100)
     DoEvents
     Me.Refresh
 End Function
@@ -446,7 +473,7 @@ Private Sub Form_Load()
     mnuPopup.Visible = False
     x = Form2.txtJS.SelText
     If Len(x) > 0 And Len(x) < 1000 Then txtDecoder.Text = x
-    lv.ColumnHeaders(lv.ColumnHeaders.Count).Width = lv.Width - lv.ColumnHeaders(lv.ColumnHeaders.Count).left - 150
+    lv.ColumnHeaders(lv.ColumnHeaders.count).Width = lv.Width - lv.ColumnHeaders(lv.ColumnHeaders.count).left - 150
 End Sub
 
 Private Sub lv_ItemClick(ByVal Item As MSComctlLib.ListItem)
@@ -470,7 +497,7 @@ End Sub
 
 Private Sub mnuDeleteSelected_Click()
     On Error Resume Next
-    For i = lv.ListItems.Count To 1 Step -1
+    For i = lv.ListItems.count To 1 Step -1
         If lv.ListItems(i).Selected Then lv.ListItems.Remove i
     Next
 End Sub

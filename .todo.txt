@@ -1,4 +1,8 @@
 
+track cursor pos should track /reset topline not code line
+rename func changed to func( ...not always right.. , args(this.func3) tmp = funx
+on selection if find dialog up reset text..
+
 test: autocomplete dialog disappearing as you keep typing? - should be fixed..
 
 ------------------------

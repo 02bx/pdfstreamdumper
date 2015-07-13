@@ -91,6 +91,7 @@ Begin VB.Form Form1
       _ExtentX        =   15478
       _ExtentY        =   6059
       _Version        =   393217
+      Enabled         =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":1142
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -409,7 +410,6 @@ Begin VB.Form Form1
       _ExtentX        =   17383
       _ExtentY        =   7223
       _Version        =   393217
-      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form1.frx":11C4
@@ -733,6 +733,7 @@ Begin VB.Form Form1
          End
          Begin VB.Menu mnuOpenLastAtStart 
             Caption         =   "Open Last PDF on Startup"
+            Visible         =   0   'False
          End
          Begin VB.Menu mnuDisableDecryption 
             Caption         =   "Disable Decryption Support"
@@ -2553,7 +2554,7 @@ Private Sub Form_Unload(Cancel As Integer)
     'If defaultLCID <> LANG_US And defaultLCID <> 0 Then SetLocale defaultLCID
     
     parser.abort = True
-    If txtPDFPath <> "Drag and drop pdf file here" Then SaveSetting App.EXEName, "Settings", "LastFile", txtPDFPath
+    If fso.FileExists(txtPDFPath) Then SaveSetting App.EXEName, "Settings", "LastFile", txtPDFPath
     
     SaveMySetting "EscapeHeaders", IIf(mnuAutoEscapeHeaders.Checked, 1, 0)
     SaveMySetting "FormatHeaders", IIf(mnuVisualFormatHeaders.Checked, 1, 0)
@@ -3467,10 +3468,11 @@ Private Sub Form_Load()
             cmdDecode_Click
         End If
     Else
-        If mnuOpenLastAtStart.Checked Then
+        'If mnuOpenLastAtStart.Checked Then
             txtPDFPath = GetSetting(App.EXEName, "Settings", "LastFile")
-            If fso.FileExists(txtPDFPath) Then cmdDecode_Click
-        End If
+            'If fso.FileExists(txtPDFPath) Then cmdDecode_Click
+            If Not fso.FileExists(txtPDFPath) Then txtPDFPath = Empty
+        'End If
     End If
     
 End Sub
@@ -3585,14 +3587,14 @@ End Sub
 
 
 Private Sub sc_Error()
-    MsgBox "Script Error: " & sc.Error.Description & "  " & sc.Error.Text
+    MsgBox "Script Error: " & sc.error.Description & "  " & sc.error.Text
 End Sub
 
 Private Sub scAuto_Error()
-     MsgBox "Automation Script Error: " & scAuto.Error.Description & vbCrLf & _
-            "Line: " & scAuto.Error.line & vbCrLf & _
-            "Source: " & scAuto.Error.Source & vbCrLf & _
-            "Text: " & scAuto.Error.Text
+     MsgBox "Automation Script Error: " & scAuto.error.Description & vbCrLf & _
+            "Line: " & scAuto.error.line & vbCrLf & _
+            "Source: " & scAuto.error.Source & vbCrLf & _
+            "Text: " & scAuto.error.Text
 End Sub
 
 Private Sub TabStrip1_Click()
