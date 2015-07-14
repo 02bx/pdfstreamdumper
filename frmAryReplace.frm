@@ -9,6 +9,14 @@ Begin VB.Form frmAryReplace
    ScaleHeight     =   7290
    ScaleWidth      =   8940
    StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton Command2 
+      Caption         =   "Example"
+      Height          =   375
+      Left            =   7110
+      TabIndex        =   8
+      Top             =   90
+      Width           =   1365
+   End
    Begin VB.TextBox txtSeperator 
       Height          =   285
       Left            =   4095
@@ -138,6 +146,14 @@ Private Sub Command1_Click()
     Form2.txtJS.Text = tmp
     'Form2.txtJS.FirstVisibleLine = topLine
     
+End Sub
+
+Private Sub Command2_Click()
+    txtSeperator = "\r\n"
+    Form2.txtJS.Text = "//Array replace example" & vbCrLf & "document[ary[0]][ary[1]] = ary[2]" & vbCrLf & "//" & String(50, "-") & vbCrLf & vbCrLf & Form2.txtJS.Text
+    txtAName = "ary"
+    txtElements = Join(Array("location", "href", "http://sandsprite.com"), vbCrLf)
+    Me.SetFocus
 End Sub
 
 Private Sub Label4_Click()

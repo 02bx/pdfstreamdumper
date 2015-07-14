@@ -637,6 +637,8 @@ Dim navPoints() As Long
 Dim curTopLine As Long
 Dim ignoreNavPoint As Boolean
 
+Const UNK_FUNC = "????"
+
 Public Function StandardizeLineBreaks(ByVal x)
     x = Replace(x, vbCrLf, Chr(5))
     x = Replace(x, vbCr, Chr(5))
@@ -795,7 +797,7 @@ Public Function ExtractFunction(ByVal startLine As Long, Optional ByRef foundEnd
         j = j + 1
         If j > startLine Then
             data = data & x & vbCrLf
-            If RTrim(x) = "}" Then
+            If RTrim(x) = "}" Or RTrim(x) = "};" Then
                 foundEnd = True
                 Exit For
             End If
@@ -896,7 +898,7 @@ Public Sub mnuFunctionScan_Click()
             func = Trim(Mid(x, b, a - b))
         End If
         
-        If AnyofTheseInstr(func, "[,(") Then func = "????"
+        If AnyofTheseInstr(func, "[,(") Then func = UNK_FUNC
         
         If Len(func) > 0 Then
             Set li = lvFunc.ListItems.Add(, , func)
@@ -1049,6 +1051,11 @@ Private Sub mnuRenameFunc_Click()
     Debug.Print "Top line: " & fl
     
     oldname = lvFunc.SelectedItem.Text
+    If oldname = UNK_FUNC Then
+        MsgBox "Can not rename unknown function", vbInformation
+        Exit Sub
+    End If
+    
     NewName = InputBox("Enter new name for " & oldname, , oldname)
     If Len(NewName) = 0 Then Exit Sub
     
@@ -1082,6 +1089,9 @@ Private Sub mnuReplaceHexAscii_Click()
     Dim i As Long
     Dim a As Byte
     Dim Z As Byte
+    Dim zero As Byte
+    Dim nine As Byte
+    
     Dim isOk As Boolean
     Dim topLine As Long
     
@@ -1092,6 +1102,9 @@ Private Sub mnuReplaceHexAscii_Click()
     
     a = Asc("A")
     Z = Asc("Z")
+    zero = Asc("0")
+    nine = Asc("9")
+    
     r.Global = True
     r.IgnoreCase = True
     r.Pattern = "(\\[xX][0-9a-fA-F]+)+" 'find all \x__\x__ strings
@@ -1103,14 +1116,22 @@ Private Sub mnuReplaceHexAscii_Click()
         'Debug.Print m.Value
         tmp = js_unescape(m.value)
         If Len(tmp) > 0 Then
-            isOk = False
-            b() = StrConv(UCase(tmp), vbUnicode, LANG_US)
+            b() = StrConv(UCase(tmp), vbFromUnicode, LANG_US)
             For i = 0 To UBound(b)
+                isOk = False
                 If b(i) = 20 Or b(i) = 9 Then isOk = True
                 If b(i) >= a And b(i) <= Z Then isOk = True
-                If Not isOk Then Exit For
+                If b(i) >= zero And b(i) <= nine Then isOk = True
+                If Not isOk Then
+                    If AnyofTheseInstr(Chr(b(i)), "~`!@#$%^&*()_+-={}[]|\;:<>,./?""'", vbBinaryCompare, "") Then isOk = True
+                End If
+                If Not isOk Then
+                    Exit For
+                End If
             Next
             If i = UBound(b) + 1 And isOk Then
+                If InStr(tmp, """") > 0 Then tmp = Replace(tmp, """", "\x22") 'so we dont break js quoted strings..
+                If InStr(tmp, "'") > 0 Then tmp = Replace(tmp, "'", "\x27")
                 txtJS.ReplaceAll m.value, tmp, True
             End If
         End If
@@ -1326,7 +1347,8 @@ Private Sub mnuSeqRenameFuncs_Click()
         If li.Selected And ignoreSelected Then GoTo nextone
         
         oldname = li.Text
-
+        If oldname = UNK_FUNC Then GoTo nextone
+        
 reGenerate:
         NewName = "func_" & IIf(i < 10, "0" & i, i)
         i = i + 1

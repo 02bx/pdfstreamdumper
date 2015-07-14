@@ -1,10 +1,10 @@
 Form1 = 51, 24, 1059, 610, , 219, 20, 1177, 568, C
 modZLIB = 0, 0, 0, 0, C
-fso = 0, 0, 0, 0, C
+fso = 220, 220, 1236, 759, 
 clsCmnDlg = 0, 0, 0, 0, C
 CPDFStream = 0, 0, 0, 0, C
 CPdfParser = 0, 0, 0, 0, C
-Form2 = 125, 21, 1214, 603, , 88, 88, 1243, 803, C
+Form2 = 125, 21, 1268, 695, , 88, 88, 1243, 803, C
 CScriptFunctions = 0, 0, 0, 0, C
 frmReplace = 0, 0, 0, 0, C, 110, 110, 907, 605, C
 modCrc = 0, 0, 0, 0, C

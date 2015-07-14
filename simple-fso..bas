@@ -628,16 +628,27 @@ Function AddKey(t As String, c As Collection) As Boolean
 hell:
 End Function
 
-Function AnyofTheseInstr(data, match, Optional compare As VbCompareMethod = vbTextCompare) As Boolean
+Function AnyofTheseInstr(data, match, Optional compare As VbCompareMethod = vbTextCompare, Optional divider = ",") As Boolean
     Dim tmp() As String
     Dim x
-    tmp = Split(match, ",")
+    Dim b() As Byte, i As Long
+    
+    If Len(divider) > 0 Then
+        tmp = Split(match, divider)
+    Else
+        b() = StrConv(match, vbFromUnicode, LANG_US)
+        For i = 0 To UBound(b)
+            push tmp, Chr(b(i))
+        Next
+    End If
+    
     For Each x In tmp
         If InStr(1, data, x, compare) > 0 Then
             AnyofTheseInstr = True
             Exit Function
         End If
     Next
+    
 End Function
 
 Function GetCount(str, what) 'as long
