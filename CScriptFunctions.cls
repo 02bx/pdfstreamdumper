@@ -65,12 +65,12 @@ Function customDictionaryOpen(ParamArray args())
     DebugLog "customDictionaryOpen called - CVE-2009-1493"
 End Function
 
-Function DebugLog(msg, Optional Data)
+Function DebugLog(msg, Optional data)
     On Error Resume Next
     Dim li As ListItem
     Set li = Form2.lv2.ListItems.Add(, , msg)
     If LCase(msg) = "exploit" Then li.ForeColor = vbRed
-    If Len(Data) > 0 Then li.SubItems(1) = Data
+    If Len(data) > 0 Then li.SubItems(1) = data
 End Function
 
 Function GetPageNum()
@@ -222,10 +222,11 @@ End Function
 
 Public Function t(x)
     On Error Resume Next
-    If Len(Form2.txtOut.Text) > 0 Then
-        DebugLog "txtOut", Form2.txtOut.Text
-    End If
+    'If Len(Form2.txtOut.Text) > 0 Then
+    '    DebugLog "txtOut", Form2.txtOut.Text
+    'End If
     Form2.txtOut.Text = x
+    DebugLog "txtOut", Form2.txtOut.Text
 End Function
 
 Public Function Save2Clipboard(x)
@@ -245,18 +246,18 @@ Public Function GetClipboard()
     GetClipboard = Clipboard.GetText
 End Function
 
-Public Sub writeFile(path, Data)
+Public Sub writeFile(path, data)
     Dim f As Long
     Dim b() As Byte
     
-    If MsgBox("You are about to write " & Hex(Len(Data)) & " bytes to " & vbCrLf & path & vbCrLf & vbCrLf & "Allow?", vbYesNo) = vbNo Then
+    If MsgBox("You are about to write " & Hex(Len(data)) & " bytes to " & vbCrLf & path & vbCrLf & vbCrLf & "Allow?", vbYesNo) = vbNo Then
         Exit Sub
     End If
     
     On Error Resume Next
     
     f = FreeFile
-    b() = StrConv(Data, vbFromUnicode, LANG_US)
+    b() = StrConv(data, vbFromUnicode, LANG_US)
     Open path For Binary As f
     Put f, , b()
     Close f

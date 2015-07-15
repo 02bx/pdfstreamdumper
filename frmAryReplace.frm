@@ -140,6 +140,7 @@ Private Sub Command1_Click()
     Form2.SaveToListView Form2.txtJS.Text, "Before AryReplace" 'save a copy of the original
     
     For i = 0 To UBound(elems)
+        If InStr(elems(i), """") > 0 Then elems(i) = Replace(elems(i), """", "\x22") 'so we dont break js quoted strings..
         tmp = Replace(tmp, txtAName & "[" & i & "]", """" & elems(i) & """")
     Next
     

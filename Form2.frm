@@ -91,6 +91,7 @@ Begin VB.Form Form2
          Left            =   9810
          TabIndex        =   18
          Top             =   225
+         Visible         =   0   'False
          Width           =   825
       End
       Begin VB.TextBox txtPageNum 
@@ -609,7 +610,9 @@ Dim toolbox As New CScriptFunctions
 ' savedVar1 = tb.lv.listitems(index).tag
 'even if i am the only one who would use that :P
 
-
+'the ms script debugger is just to shitty to use..its voodoo if it attaches or not..fuck it
+'i will have a stable independant one soon enough..
+'
 'so the ms script debugger comes with IE, MS Office, Visual Studio, or an old standalone download.
 'Note that when Office 2003 is installed, an internet explorer needs to be "re-registered" again :'
 'Go to "C:\Program Files\Internet Explorer" (or "C:\Program Files (x86)\Internet Explorer" under x64 installs).
@@ -646,19 +649,19 @@ Public Function StandardizeLineBreaks(ByVal x)
     StandardizeLineBreaks = Replace(x, Chr(5), vbCrLf)
 End Function
 
-Private Sub chkDebug_Click()
-    Dim reg As New clsRegistry2
-    Dim v
-    reg.hive = HKEY_CURRENT_USER
-    v = reg.ReadValue("\Software\Microsoft\Windows Script\Settings", "JITDebug")
-    
-    If v = chkDebug.value Then Exit Sub
-    
-    If Not reg.SetValue("\Software\Microsoft\Windows Script\Settings", "JITDebug", chkDebug.value, REG_DWORD) Then
-        MsgBox "Could not set registry value", vbExclamation
-    End If
-    
-End Sub
+'Private Sub chkDebug_Click()
+'    Dim reg As New clsRegistry2
+'    Dim v
+'    reg.hive = HKEY_CURRENT_USER
+'    v = reg.ReadValue("\Software\Microsoft\Windows Script\Settings", "JITDebug")
+'
+'    If v = chkDebug.value Then Exit Sub
+'
+'    reg.SetValue "\Software\Microsoft\Windows Script\Settings", "JITDebug", chkDebug.value, REG_DWORD
+'    'reg.SetValue "\Software\Microsoft\Internet Explorer\Main", "Disable Script Debugger", IIf(chkDebug.value = 1, "no", "yes"), REG_SZ
+'    'reg.SetValue "\Software\Microsoft\Internet Explorer\Main", "DisableScriptDebuggerIE", IIf(chkDebug.value = 1, "no", "yes"), REG_SZ
+'
+'End Sub
 
 Private Sub lv2_ItemClick(ByVal Item As MSComctlLib.ListItem)
     On Error Resume Next
@@ -1547,11 +1550,12 @@ Private Sub cmdRun_Click()
     End If
     
     toolbox.RefreshObjBrowserData
-    sc.Timeout = IIf(chkDebug.value = 1, -1, 10000) ' we should verify a JIT script debugger is setup on system..
+    'sc.Timeout = IIf(chkDebug.value = 1, -1, 10000) ' we should verify a JIT script debugger is setup on system..
     
     If USING_MYMAIN = True Then
         main_wrapper = fso.ReadFile(main_wrapper)
-        main_wrapper = Replace(main_wrapper, "//real script here", IIf(chkDebug.value = 1, "debugger" & vbCrLf, "") & txtJS.Text)
+        'main_wrapper = Replace(main_wrapper, "//real script here", IIf(chkDebug.value = 1, "debugger" & vbCrLf, "") & txtJS.Text)
+        main_wrapper = Replace(main_wrapper, "//real script here", txtJS.Text)
         sc.AddCode main_wrapper
     Else
         sc.AddCode IIf(chkDebug.value = 1, "debugger" & vbCrLf, "") & txtJS.Text
@@ -1582,11 +1586,11 @@ Private Sub Form_Load()
     mnuCodeFolding.Checked = IIf(GetMySetting("CodeFolding", 0) = 1, True, False)
     mnuAutoComplete.Checked = IIf(GetMySetting("AutoComplete", 0) = 1, True, False)
     
-    Dim reg As New clsRegistry2
-    Dim v
-    reg.hive = HKEY_CURRENT_USER
-    v = reg.ReadValue("\Software\Microsoft\Windows Script\Settings", "JITDebug")
-    If IsNumeric(v) And CLng(v) > 0 Then chkDebug.value = 1
+'    Dim reg As New clsRegistry2
+'    Dim v
+'    reg.hive = HKEY_CURRENT_USER
+'    v = reg.ReadValue("\Software\Microsoft\Windows Script\Settings", "JITDebug")
+'    If IsNumeric(v) And CLng(v) > 0 Then chkDebug.value = 1
     
     txtJS.WordWrap = mnuWordWrap.Checked
     txtJS.ShowIndentationGuide = mnuIndentGuide.Checked
