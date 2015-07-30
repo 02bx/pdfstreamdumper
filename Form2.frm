@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{0E59F1D2-1FBE-11D0-8FF2-00A0D10038BC}#1.0#0"; "msscript.ocx"
 Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
-Object = "{FBE17B58-A1F0-4B91-BDBD-C9AB263AC8B0}#78.0#0"; "scivb_lite.ocx"
+Object = "{2668C1EA-1D34-42E2-B89F-6B92F3FF627B}#5.0#0"; "scivb2.ocx"
 Begin VB.Form Form2 
    Caption         =   "PDF Stream Dumper - JS UI"
    ClientHeight    =   8310
@@ -14,14 +14,20 @@ Begin VB.Form Form2
    ScaleHeight     =   8310
    ScaleWidth      =   14460
    StartUpPosition =   3  'Windows Default
-   Begin SCIVB_LITE.SciSimple txtJS 
-      Height          =   5865
+   Begin sci2.SciSimple txtJS 
+      Height          =   5820
       Left            =   2475
-      TabIndex        =   17
-      Top             =   270
-      Width           =   11895
-      _ExtentX        =   20981
-      _ExtentY        =   10345
+      TabIndex        =   18
+      Top             =   315
+      Width           =   11850
+      _ExtentX        =   20902
+      _ExtentY        =   10266
+   End
+   Begin VB.Timer tmrFormatting 
+      Enabled         =   0   'False
+      Interval        =   300
+      Left            =   12510
+      Top             =   45
    End
    Begin MSComctlLib.ListView lv2 
       Height          =   2670
@@ -89,7 +95,7 @@ Begin VB.Form Form2
          Caption         =   "Debug"
          Height          =   285
          Left            =   9810
-         TabIndex        =   18
+         TabIndex        =   17
          Top             =   225
          Visible         =   0   'False
          Width           =   825
@@ -805,6 +811,7 @@ Public Function ExtractFunction(ByVal startLine As Long, Optional ByRef foundEnd
                 Exit For
             End If
         End If
+        DoEvents
     Next
     
     ExtractFunction = data & IIf(includeSpacer, vbCrLf & vbCrLf, Empty)
@@ -909,6 +916,8 @@ Public Sub mnuFunctionScan_Click()
             li.SubItems(1) = VBA.right("    " & loc, 5) 'for sorting
             li.tag = i
         End If
+        
+        DoEvents
         
     Next
     
@@ -1825,11 +1834,13 @@ Private Sub mnuBeautify_Click()
     
     js = fso.ReadFile(App.path & "\beautify.js")
     
+    tmrFormatting.enabled = True
     sc2.Reset
     sc2.AddCode js
     sc2.AddObject "txtUncompressed", txtJS, True
     sc2.AddCode "txtUncompressed.text = js_beautify(txtUncompressed.text, {indent_size: 1, indent_char: '\t'}).split('\n').join('\r\n');"
-
+    tmrFormatting.enabled = False
+    
     mnuFunctionScan_Click
 
 End Sub
@@ -2172,7 +2183,7 @@ Private Sub sc_Error()
     Dim adjustedLine As Long
     Dim curLine As Long
     
-    With sc.error
+    With sc.Error
     
         curLine = txtJS.CurrentLine
         adjustedLine = .line - IIf(USING_MYMAIN, 4, 0)
@@ -2199,6 +2210,11 @@ Private Sub sc_Error()
     
     End With
     
+End Sub
+
+Private Sub tmrFormatting_Timer()
+    DoEvents
+    Sleep 10
 End Sub
 
 Private Sub txtJS_AutoCompleteEvent(className As String)

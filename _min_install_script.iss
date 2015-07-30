@@ -33,7 +33,7 @@ Source: js_api.txt; DestDir: {app}
 Source: dependancies\MSCOMCTL.OCX; DestDir: {win}; Flags: regserver uninsneveruninstall
 Source: dependancies\msscript.ocx; DestDir: {win}; Flags: regserver uninsneveruninstall
 Source: dependancies\richtx32.ocx; DestDir: {win}; Flags: regserver uninsneveruninstall
-Source: dependancies\scivb_lite.ocx; DestDir: {app}; Flags: regserver
+Source: dependancies\scivb2.ocx; DestDir: {app}; Flags: regserver
 Source: dependancies\SciLexer.dll; DestDir: {app}
 Source: dependancies\hexed.ocx; DestDir: {app}; Flags: regserver
 Source: dependancies\WinGraphviz.dll; DestDir: {app}; Flags: regserver
