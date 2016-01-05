@@ -254,6 +254,7 @@ Begin VB.Form Form2
       _ExtentX        =   20981
       _ExtentY        =   2249
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form2.frx":008A
@@ -522,6 +523,10 @@ Begin VB.Form Form2
       End
       Begin VB.Menu mnuIndentGuide 
          Caption         =   "Show Indent Guides"
+      End
+      Begin VB.Menu mnuParsefuncs 
+         Caption         =   "Parse funcs"
+         Checked         =   -1  'True
       End
    End
    Begin VB.Menu mnuPopup3 
@@ -794,29 +799,68 @@ Private Sub mnuCopyToLower_Click()
     txtOut.Text = lv.SelectedItem.tag
 End Sub
 
-Public Function ExtractFunction(ByVal startLine As Long, Optional ByRef foundEnd, Optional includeSpacer As Boolean = True) As String
-
+Public Function ExtractFunction(ByVal startLine As Long, Optional ByRef foundEnd, Optional includeSpacer As Boolean = True, Optional linesOfCode As Long) As String
+    Dim data, tmp() As String, j, x, il As Long, indent As Long
+    
+    indent = GetIndentLevel(startLine)
     data = IIf(includeSpacer, vbCrLf & vbCrLf, Empty)
-    startLine = startLine - 1
-    tmp = Split(txtJS.Text, vbCrLf)
-    j = -1
+    j = startLine
     foundEnd = False
     
-    For Each x In tmp
-        j = j + 1
-        If j > startLine Then
-            data = data & x & vbCrLf
-            If RTrim(x) = "}" Or RTrim(x) = "};" Then
-                foundEnd = True
-                Exit For
-            End If
+    Do
+        x = txtJS.GetLineText(j)
+        
+        If Len(x) > 2 Then
+            If right(x, 2) = vbCrLf Then x = Mid(x, 1, Len(x) - 2)
         End If
+        
+        If Len(x) > 1 Then
+            If right(x, 1) = vbLf Then x = Mid(x, 1, Len(x) - 1)
+        End If
+                
+        il = GetIndentLevel(, x)
+        data = data & x & vbCrLf
+        
+        If il = indent Then x = Trim(Replace(x, vbTab, ""))
+        
+        If VBA.left(x, 1) = "}" Then
+            foundEnd = True
+            Exit Do
+        End If
+        
+        j = j + 1
+        If j > txtJS.TotalLines Then 'GetLineText failing on very last line?
+            foundEnd = True
+            Exit Do
+        End If
+        
         DoEvents
-    Next
+    Loop While Not foundEnd
     
+    linesOfCode = j - startLine
     ExtractFunction = data & IIf(includeSpacer, vbCrLf & vbCrLf, Empty)
     
 End Function
+
+Function GetIndentLevel(Optional lineNo = 0, Optional strText = Empty) As Long
+    On Error Resume Next
+    Dim cnt As Long, x
+    
+    If Len(strText) > 0 Then
+        x = strText
+    Else
+        x = txtJS.GetLineText(lineNo)
+    End If
+    
+    While VBA.left(x, 1) = vbTab
+        cnt = cnt + 1
+        x = Mid(x, 2)
+    Wend
+    
+    GetIndentLevel = cnt
+    
+End Function
+
 
 Private Sub mnuExpandAll_Click()
     If mnuCodeFolding.Checked = True Then mnuCodeFolding_Click
@@ -881,26 +925,33 @@ End Sub
 
 Public Sub mnuFunctionScan_Click()
     
-    'very quick and dirty function scan, assumes you already ran format js
+    'kinda quick and dirty function scan, assumes you already ran format js
+    'wokrs on standard js, js with functions embedded within funcs, and jquery type classes.
     On Error Resume Next
     
     Dim li As ListItem
-    Dim loc As Long, i As Long, x As String
+    Dim loc As Long, i As Long, x As String, b As Long
     
     lvFunc.ListItems.Clear
-    
-    i = -1
-    'tmp = Split(txtJS.Text, vbCrLf)
-    'For Each x In tmp
+    If Not mnuParsefuncs.Checked Then Exit Sub
+
     For i = 0 To txtJS.DirectSCI.GetLineCount
-        'i = i + 1
+        
+        If Not mnuParsefuncs.Checked Then Exit Sub
+        
         x = txtJS.GetLineText(i)
+        'If InStr(x, "function") > 0 Then Stop
+        
         func = Empty
         
         a = InStr(x, " = function(")
+        b = InStr(x, ": function(")
         
         If a > 0 Then
             func = Trim(Mid(x, 1, a))
+            func = Trim(Replace(func, vbTab, Empty))
+        ElseIf b > 0 Then
+            func = Trim(Mid(x, 1, b - 1))
             func = Trim(Replace(func, vbTab, Empty))
         ElseIf InStr(x, "function") > 0 And InStr(x, "(") > 0 And InStr(x, "{") > 0 Then
             a = InStr(x, "(")
@@ -912,7 +963,7 @@ Public Sub mnuFunctionScan_Click()
         
         If Len(func) > 0 Then
             Set li = lvFunc.ListItems.Add(, , func)
-            loc = CountOccurances(ExtractFunction(i, , False), vbCrLf)
+            ExtractFunction i, , False, loc
             li.SubItems(1) = VBA.right("    " & loc, 5) 'for sorting
             li.tag = i
         End If
@@ -1034,6 +1085,11 @@ Function LongHex(ByVal Number As Double) As String
   LongHex = h$
 End Function
 
+Private Sub mnuParsefuncs_Click()
+    mnuParsefuncs.Checked = Not mnuParsefuncs.Checked
+    If Not mnuParsefuncs.Checked Then lvFunc.ListItems.Clear
+End Sub
+
 Private Sub mnuProcessActionScript_Click()
     On Error Resume Next
     tmp = ProcessActionScript(txtJS.Text)
@@ -1084,7 +1140,18 @@ Private Sub mnuRenameFunc_Click()
     End If
     
     push renames, oldname & " -> " & NewName
+    
+    'this should handle the common delimiters and not be as buggy as just replacing the name blindly which can include partial matches.
     txtJS.Text = Replace(txtJS.Text, oldname & "(", NewName & "(")
+    txtJS.Text = Replace(txtJS.Text, oldname & ",", NewName & ",")
+    txtJS.Text = Replace(txtJS.Text, oldname & " ", NewName & " ")
+    txtJS.Text = Replace(txtJS.Text, oldname & ";", NewName & ";")
+    txtJS.Text = Replace(txtJS.Text, oldname & ")", NewName & ")")
+    txtJS.Text = Replace(txtJS.Text, oldname & "[", NewName & "[")
+    txtJS.Text = Replace(txtJS.Text, oldname & "]", NewName & "]")
+    txtJS.Text = Replace(txtJS.Text, oldname & vbCr, NewName & vbCr)
+    
+    'txtJS.Text = Replace(txtJS.Text, oldname, NewName) 'both of these have weaknesses, i guess I prefer this one more..
     txtJS.FirstVisibleLine = fl
     
     'MsgBox txtJS.SCI.ReplaceAll(CStr(oldname), CStr(NewName), True) 'buggy...
@@ -2183,7 +2250,7 @@ Private Sub sc_Error()
     Dim adjustedLine As Long
     Dim curLine As Long
     
-    With sc.Error
+    With sc.error
     
         curLine = txtJS.CurrentLine
         adjustedLine = .line - IIf(USING_MYMAIN, 4, 0)

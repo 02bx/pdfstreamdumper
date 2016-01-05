@@ -207,6 +207,9 @@ Function flash_as_cveScan(asScript As String) As String
     Dim hits As Long
     Dim ret() As String
     
+    'https://www.fireeye.com/blog/threat-research/2015/07/cve-2015-5122_-_seco.html
+    
+    push cves, "CVE-2015-5122:.opaqueBackground"
     push cves, "CVE-2015-3113:play,info,code,video,attachNetStream"
     push cves, "CVE-2015-0556:copyPixelsToByteArray"
     push cves, "CVE-2015-0313:createMessageChannel,createWorker"
