@@ -18,7 +18,16 @@ couple newer ui behaviors for jsui code pane...
 - double click a word to select all instances (instance count shown in caption bar)
   this also works if you select a string normally (or partial)
 
-- deobsfuscation tools -> ActionScript processor just added. assumes as3 sourcer output
+- deobsfuscation tools -> Actioncript processor just added. assumes as3 sourcer output
+
+- function listview supports the following hot keys:
+	* n - rename function
+	* r - find function references
+	* x - graph to
+	* z - graph from
+	* f5 - refresh function list (if line numbers are off from code modifications)
+
+- the function scanner now has support for jquery type scripts and has been sped up allot.
 
 
 In addition to the standard JS features a toolbox class has been 

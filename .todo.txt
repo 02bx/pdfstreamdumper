@@ -1,5 +1,4 @@
 
-
 graphing: handled x = function() declares in other functions
 on selection if find dialog up reset text..
 

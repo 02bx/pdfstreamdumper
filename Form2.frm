@@ -1,6 +1,6 @@
 VERSION 5.00
 Object = "{0E59F1D2-1FBE-11D0-8FF2-00A0D10038BC}#1.0#0"; "msscript.ocx"
-Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
+Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "richtx32.ocx"
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Object = "{2668C1EA-1D34-42E2-B89F-6B92F3FF627B}#5.0#0"; "scivb2.ocx"
 Begin VB.Form Form2 
@@ -695,7 +695,7 @@ Private Sub lvFunc_DblClick()
     On Error Resume Next
     If Not lvFunc.SelectedItem Is Nothing Then
          'txtJS.GotoLine lvFunc.SelectedItem.tag
-         'push navPoints, CLng(lvFunc.SelectedItem.tag)
+         push navPoints, CLng(lvFunc.SelectedItem.tag)
          txtJS.FirstVisibleLine = CLng(lvFunc.SelectedItem.tag)
          txtJS.SelectLine
          txtJS.SetFocus
@@ -2364,12 +2364,16 @@ Private Sub txtJS_MouseUp(Button As Integer, Shift As Integer, x As Long, Y As L
         mnuMain(3).Visible = isFuncName 'graph from
         mnuMain(6).Visible = IsNumeric(word)
         PopupMenu mnuMainPopup
+    Else
+        'if they scroll with scrollbar, and then click in the document it wasnt being picked up as navpoint
+        txtJS_LineChanged txtJS.PositionFromLine(txtJS.CurrentLine)
     End If
     
 End Sub
 
 'everytime first visible line changes..
-Private Sub txtJS_PosChanged(Position As Long)
+'Private Sub txtJS_PosChanged(Position As Long) '<--wtf this looks never implemented? I know i was using it???
+Private Sub txtJS_LineChanged(Position As Long)
 
 On Error Resume Next
 
@@ -2381,7 +2385,10 @@ On Error Resume Next
         If ScreenToClient(Me.hwnd, p) <> 0 Then
             txtJSScrollBarPos = (txtJS.left + txtJS.Width) / 15
             'Me.Caption = p.x & " " & txtJSScrollBarPos
-            If Abs(txtJSScrollBarPos - p.x) < 40 Then Exit Sub
+            If Abs(txtJSScrollBarPos - p.x) < 40 Then
+                'Debug.Print "Mouse in vertical scroll bar ignoring line change.."
+                Exit Sub
+            End If
         End If
     End If
         
@@ -2395,7 +2402,7 @@ On Error Resume Next
         
         push navPoints, curTopLine
         curTopLine = Position
-        'Debug.Print Now & "new pos saved: " & Position
+        Debug.Print Now & "new pos saved: " & Position
         
         If UBound(navPoints) > 70 Then
             'Debug.Print "compacting navpoints.."
@@ -2418,3 +2425,5 @@ Private Sub Form_KeyPress(KeyAscii As Integer)
         End If
     End If
 End Sub
+
+
