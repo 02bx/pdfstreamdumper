@@ -198,5 +198,7 @@ Credits:
         HexEd hexeditor control codebase by Rang3r
         http://www.Planet-Source-Code.com/vb/scripts/ShowCode.asp?txtCodeId=34729&lngWId=1
 
+        Microsoft Script Decoder (c)2000/2001 MrBrownstone
+        http://www.virtualconspiracy.com/scrdec.html
 
 	

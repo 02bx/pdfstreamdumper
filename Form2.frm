@@ -254,7 +254,6 @@ Begin VB.Form Form2
       _ExtentX        =   20981
       _ExtentY        =   2249
       _Version        =   393217
-      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"Form2.frx":008A
@@ -463,6 +462,9 @@ Begin VB.Form Form2
       End
       Begin VB.Menu mnuStrAryReplace 
          Caption         =   "String Array Elem Replace"
+      End
+      Begin VB.Menu mnuMSScriptDecode 
+         Caption         =   "Decode MS Script.Encode"
       End
    End
    Begin VB.Menu mnuPopup 
@@ -1084,6 +1086,33 @@ Function LongHex(ByVal Number As Double) As String
   Loop While Number > 0
   LongHex = h$
 End Function
+
+Private Sub mnuMSScriptDecode_Click()
+    Dim fin As String, fout As String, exe As String, pid As Long
+    
+    On Error Resume Next
+    
+    exe = App.path & "\scrdec12.exe"
+    If Not fso.FileExists(exe) Then
+        MsgBox "Decoder not found: " & exe
+        Exit Sub
+    End If
+    
+    exe = GetShortName(exe)
+    fin = fso.GetFreeFileName(Environ("temp"))
+    fso.writeFile fin, txtJS.Text
+    
+    fout = fin & ".dec"
+    ShellnWait exe & " " & fin & " " & fout
+    
+    If fso.FileExists(fout) Then
+        txtJS.Text = fso.ReadFile(fout)
+        fso.DeleteFile fout
+    End If
+    
+    fso.DeleteFile fin
+ 
+End Sub
 
 Private Sub mnuParsefuncs_Click()
     mnuParsefuncs.Checked = Not mnuParsefuncs.Checked

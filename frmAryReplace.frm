@@ -9,10 +9,32 @@ Begin VB.Form frmAryReplace
    ScaleHeight     =   7290
    ScaleWidth      =   8940
    StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton cmdReplace 
+      Caption         =   "Replace"
+      Height          =   330
+      Left            =   5400
+      TabIndex        =   12
+      Top             =   630
+      Width           =   1005
+   End
+   Begin VB.TextBox txtReplace 
+      Height          =   330
+      Left            =   4095
+      TabIndex        =   11
+      Top             =   630
+      Width           =   1185
+   End
+   Begin VB.TextBox txtFind 
+      Height          =   330
+      Left            =   2700
+      TabIndex        =   10
+      Top             =   630
+      Width           =   1140
+   End
    Begin VB.CommandButton Command2 
       Caption         =   "Example"
       Height          =   375
-      Left            =   7110
+      Left            =   7470
       TabIndex        =   8
       Top             =   90
       Width           =   1365
@@ -30,16 +52,16 @@ Begin VB.Form frmAryReplace
       Height          =   375
       Left            =   6885
       TabIndex        =   4
-      Top             =   6750
+      Top             =   6795
       Width           =   1860
    End
    Begin VB.TextBox txtElements 
-      Height          =   5685
+      Height          =   5595
       Left            =   1035
       MultiLine       =   -1  'True
       ScrollBars      =   2  'Vertical
       TabIndex        =   3
-      Top             =   900
+      Top             =   1080
       Width           =   7755
    End
    Begin VB.TextBox txtAName 
@@ -48,6 +70,14 @@ Begin VB.Form frmAryReplace
       TabIndex        =   1
       Top             =   45
       Width           =   1410
+   End
+   Begin VB.Label Label5 
+      Caption         =   "Find                                                                                       (supports \r\n)"
+      Height          =   330
+      Left            =   2250
+      TabIndex        =   9
+      Top             =   675
+      Width           =   5325
    End
    Begin VB.Label Label4 
       Caption         =   "?"
@@ -80,7 +110,7 @@ Begin VB.Form frmAryReplace
       Height          =   240
       Left            =   90
       TabIndex        =   2
-      Top             =   585
+      Top             =   765
       Width           =   1095
    End
    Begin VB.Label Label1 
@@ -97,6 +127,13 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Private Sub cmdReplace_Click()
+    Dim x
+    x = Replace(txtReplace, "\r", vbCr)
+    x = Replace(txtReplace, "\n", vbLf)
+    txtElements = Replace(txtElements, txtFind, x)
+End Sub
+
 Private Sub Command1_Click()
     
     'Dim topLine As Long

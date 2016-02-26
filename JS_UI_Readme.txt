@@ -29,6 +29,9 @@ couple newer ui behaviors for jsui code pane...
 
 - the function scanner now has support for jquery type scripts and has been sped up allot.
 
+- if the find/replace form is open and you select a word with the shift key depressed
+   the selected word will be transferred into the find textbox automatically. 
+   (very useful for deobsfuscation tasks)
 
 In addition to the standard JS features a toolbox class has been 
 added with some additional functions use tb. to access

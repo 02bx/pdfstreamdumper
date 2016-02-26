@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
+Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "richtx32.ocx"
 Begin VB.Form frmAbout 
    BorderStyle     =   3  'Fixed Dialog
    Caption         =   "About PDFStreamDumper"
@@ -37,7 +37,6 @@ Begin VB.Form frmAbout
       _ExtentX        =   19711
       _ExtentY        =   10821
       _Version        =   393217
-      Enabled         =   -1  'True
       ReadOnly        =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"frmAbout.frx":4B1E
@@ -99,7 +98,10 @@ Private Sub Form_Load()
     Const m3 = "WinGraphViz - OOD Tsen oodtsen@gmail.com\n" & _
                 "http://wingraphviz.sourceforge.net/wingraphviz/index.htm\n\n" & _
                 "GraphViz - AT&T Labs\n" & _
-                "http://graphviz.org/\n\n"
+                "http://graphviz.org/\n\n" & _
+                "Microsoft Script Decoder (c)2000/2001 MrBrownstone\n" & _
+                "http://www.virtualconspiracy.com/scrdec.html\n\n"
+
                  
 
     Dim Header

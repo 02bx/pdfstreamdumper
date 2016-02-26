@@ -70,6 +70,7 @@ Source: mupdf\CONTRIBUTORS; DestDir: {app}\mupdf\
 Source: mupdf\COPYING; DestDir: {app}\mupdf\
 Source: mupdf\README; DestDir: {app}\mupdf\
 Source: lzma.exe; DestDir: {app}
+Source: scrdec12.exe; DestDir: {app}
 
 
 [Icons]

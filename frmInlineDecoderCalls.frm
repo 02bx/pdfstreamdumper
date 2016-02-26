@@ -11,6 +11,14 @@ Begin VB.Form frmInlineDecoderCalls
    ScaleHeight     =   8475
    ScaleWidth      =   9450
    StartUpPosition =   2  'CenterScreen
+   Begin VB.CheckBox chkVBS 
+      Caption         =   "VBS"
+      Height          =   285
+      Left            =   3825
+      TabIndex        =   20
+      Top             =   3645
+      Width           =   645
+   End
    Begin VB.CommandButton cmdExample 
       Caption         =   "Example"
       Height          =   315
@@ -22,9 +30,9 @@ Begin VB.Form frmInlineDecoderCalls
    Begin VB.CheckBox chkUseHex 
       Caption         =   "Hex Output"
       Height          =   255
-      Left            =   2640
+      Left            =   2610
       TabIndex        =   18
-      Top             =   3720
+      Top             =   3690
       Width           =   1515
    End
    Begin VB.CommandButton cmdAbort 
@@ -260,6 +268,11 @@ Dim abort As Boolean
 Dim example_decoder As String
 Dim example_script As String
 
+Private Sub chkVBS_Click()
+    On Error Resume Next
+    sc.Language = IIf(chkVBS.value = 1, "vbscript", "javascript")
+End Sub
+
 'instead of searching for numeric expansions only between () and [] why not just generic? easier? more false positives?
 
 Private Sub cmdAbort_Click()
@@ -267,6 +280,7 @@ Private Sub cmdAbort_Click()
 End Sub
 
 Private Sub cmdExample_Click()
+    chkVBS.value = 0
     txtDecoder = example_decoder
     Form2.txtJS.Text = example_script & Form2.txtJS.Text
     MsgBox "A sample decoder has been loaded, and sample data prepended to the data in teh script ui. (Both for a numeric expansion as well as a decoder call)"
@@ -278,6 +292,7 @@ Private Sub cmdHandleNumericExpansions_Click()
     On Error Resume Next
     Dim topLine As Long
     
+    chkVBS.value = 0
     topLine = Form2.txtJS.FirstVisibleLine
     d.Pattern = txtNumeric '"\([0-9\*\+ ]+\)"
     d.Global = True
@@ -357,7 +372,7 @@ Private Sub cmdParse_Click()
         b = InStr(a, x, "(")
         If b > 0 Then
             funcName = Mid(x, a, b - a)
-            funcName = Replace(funcName, "function ", Empty)
+            funcName = Replace(funcName, "function ", Empty, , , vbTextCompare)
         End If
     End If
     
@@ -382,6 +397,8 @@ Private Sub cmdParse_Click()
     pb.value = 0
     i = 0
     
+    sc.Reset
+    sc.Language = IIf(chkVBS.value = 1, "vbscript", "javascript")
     sc.AddCode txtDecoder
     abort = False
     
@@ -448,6 +465,7 @@ Private Sub Command1_Click()
     Form2.SaveToListView Form2.txtJS.Text, "Before Strip Inline" 'save a copy of the original
     Form2.txtJS.Text = x
     Form2.txtJS.FirstVisibleLine = topLine
+    pb.value = 0
     'Unload Me
     
 End Sub

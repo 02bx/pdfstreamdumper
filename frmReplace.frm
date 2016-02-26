@@ -196,7 +196,7 @@ Private Sub cmdFind_Click()
     
     On Error Resume Next
     
-    If chkUnescape.Value = 1 Then
+    If chkUnescape.value = 1 Then
         f = unescape(Text1)
     Else
         f = Text1
@@ -206,7 +206,7 @@ Private Sub cmdFind_Click()
     
     Dim compare As VbCompareMethod
     
-    If chkCaseSensitive.Value = 1 Then
+    If chkCaseSensitive.value = 1 Then
         compare = vbBinaryCompare
     Else
         compare = vbTextCompare
@@ -227,7 +227,7 @@ Private Sub cmdFindNext_Click()
     
     On Error Resume Next
     
-    If chkUnescape.Value = 1 Then
+    If chkUnescape.value = 1 Then
         f = unescape(Text1)
     Else
         f = Text1
@@ -245,7 +245,7 @@ Private Sub cmdFindNext_Click()
     
     Dim compare As VbCompareMethod
     
-    If chkCaseSensitive.Value = 1 Then
+    If chkCaseSensitive.value = 1 Then
         compare = vbBinaryCompare
     Else
         compare = vbTextCompare
@@ -269,13 +269,13 @@ Private Sub Command1_Click()
     
     On Error Resume Next
     
-    If chkUnescape.Value = 1 Then
+    If chkUnescape.value = 1 Then
         f = unescape(Text1)
     Else
         f = Text1
     End If
     
-    If chkUnescape.Value = 1 Then
+    If chkUnescape.value = 1 Then
         r = unescape(Text2)
     Else
         r = Text2
@@ -283,7 +283,7 @@ Private Sub Command1_Click()
     
     Dim compare As VbCompareMethod
     
-    If chkCaseSensitive.Value = 1 Then
+    If chkCaseSensitive.value = 1 Then
         compare = vbBinaryCompare
     Else
         compare = vbTextCompare
@@ -291,7 +291,7 @@ Private Sub Command1_Click()
     
     Dim curLine As Long
     
-    If Option1.Value Then 'whole selection
+    If Option1.value Then 'whole selection
         active_object.Text = Replace(active_object.Text, f, r, , , compare)
     Else
         sl = active_object.SelStart
@@ -327,7 +327,7 @@ Private Sub Form_Load()
     SetWindowPos Me.hwnd, HWND_TOPMOST, Me.left / 15, Me.Top / 15, Me.Width / 15, Me.height / 15, SWP_SHOWWINDOW
     Text1 = GetMySetting("lastFind")
     Text2 = GetMySetting("lastReplace")
-    If GetMySetting("wholeText", "1") = "1" Then Option1.Value = True Else Option2.Value = True
+    If GetMySetting("wholeText", "1") = "1" Then Option1.value = True Else Option2.value = True
 End Sub
 
 Private Sub Form_Resize()
@@ -341,7 +341,17 @@ Private Sub Form_Unload(Cancel As Integer)
     FormPos Me, False, True
     SaveMySetting "lastFind", Text1
     SaveMySetting "lastReplace", Text2
-    SaveMySetting "wholeText", IIf(Option1.Value, "1", "0")
+    SaveMySetting "wholeText", IIf(Option1.value, "1", "0")
+    
+'    Dim f As Form, f2 As Form2
+'    For Each f In Me.Forms
+'        If f.name = "Form2" Then 'jsui
+'            Set f2 = f
+'            Set f2.activeReplaceForm = Nothing
+'            Exit For
+'        End If
+'    Next
+    
 End Sub
 
 Private Sub Text3_KeyPress(KeyAscii As Integer)

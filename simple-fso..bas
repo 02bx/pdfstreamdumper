@@ -16,6 +16,11 @@ Global csharp As New CSharpFilters
 
 Global Const LANG_US = &H409
 
+#If 0 Then
+    Global Value As Long 'force correct case
+#End If
+    
+
 Enum Decoders            'these align to the values used in the Csharp enum so we can pass directly
     RunLengthDecode = 0  'requires iTextFilters
     FlateDecode = 1      'native support
@@ -307,8 +312,8 @@ Sub FormPos(fform As Form, Optional andSize As Boolean = False, Optional save_mo
     
 End Sub
 
-Sub SaveMySetting(key, value)
-    SaveSetting App.EXEName, "Settings", key, value
+Sub SaveMySetting(key, Value)
+    SaveSetting App.EXEName, "Settings", key, Value
 End Sub
 
 Function GetMySetting(key, Optional defaultval = "")
@@ -595,13 +600,13 @@ Private Sub delTree(folderpath, force As Boolean)
    Call RmDir(folderpath)
 End Sub
 
-Sub push(ary, value) 'this modifies parent ary object
+Sub push(ary, Value) 'this modifies parent ary object
     On Error GoTo init
     x = UBound(ary) '<-throws Error If Not initalized
     ReDim Preserve ary(UBound(ary) + 1)
-    ary(UBound(ary)) = value
+    ary(UBound(ary)) = Value
     Exit Sub
-init: ReDim ary(0): ary(0) = value
+init: ReDim ary(0): ary(0) = Value
 End Sub
 
 Function AryIsEmpty(ary) As Boolean

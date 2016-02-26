@@ -174,7 +174,7 @@ Begin VB.Form frmScTest
       Begin VB.CommandButton Command1 
          Caption         =   "Launch"
          Height          =   375
-         Left            =   8370
+         Left            =   8325
          TabIndex        =   2
          Top             =   1395
          Width           =   1575
@@ -379,8 +379,8 @@ End Enum
 Private Type PROCESS_INFORMATION
     hProcess As Long
     hThread As Long
-    dwProcessId As Long
-    dwThreadId As Long
+    dwProcessID As Long
+    dwThreadID As Long
 End Type
 
 Private Type STARTUPINFO
@@ -493,10 +493,10 @@ Private Sub cmdrowse_Click(Index As Integer)
     f = dlg.OpenDialog(AllFiles)
     If Index = 0 Then txtFopen.Text = f Else txtTemp = f
     If Len(f) > 0 Then
-        If Index = 0 Then chkfopen.Value = 1 Else chktemp.Value = 1
+        If Index = 0 Then chkfopen.value = 1 Else chktemp.value = 1
         If Index = 0 And Len(txtTemp) = 0 Then
             txtTemp = fso.GetParentFolder(txtFopen) & "\"
-            chktemp.Value = 1
+            chktemp.value = 1
         End If
     End If
 End Sub
@@ -523,18 +523,18 @@ Private Sub Command1_Click()
     cmdline = GetShortName(sctest)
     libemu = GetShortName(App.path & "\libemu")
     
-    If chkApiTable.Value = 1 Then cmdline = cmdline & " -api"
-    If chkInteractiveHooks.Value = 1 Then cmdline = cmdline & " -i"
-    If chkCreateDump.Value = 1 Then cmdline = cmdline & " -d"
-    If chkReport.Value = 1 Then cmdline = cmdline & " -r"
-    If chkUnlimitedSteps.Value = 1 Then cmdline = cmdline & " -s -1"
-    If chkDebugShell.Value = 1 Then cmdline = cmdline & " -vvv"
-    If chkFindSc.Value = 1 Then cmdline = cmdline & " -findsc"
-    If ChkMemMon.Value = 1 Then cmdline = cmdline & " -mdll"
-    If chktemp.Value = 1 Then cmdline = cmdline & " -temp " & GetShortName(txtTemp)
-    If chkIgnoreRW.Value = 1 Then cmdline = cmdline & " -norw"
+    If chkApiTable.value = 1 Then cmdline = cmdline & " -api"
+    If chkInteractiveHooks.value = 1 Then cmdline = cmdline & " -i"
+    If chkCreateDump.value = 1 Then cmdline = cmdline & " -d"
+    If chkReport.value = 1 Then cmdline = cmdline & " -r"
+    If chkUnlimitedSteps.value = 1 Then cmdline = cmdline & " -s -1"
+    If chkDebugShell.value = 1 Then cmdline = cmdline & " -vvv"
+    If chkFindSc.value = 1 Then cmdline = cmdline & " -findsc"
+    If ChkMemMon.value = 1 Then cmdline = cmdline & " -mdll"
+    If chktemp.value = 1 Then cmdline = cmdline & " -temp " & GetShortName(txtTemp)
+    If chkIgnoreRW.value = 1 Then cmdline = cmdline & " -norw"
     
-    If chkOffset.Value = 1 Then
+    If chkOffset.value = 1 Then
         If Not isHexNum(txtStartOffset) Then
             MsgBox "Start offset is not a valid hex number: " & txtStartOffset, vbInformation
             Exit Sub
@@ -542,7 +542,7 @@ Private Sub Command1_Click()
         cmdline = cmdline & " -foff " & txtStartOffset
     End If
     
-    If chkfopen.Value = 1 Then
+    If chkfopen.value = 1 Then
         If Not fso.FileExists(txtFopen.Text) Then
             MsgBox "You must specify a valid file to open", vbInformation
             Exit Sub
@@ -599,7 +599,7 @@ Private Sub Form_Load()
     If fso.FileExists(Form1.txtPDFPath) Then
         txtFopen = Form1.txtPDFPath
         txtTemp = fso.GetParentFolder(txtFopen)
-        chktemp.Value = 1
+        chktemp.value = 1
     End If
 End Sub
 
@@ -677,15 +677,15 @@ End Sub
 Private Sub txtFopen_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, Y As Single)
     On Error Resume Next
     txtFopen.Text = data.Files(1)
-    chkfopen.Value = 1
+    chkfopen.value = 1
     If Len(txtTemp) = 0 Then
         txtTemp = fso.GetParentFolder(txtFopen) & "\"
-        chktemp.Value = 1
+        chktemp.value = 1
     End If
 End Sub
 
 Private Sub txtTemp_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, Y As Single)
     On Error Resume Next
     txtTemp.Text = data.Files(1)
-    chktemp.Value = 1
+    chktemp.value = 1
 End Sub
