@@ -130,7 +130,7 @@ Attribute VB_Exposed = False
 Private Sub cmdReplace_Click()
     Dim x
     x = Replace(txtReplace, "\r", vbCr)
-    x = Replace(txtReplace, "\n", vbLf)
+    x = Replace(x, "\n", vbLf)
     txtElements = Replace(txtElements, txtFind, x)
 End Sub
 

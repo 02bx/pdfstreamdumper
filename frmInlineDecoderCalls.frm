@@ -255,6 +255,9 @@ Begin VB.Form frmInlineDecoderCalls
       Begin VB.Menu mnuTweakRegex 
          Caption         =   "Tweak Regex"
       End
+      Begin VB.Menu mnuCopyList 
+         Caption         =   "Copy List"
+      End
    End
 End
 Attribute VB_Name = "frmInlineDecoderCalls"
@@ -365,6 +368,7 @@ End Sub
 Private Sub cmdParse_Click()
     On Error Resume Next
     Dim funcName As String
+    Dim sf As New CScriptFunctions
     
     x = txtDecoder.Text
     a = InStr(1, x, "function ", vbTextCompare)
@@ -399,6 +403,7 @@ Private Sub cmdParse_Click()
     
     sc.Reset
     sc.Language = IIf(chkVBS.value = 1, "vbscript", "javascript")
+    sc.AddObject "tb", sf, True
     sc.AddCode txtDecoder
     abort = False
     
@@ -426,6 +431,9 @@ Private Sub cmdTest_Click()
     '    tmp = "decoder('#o]l[o]m.e0g]b[if.[o0atp[sr.d0r.1#S]e.f0eaf0r]g[a0umfx]mf[pe.1',8609,211)"
     'End If
     x = InputBox("Enter a sample decoder call to test output:", , tmp)
+    
+    Dim sf As New CScriptFunctions
+    sc.AddObject "tb", sf, True
     sc.AddCode txtDecoder.Text
     MsgBox sc.eval(x)
     If Err.Number <> 0 Then
@@ -511,6 +519,18 @@ End Sub
 
 Private Sub mnuClearList_Click()
     lv.ListItems.Clear
+End Sub
+
+Private Sub mnuCopyList_Click()
+    Dim tmp()
+    
+    For Each li In lv.ListItems
+        push tmp, li.SubItems(1)
+    Next
+    
+    Clipboard.Clear
+    Clipboard.SetText Join(tmp, vbCrLf)
+    
 End Sub
 
 Private Sub mnuDeleteSelected_Click()

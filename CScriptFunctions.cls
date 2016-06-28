@@ -319,6 +319,18 @@ Function RefreshObjBrowserData()
     oBrowser.initasLib Form1
 End Function
 
+Function b64Decode(data)
+   On Error Resume Next
+   org = data
+   data = Replace(data, "ByVal", Empty, , , vbTextCompare)
+   b64Decode = b64.b64DecodeString(data)
+   If Err.Number <> 0 Or Len(b64Decode) = 0 Then
+        b64Decode = org
+   End If
+   If InStr(b64Decode, Chr(0)) > 0 Then
+        b64Decode = Replace(b64Decode, Chr(0), "\x00")
+   End If
+End Function
 
 
 Private Sub Class_Initialize()
