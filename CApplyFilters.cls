@@ -40,6 +40,7 @@ Sub ApplyFilters()
     
     Dim d As Decoders
     Dim buf As String
+    Dim pos As Long
     
     If Form1.mnuDisableDecomp.Checked = True Then Exit Sub
     If UnsupportedFilter Then Exit Sub
@@ -59,6 +60,8 @@ Sub ApplyFilters()
                 
             ElseIf d = AsciiHexDecode Then
                 
+                pos = InStr(buf, ">")
+                If pos > 1 Then buf = Mid(buf, 1, pos - 1) 'koji pdf spec 3.3.1 > is end of data
                 buf = HexStringUnescape(buf, True) 'always use my vb implementation
             
             ElseIf d = CCITTFaxDecode Then

@@ -1,7 +1,7 @@
 VERSION 5.00
 Object = "{0E59F1D2-1FBE-11D0-8FF2-00A0D10038BC}#1.0#0"; "msscript.ocx"
-Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "richtx32.ocx"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
+Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Object = "{2668C1EA-1D34-42E2-B89F-6B92F3FF627B}#5.0#0"; "scivb2.ocx"
 Begin VB.Form Form2 
    Caption         =   "PDF Stream Dumper - JS UI"
@@ -66,13 +66,15 @@ Begin VB.Form Form2
       _ExtentX        =   1005
       _ExtentY        =   1005
       Language        =   "jscript"
+      UseSafeSubset   =   -1  'True
    End
    Begin MSScriptControlCtl.ScriptControl sc2 
       Left            =   13140
-      Top             =   90
+      Top             =   120
       _ExtentX        =   1005
       _ExtentY        =   1005
       Language        =   "jscript"
+      UseSafeSubset   =   -1  'True
    End
    Begin VB.Frame splitter 
       BackColor       =   &H00808080&
@@ -1646,7 +1648,7 @@ Private Sub cmdRun_Click()
         
         sc.AddObject "tb", toolbox
         sc.AddObject "toolbox", toolbox
-        sc.AddObject "txtOut", txtOut
+        sc.AddObject "txtOut", toolbox
         
         If fso.FileExists(user_lib) Then
             sc.AddCode fso.ReadFile(user_lib)

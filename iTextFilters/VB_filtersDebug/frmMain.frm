@@ -14,7 +14,7 @@ Begin VB.Form Form1
       Height          =   255
       Left            =   240
       TabIndex        =   7
-      Top             =   5280
+      Top             =   5310
       Width           =   1455
    End
    Begin VB.ListBox List1 

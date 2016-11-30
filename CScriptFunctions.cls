@@ -25,6 +25,14 @@ Dim alertCycles As Long
 
 Dim oBrowser As Object
 
+Property Get Text()
+    Text = Form2.txtOut.Text
+End Property
+
+Property Let Text(v)
+    t v
+End Property
+
 Function GetListviewData(Index As Long)
     On Error Resume Next
     GetListviewData = lv.ListItems(Index).tag
@@ -277,6 +285,7 @@ Public Function ReadFile(path)
 End Function
 
 Public Function unescape(x)
+Attribute unescape.VB_UserMemId = 0
     On Error Resume Next
     unescape = modEscapes.unescape(x)
 End Function

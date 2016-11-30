@@ -126,7 +126,7 @@ Begin VB.Form frmSclog
       Begin VB.CommandButton Command1 
          Caption         =   "Launch"
          Height          =   315
-         Left            =   9120
+         Left            =   9180
          TabIndex        =   8
          Top             =   1500
          Width           =   1455
@@ -346,8 +346,11 @@ Dim wsh As New WshShell
 Dim ts As TextStream
 Dim dump_saved As Boolean
 
-Const def_path As String = "c:\shellcode.sc"
-Const def_dump As String = "c:\SHELLC~1.SC.dmp"
+'Const def_path As String = "c:\shellcode.sc"
+'Const def_dump As String = "c:\SHELLC~1.SC.dmp"
+Dim def_path As String 'koji ando uac compatability - 11.27.16
+Dim def_dump As String
+
 
 Dim last_cmdline As String
 
@@ -361,18 +364,23 @@ End Function
 Public Function GetShortName(sFile As String) As String
     Dim sShortFile As String * 67
     Dim lResult As Long
+    Dim iCreated As Boolean
     
     'the path must actually exist to get the short path name !!
-    If Not fso.FileExists(sFile) Then fso.writeFile sFile, ""
+    If Not fso.FileExists(sFile) Then
+        fso.writeFile sFile, ""
+        iCreated = True
+    End If
     
     'Make a call to the GetShortPathName API
-    lResult = GetShortPathName(sFile, sShortFile, _
-    Len(sShortFile))
+    lResult = GetShortPathName(sFile, sShortFile, Len(sShortFile))
 
     'Trim out unused characters from the string.
     GetShortName = left$(sShortFile, lResult)
     
     If Len(GetShortName) = 0 Then GetShortName = sFile
+    
+    If iCreated Then fso.DeleteFile sFile
 
 End Function
 
@@ -477,16 +485,16 @@ Private Sub Command1_Click()
     scfile = GetShortName((Replace(scfile, Chr(0), Empty)))
     cmdline = sclog & " """ & scfile & """ "
     
-    If chkBreak.Value = 1 Then cmdline = cmdline & " /addbpx"
-    If chkDll.Value = 1 Then cmdline = cmdline & " /anydll"
-    If chkDump.Value = 1 Then cmdline = cmdline & " /dump"
-    If chkNoHex.Value = 1 Then cmdline = cmdline & " /hex"
-    If chkNoNet.Value = 1 Then cmdline = cmdline & " /nonet"
-    If chkRedir.Value = 1 Then cmdline = cmdline & " /redir"
-    If chkStep.Value = 1 Then cmdline = cmdline & " /step"
-    If chkAlloc.Value = 1 Then cmdline = cmdline & " /alloc"
-    If chkShowAddr.Value = 1 Then cmdline = cmdline & " /showadr"
-    If chkOffset.Value = 1 Then
+    If chkBreak.value = 1 Then cmdline = cmdline & " /addbpx"
+    If chkDll.value = 1 Then cmdline = cmdline & " /anydll"
+    If chkDump.value = 1 Then cmdline = cmdline & " /dump"
+    If chkNoHex.value = 1 Then cmdline = cmdline & " /hex"
+    If chkNoNet.value = 1 Then cmdline = cmdline & " /nonet"
+    If chkRedir.value = 1 Then cmdline = cmdline & " /redir"
+    If chkStep.value = 1 Then cmdline = cmdline & " /step"
+    If chkAlloc.value = 1 Then cmdline = cmdline & " /alloc"
+    If chkShowAddr.value = 1 Then cmdline = cmdline & " /showadr"
+    If chkOffset.value = 1 Then
         If Not isHexNum(txtStartOffset) Then
             MsgBox "Start offset is not a valid hex number: " & txtStartOffset, vbInformation
             Exit Sub
@@ -496,11 +504,11 @@ Private Sub Command1_Click()
     
     
     
-    If chkLogFile.Value = 1 Then
+    If chkLogFile.value = 1 Then
         cmdline = cmdline & " /log " & GetShortName(txtLogFile.Text)
     End If
     
-    If chkOpenFile.Value = 1 Then
+    If chkOpenFile.value = 1 Then
         If Not fso.FileExists(txtFhand) Then
             MsgBox "The file to open a handle to does not exist.", vbCritical
             Exit Sub
@@ -575,8 +583,11 @@ Private Sub Form_Load()
     On Error Resume Next
     Me.Icon = Form1.Icon
     f = Form1.txtPDFPath
-    If Len(f) = 0 Or f = "Drag and drop pdf file here" Then Exit Sub
     
+    def_path = GetShortName(Environ("temp") & "\shellcode.sc")
+    def_dump = GetShortName(Environ("temp") & "\SHELLC~1.SC.dmp")
+    
+    If Len(f) = 0 Or f = "Drag and drop pdf file here" Then Exit Sub
     pf = fso.GetParentFolder(f)
     bn = fso.GetBaseName(f)
     

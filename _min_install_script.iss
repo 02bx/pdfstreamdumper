@@ -61,7 +61,7 @@ Source: libemu\shellcode_hashs.txt; DestDir: {app}\libemu\
 Source: libemu\string_matches.txt; DestDir: {app}\libemu\
 Source: xor_bruteforcer\xorbrute.exe; DestDir: {app}\xor_bruteforcer\
 Source: AS3_WebInstall\AS3_webInstall.exe; DestDir: {app}\AS3_WebInstall\
-Source: VS_LIBEMU.url; DestDir: {app}\
+;Source: VS_LIBEMU.url; DestDir: {app}\
 Source: plugins\virustotal.dll; DestDir: {app}\plugins\; Flags: regserver
 Source: mupdf.dll; DestDir: {app}
 Source: mupdf\jbig2dec\LICENSE; DestDir: {app}\mupdf\jbig2dec

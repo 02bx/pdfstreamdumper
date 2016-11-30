@@ -353,6 +353,7 @@ Begin VB.Form frmManualFilters
       _ExtentX        =   22251
       _ExtentY        =   9922
       _Version        =   393217
+      Enabled         =   -1  'True
       HideSelection   =   0   'False
       ScrollBars      =   2
       TextRTF         =   $"frmManualFilters.frx":0000
@@ -462,6 +463,7 @@ Private Sub cmdDecode_Click(Index As Integer)
     On Error GoTo hell
     
     Dim dbugMode As Boolean
+    Dim pos As Long
     
     Dim decode As Decoders
     If Len(buf) = 0 Then
@@ -482,6 +484,8 @@ Private Sub cmdDecode_Click(Index As Integer)
         buf = Replace(buf, vbCr, Empty)
         buf = Replace(buf, vbLf, Empty)
         buf = Replace(buf, vbTab, Empty)
+        pos = InStr(buf, ">")
+        If pos > 1 Then buf = Mid(buf, 1, pos - 1) 'koji pdf spec 3.3.1 > is end of data
         DisplayData
         If AsciiHexPreScreen(buf) Then
             buf = HexStringUnescape(buf, True)
@@ -516,6 +520,10 @@ Private Sub cmdDecode_Click(Index As Integer)
 hell:     MsgBox Err.Description
 End Sub
 
+
+'koji http://www.adobe.com/content/dam/Adobe/en/devnet/pdf/pdfs/pdf_reference_archives/PDFReference.pdf ]
+'3.3.1 says "A right angle bracket character (>) is valid and indicates EOD
+
 Private Function AsciiHexPreScreen(ByVal buf As String) As Boolean
     
     On Error GoTo hell
@@ -528,6 +536,10 @@ Private Function AsciiHexPreScreen(ByVal buf As String) As Boolean
         If Asc(c) >= Asc("a") And Asc(c) <= Asc("f") Then isOk = True
         If Not isOk Then
             If Asc(c) >= Asc("0") And Asc(c) <= Asc("9") Then isOk = True
+            If c = ">" Then
+                isOk = True
+                Exit For
+            End If
         End If
         If Not isOk Then
             MsgBox "Invalid input character for asciihexdecode at index " & i & " character: " & c

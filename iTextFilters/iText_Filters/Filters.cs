@@ -5,8 +5,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.util.zlib;
-using iTextSharp.text.pdf;
-using iTextSharp.text.factories;
+using iTextSharp.text.pdf;        //we only use the 3.3mb iTextSharp for Decrypt and its zlib implementation
+using iTextSharp.text.factories;  //the decrypt feature doesnt help that often destroys things as it rebuilds . - remove this external dependancy?
 using com.sun.pdfview.CCITTFaxDecoder;  //Copyright (c) 2001 Sun Microsystems, Copyright (c) 2007, intarsys consulting GmbH
 
 //todo implement SetFaxParams, and add CCITTFaxDecoder enum and handler...main decoder block already ported and debugged
@@ -234,14 +234,22 @@ namespace iTextFilters
                         decompressed.WriteByte(b);
                     }
                 }
-                if (runLength > 128)
+                /*if (runLength > 128)
                 { //if runLength > 128 decompressed += f.read(1) * (257 - runLength)
                     for (int i = 1; i < (257 - runLength); i++)
                     {
                         b = (byte)input.ReadByte();
                         decompressed.WriteByte(b);
                     }
-                }
+                }*/
+                if (runLength > 128) //Koji Ando patch 11.27.16
+                 { //if runLength > 128 decompressed += f.read(1) * (257 - runLength)
+                    b = (byte)input.ReadByte();
+                    for (int i = 0; i < (257 - runLength); i++)
+                     {
+                         decompressed.WriteByte(b);
+                     }
+                 }
                 if (runLength == 128) break;
 
                 runLength = input.ReadByte();

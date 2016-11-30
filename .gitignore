@@ -28,7 +28,6 @@
 /iTextFilters/iText_Filters/obj/*
 *.rar
 /plugins/zeus_unpack*
-iTextSharp.dll
 Shortcut*
 SCIVBX.ocx
 *_Setup*

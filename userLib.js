@@ -108,7 +108,7 @@ function myEval(x){
 function myUnescape(x){ return tb.unescape(x) } //%u unescape in script control = ????'s
 function myGetPageNumWords(page){ return tb.GetPageNumWords(page)}
 function myGetPageNthWord(page,word,strip){ return tb.GetPageNthWord(page,word,strip) }
-
+function alert(x){tb.alert(x)}
 function setRefs(obj){  //we make one big obj for simplicity
     obj.info = info
     obj.collab = Collab
@@ -161,7 +161,6 @@ var Collab = bullshit
 var collab = bullshit
 var spell = bullshit
 var console = bullshit
-
 
 try{
    var info = new InfoClass();

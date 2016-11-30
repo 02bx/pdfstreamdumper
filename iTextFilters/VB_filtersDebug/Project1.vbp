@@ -1,7 +1,7 @@
 Type=Exe
 Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\system32\stdole2.tlb#OLE Automation
 Reference=*\G{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B}#1.0#0#C:\WINDOWS\system32\wshom.ocx#Windows Script Host Object Model
-Reference=*\G{23343FC2-75F4-4657-A8FA-5790ACD46743}#1.0#0#..\..\iText_Filters.tlb#Decode Filters From iTextSharp
+Reference=*\G{23343FC2-75F4-4657-A8FA-5790ACD46743}#1.0#0#..\..\iTextFilters.tlb#Decode Filters From iTextSharp
 Form=frmMain.frm
 Class=CSharpFilters; CSharpFilters.cls
 IconForm="Form1"

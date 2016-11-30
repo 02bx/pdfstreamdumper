@@ -1,6 +1,6 @@
 VERSION 5.00
 Object = "{0E59F1D2-1FBE-11D0-8FF2-00A0D10038BC}#1.0#0"; "msscript.ocx"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Begin VB.Form frmInlineDecoderCalls 
    Caption         =   "Eval and replace inline string decoder calls"
    ClientHeight    =   8475
@@ -159,11 +159,12 @@ Begin VB.Form frmInlineDecoderCalls
       Width           =   3255
    End
    Begin MSScriptControlCtl.ScriptControl sc 
-      Left            =   120
+      Left            =   150
       Top             =   7740
       _ExtentX        =   1005
       _ExtentY        =   1005
       Language        =   "javascript"
+      UseSafeSubset   =   -1  'True
    End
    Begin VB.TextBox txtDecoder 
       BeginProperty Font 
