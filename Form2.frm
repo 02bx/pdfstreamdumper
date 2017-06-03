@@ -532,6 +532,9 @@ Begin VB.Form Form2
          Caption         =   "Parse funcs"
          Checked         =   -1  'True
       End
+      Begin VB.Menu mnuAllowActiveX 
+         Caption         =   "Allow ActiveX"
+      End
    End
    Begin VB.Menu mnuPopup3 
       Caption         =   "mnuPopup3"
@@ -735,6 +738,17 @@ End Sub
 
 Private Sub lvFunc_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
     If Button = 2 Then PopupMenu mnuPopupFuncs
+End Sub
+
+Private Sub mnuAllowActiveX_Click()
+    On Error Resume Next
+    mnuAllowActiveX.Checked = Not mnuAllowActiveX.Checked
+    sc.Reset
+    sc.UseSafeSubset = Not mnuAllowActiveX.Checked
+    If Err.Number <> 0 Then
+        mnuAllowActiveX.Checked = Not mnuAllowActiveX.Checked
+        MsgBox "Failed to change setting: " & Err.Description
+    End If
 End Sub
 
 Private Sub mnuCodeFolding_Click()
