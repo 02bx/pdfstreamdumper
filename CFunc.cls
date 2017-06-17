@@ -33,6 +33,7 @@ Public UseOriginalText As Boolean
 Public debugout As Boolean
 Public UseOriginalFuncName As Boolean
 Public logger As ListBox
+Public OverRideName As String
 
 Private tokenizedScript As String
 Private my_tokens As New Collection
@@ -89,22 +90,22 @@ Sub ParseAsGlobal()
         
         body = x
         tmp = Split(body, vbCrLf)
-        For Each Y In tmp
+        For Each y In tmp
              
-            a = InStr(Y, "var ")
+            a = InStr(y, "var ")
             If a > 0 Then
-                b1 = InStr(a + 4, Y, "-") 'todo change to scan for next nontext
-                b2 = InStr(a + 4, Y, "+")
-                b3 = InStr(a + 4, Y, "^")
-                b4 = InStr(a + 4, Y, "=")
+                b1 = InStr(a + 4, y, "-") 'todo change to scan for next nontext
+                b2 = InStr(a + 4, y, "+")
+                b3 = InStr(a + 4, y, "^")
+                b4 = InStr(a + 4, y, "=")
                 'b5 = InStr(a + 4, y, " ")
                 b = GetLowest(b1, b2, b3, b4)
                 If b > 0 Then
-                    newVar = Trim(Mid(Y, a + 4, b - a - 4))
+                    newVar = Trim(Mid(y, a + 4, b - a - 4))
                     If Not tokenExists(newVar) Then
                         OrgVars.Add newVar
                         AddToken newVar
-                        If debugout And Not Me.logger Is Nothing Then logger.AddItem "Adding g orgvar: " & Trim(Mid(Y, a + 4, b - a - 4))
+                        If debugout And Not Me.logger Is Nothing Then logger.AddItem "Adding g orgvar: " & Trim(Mid(y, a + 4, b - a - 4))
                     End If
                 End If
             End If
@@ -145,9 +146,9 @@ Sub ParseSelf() 'as function w/prototype
         n = Mid(x, p1 + 1, p2 - p1 - 1) 'args between parathensis
         tmp = Split(n, ",")
         If Not AryIsEmpty(tmp) Then
-            For Each Y In tmp
-                If Trim(Len(Y)) > 0 Then
-                    OrgArgs.Add Trim(Y)
+            For Each y In tmp
+                If Trim(Len(y)) > 0 Then
+                    OrgArgs.Add Trim(y)
                 End If
             Next
         End If
@@ -155,17 +156,17 @@ Sub ParseSelf() 'as function w/prototype
         'now we parse the function body line by line to extract explicitly var declared variables
         body = Mid(x, p2 + 1) 'from first { to last } --> BUG CHECK: JUST ADDED THE +1 HERE !!
         tmp = Split(body, vbCrLf)
-        For Each Y In tmp
+        For Each y In tmp
             DoEvents
-            a = InStr(Y, "var ")
+            a = InStr(y, "var ")
             If a > 0 Then
-                b1 = InStr(a + 4, Y, "-") 'todo change to scan for next nontext
-                b2 = InStr(a + 4, Y, "+")
-                b3 = InStr(a + 4, Y, "^")
-                b4 = InStr(a + 4, Y, "=")
+                b1 = InStr(a + 4, y, "-") 'todo change to scan for next nontext
+                b2 = InStr(a + 4, y, "+")
+                b3 = InStr(a + 4, y, "^")
+                b4 = InStr(a + 4, y, "=")
                 b = GetLowest(b1, b2, b3, b4)
                 If b > 0 Then
-                    newVar = Trim(Mid(Y, a + 4, b - a - 4))
+                    newVar = Trim(Mid(y, a + 4, b - a - 4))
                     If Not tokenExists(newVar) Then
                         OrgVars.Add newVar
                         AddToken newVar
@@ -203,18 +204,21 @@ Private Function FinalReplace(ByVal x)
     
     Dim overridden_varName
     Dim aIndex As Long
+    Dim tmp As String
     
     For aIndex = 0 To 254
-        
-            If InStr(x, "__arg_" & aIndex) > 0 Then
-                x = Replace(x, "__arg_" & aIndex, "arg_" & aIndex)
+            
+            tmp = SafeFuncIndex(aIndex)
+            
+            If InStr(x, "__arg_" & tmp) > 0 Then
+                x = Replace(x, "__arg_" & tmp, "arg_" & tmp)
             End If
             
-            If InStr(x, "__var_" & aIndex) > 0 Then
+            If InStr(x, "__var_" & tmp) > 0 Then
                 If IsGlobal Then
-                    x = Replace(x, "__var_" & aIndex, "gvar_" & aIndex)
+                    x = Replace(x, "__var_" & tmp, "gvar_" & tmp)
                 Else
-                    x = Replace(x, "__var_" & aIndex, "v" & aIndex)
+                    x = Replace(x, "__var_" & tmp, "v" & tmp)
                 End If
             End If
             
@@ -236,7 +240,7 @@ Function OverrideExists(varIndex) As String
      
     For Each x In OverRides
         tmp = Split(x, "->")
-        vnew = IIf(Me.IsGlobal, "gvar_" & varIndex, "v" & varIndex)
+        vnew = IIf(Me.IsGlobal, "gvar_" & SafeFuncIndex(CLng(varIndex)), "v" & SafeFuncIndex(CLng(varIndex)))
         If tmp(0) = vnew Then
             OverrideExists = tmp(1)
             Exit Function
@@ -247,7 +251,7 @@ End Function
 
 Private Function ReplaceTokens(ByVal l, Optional startPos As Long = 1) 'l = a line of data
     
-    Dim i As Long
+    Dim i As Long, j As Long
     Dim buf As String
     
     Dim tokenstart
@@ -314,7 +318,7 @@ Private Function ReplaceTokens(ByVal l, Optional startPos As Long = 1) 'l = a li
                         If tokenstart + Len(buf) + 1 < Len(l) Then
                             b = Mid(l, tokenstart + Len(buf) + 1)
                         End If
-                        newtoken = "__var_" & j
+                        newtoken = "__var_" & SafeFuncIndex(j)
                         l = a & newtoken & b
                         ReplaceTokens = ReplaceTokens(l, Len(a) + Len(newtoken))
                         Exit Function
@@ -335,7 +339,7 @@ Private Function ReplaceTokens(ByVal l, Optional startPos As Long = 1) 'l = a li
                             b = Mid(l, tokenstart + Len(buf) + 1)
                         End If
                        
-                        newtoken = "__arg_" & j
+                        newtoken = "__arg_" & SafeFuncIndex(j)
                         l = a & newtoken & b
                         ReplaceTokens = ReplaceTokens(l, Len(a) + Len(newtoken))
                         Exit Function
@@ -359,7 +363,7 @@ Private Function ReplaceTokens(ByVal l, Optional startPos As Long = 1) 'l = a li
                                 b = Mid(l, tokenstart + Len(buf) + 1)
                             End If
                             
-                            newtoken = "__gvar_" & j
+                            newtoken = "__gvar_" & SafeFuncIndex(j)
                             l = a & newtoken & b
                             ReplaceTokens = ReplaceTokens(l, Len(a) + Len(newtoken))
                             Exit Function
@@ -417,7 +421,7 @@ skip_token:
                  Debug.Print "?"
             End If
             
-            l = a & "__var_" & j & b
+            l = a & "__var_" & SafeFuncIndex(j) & b
         End If
     Next
 
@@ -434,7 +438,7 @@ skip_token:
                 b = Mid(l, tokenstart + Len(buf) + 1)
             End If
             
-            l = a & "__arg_" & j & b
+            l = a & "__arg_" & SafeFuncIndex(j) & b
         End If
         j = j + 1
     Next
@@ -452,7 +456,7 @@ skip_token:
                     b = Mid(l, tokenstart + Len(buf) + 1)
                 End If
                
-                l = a & "__gvar_" & j & b
+                l = a & "__gvar_" & SafeFuncIndex(j) & b
             End If
             j = j + 1
         Next
@@ -506,9 +510,9 @@ Function SortVars(ByVal c As Collection) As Collection
     longindex = 0
     
     i = 0
-    While c.Count > 0
+    While c.count > 0
         longest = 0
-        For i = 1 To c.Count
+        For i = 1 To c.count
             x = Len(c(i))
             If x > longest Then
                 longest = x
@@ -542,10 +546,10 @@ End Function
 Function GetLowest(ParamArray args())
     Dim lowest As Long
     lowest = -1
-    For Each Y In args
-        If Y > 0 Then
-            If lowest = -1 Then lowest = Y
-            If Y < lowest Then lowest = Y
+    For Each y In args
+        If y > 0 Then
+            If lowest = -1 Then lowest = y
+            If y < lowest Then lowest = y
         End If
     Next
     GetLowest = lowest
@@ -564,13 +568,13 @@ Private Function AryIsEmpty(ary) As Boolean
 oops: AryIsEmpty = True
 End Function
 
-Private Sub push(ary, Value) 'this modifies parent ary object
+Private Sub push(ary, value) 'this modifies parent ary object
     On Error GoTo init
     x = UBound(ary) '<-throws Error If Not initalized
     ReDim Preserve ary(UBound(ary) + 1)
-    ary(UBound(ary)) = Value
+    ary(UBound(ary)) = value
     Exit Sub
-init:     ReDim ary(0): ary(0) = Value
+init:     ReDim ary(0): ary(0) = value
 End Sub
 
 

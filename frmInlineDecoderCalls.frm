@@ -4,13 +4,12 @@ Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Begin VB.Form frmInlineDecoderCalls 
    Caption         =   "Eval and replace inline string decoder calls"
    ClientHeight    =   8475
-   ClientLeft      =   60
-   ClientTop       =   630
+   ClientLeft      =   17520
+   ClientTop       =   1545
    ClientWidth     =   9450
    LinkTopic       =   "Form3"
    ScaleHeight     =   8475
    ScaleWidth      =   9450
-   StartUpPosition =   2  'CenterScreen
    Begin VB.CheckBox chkVBS 
       Caption         =   "VBS"
       Height          =   285
@@ -514,7 +513,7 @@ Private Sub lv_ItemClick(ByVal Item As MSComctlLib.ListItem)
     Form2.txtJS.SelLength = Item.tag
 End Sub
 
-Private Sub lv_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub lv_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
     If Button = 2 Then PopupMenu mnuPopup
 End Sub
 

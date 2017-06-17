@@ -6,14 +6,13 @@ Object = "{2668C1EA-1D34-42E2-B89F-6B92F3FF627B}#5.0#0"; "scivb2.ocx"
 Begin VB.Form Form2 
    Caption         =   "PDF Stream Dumper - JS UI"
    ClientHeight    =   8310
-   ClientLeft      =   165
-   ClientTop       =   1020
+   ClientLeft      =   1680
+   ClientTop       =   2010
    ClientWidth     =   14460
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form2"
    ScaleHeight     =   8310
    ScaleWidth      =   14460
-   StartUpPosition =   3  'Windows Default
    Begin sci2.SciSimple txtJS 
       Height          =   5820
       Left            =   2475
@@ -453,6 +452,12 @@ Begin VB.Form Form2
       Begin VB.Menu mnuBasicRefactor 
          Caption         =   "Basic Refactor"
       End
+      Begin VB.Menu mnuEvalSelection 
+         Caption         =   "Eval Selection"
+      End
+      Begin VB.Menu mnuUtilityScript 
+         Caption         =   "Script Fragment"
+      End
       Begin VB.Menu mnuStripInlineDecoderCalls 
          Caption         =   "Strip Inline Decoder Calls"
       End
@@ -619,7 +624,7 @@ Attribute VB_Exposed = False
 'Site:     http://sandsprite.com
 
 Dim dlg As New clsCmnDlg
-Dim toolbox As New CScriptFunctions
+Public toolbox As New CScriptFunctions
 
 'splitter code taken from sample by Bruce Fast, submitted to the public domain. thanks!
 
@@ -646,7 +651,7 @@ Private Declare Function GetCursorPos Lib "user32" (lpPoint As POINTAPI) As Long
 Private Declare Function ScreenToClient Lib "user32" (ByVal hwnd As Long, lpPoint As POINTAPI) As Long
 Private Type POINTAPI
         x As Long
-        Y As Long
+        y As Long
 End Type
 
 Private objsAdded As Boolean
@@ -690,7 +695,7 @@ Private Sub lv2_ItemClick(ByVal Item As MSComctlLib.ListItem)
     End If
 End Sub
 
-Private Sub lv2_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub lv2_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
     If Button = 2 Then PopupMenu mnuPopup3
 End Sub
 
@@ -736,7 +741,7 @@ Private Sub lvFunc_KeyPress(KeyAscii As Integer)
     End If
 End Sub
 
-Private Sub lvFunc_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub lvFunc_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
     If Button = 2 Then PopupMenu mnuPopupFuncs
 End Sub
 
@@ -788,9 +793,9 @@ End Sub
 Private Sub mnuCopyFuncsNames_Click()
     On Error Resume Next
     x = Split(txtJS.Text, vbCrLf)
-    For Each Y In x
-        If InStr(Y, "function") > 0 Then
-            tmp = tmp & Y & vbCrLf
+    For Each y In x
+        If InStr(y, "function") > 0 Then
+            tmp = tmp & y & vbCrLf
         End If
     Next
     tmp = Replace(tmp, vbTab, Empty)
@@ -882,6 +887,10 @@ End Function
 
 Private Sub mnuExpandAll_Click()
     If mnuCodeFolding.Checked = True Then mnuCodeFolding_Click
+End Sub
+
+Private Sub mnuEvalSelection_Click()
+    frmEvalSelection.Visible = True
 End Sub
 
 Private Sub mnuExtractFunc_Click()
@@ -1523,6 +1532,10 @@ Private Sub mnuUniAsciiToHex_Click()
     txtJS.Text = Replace(txtJS.Text, "%u00", "\x", , , vbTextCompare)
 End Sub
 
+Private Sub mnuUtilityScript_Click()
+    frmProcessScript.Show
+End Sub
+
 Private Sub mnuVarPrefix_Click()
 
     On Error Resume Next
@@ -1578,7 +1591,7 @@ End Sub
 
 'splitter code
 '------------------------------------------------
-Private Sub splitter_MouseMove(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub splitter_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     Dim a1&
 
     If Button = 1 Then 'The mouse is down
@@ -1588,7 +1601,7 @@ Private Sub splitter_MouseMove(Button As Integer, Shift As Integer, x As Single,
             Capturing = True
         End If
         With splitter
-            a1 = .Top + Y
+            a1 = .Top + y
             If MoveOk(a1) Then
                 .Top = a1
             End If
@@ -1596,7 +1609,7 @@ Private Sub splitter_MouseMove(Button As Integer, Shift As Integer, x As Single,
     End If
 End Sub
 
-Private Sub splitter_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub splitter_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
     If Capturing Then
         ReleaseCapture
         Capturing = False
@@ -1619,9 +1632,9 @@ Private Sub DoMove()
 End Sub
 
 
-Private Function MoveOk(Y&) As Boolean  'Put in any limiters you desire
+Private Function MoveOk(y&) As Boolean  'Put in any limiters you desire
     MoveOk = False
-    If Y > Frame1.height * 2 And Y < Me.height - (Frame1.height * 2) Then
+    If y > Frame1.height * 2 And y < Me.height - (Frame1.height * 2) Then
         MoveOk = True
     End If
 End Function
@@ -1888,7 +1901,7 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
 End Sub
 
 
-Private Sub lv_MouseDown(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub lv_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     If Button = 2 Then PopupMenu mnuPopup
 End Sub
 
@@ -2329,7 +2342,7 @@ Private Sub tmrFormatting_Timer()
     Sleep 10
 End Sub
 
-Private Sub txtJS_AutoCompleteEvent(className As String)
+Private Sub txtJs_AutoCompleteEvent(className As String)
     Dim prev As String
     
     prev = txtJS.PreviousWord
@@ -2384,7 +2397,7 @@ Private Sub txtJS_KeyDown(KeyCode As Long, Shift As Long)
     End If
 End Sub
 
-Private Sub txtJS_MouseUp(Button As Integer, Shift As Integer, x As Long, Y As Long)
+Private Sub txtJs_MouseUp(Button As Integer, Shift As Integer, x As Long, y As Long)
     
     On Error Resume Next
     

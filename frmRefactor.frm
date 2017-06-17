@@ -10,6 +10,14 @@ Begin VB.Form frmRefactor
    ScaleHeight     =   7050
    ScaleWidth      =   14715
    StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton cmdHelp 
+      Caption         =   "?"
+      Height          =   375
+      Left            =   7200
+      TabIndex        =   21
+      Top             =   480
+      Width           =   495
+   End
    Begin VB.Frame fraButtons 
       BorderStyle     =   0  'None
       Height          =   435
@@ -226,9 +234,13 @@ Begin VB.Form frmRefactor
       BackColor       =   -2147483643
       BorderStyle     =   1
       Appearance      =   1
-      NumItems        =   1
+      NumItems        =   2
       BeginProperty ColumnHeader(1) {BDD1F052-858B-11D1-B16A-00C0F0283628} 
          Text            =   "Functions"
+         Object.Width           =   2540
+      EndProperty
+      BeginProperty ColumnHeader(2) {BDD1F052-858B-11D1-B16A-00C0F0283628} 
+         SubItemIndex    =   1
          Object.Width           =   2540
       EndProperty
    End
@@ -310,7 +322,7 @@ Private Declare Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
 Private Declare Function CreateCompatibleBitmap Lib "gdi32" (ByVal hdc As Long, ByVal nWidth As Long, ByVal nHeight As Long) As Long
 Private Declare Function CreateCompatibleDC Lib "gdi32" (ByVal hdc As Long) As Long
 Private Declare Function LockWindowUpdate Lib "user32" (ByVal hwndLock As Long) As Long
-Private Declare Function BitBlt Lib "gdi32" (ByVal hDestDC As Long, ByVal x As Long, ByVal Y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal dwRop As Long) As Long
+Private Declare Function BitBlt Lib "gdi32" (ByVal hDestDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal dwRop As Long) As Long
 Private Declare Function CreateCaret Lib "user32" (ByVal hwnd As Long, ByVal hBitmap As Long, ByVal nWidth As Long, ByVal nHeight As Long) As Long
 Private Declare Function ShowCaret Lib "user32" (ByVal hwnd As Long) As Long
 Private Declare Function GetFocus Lib "user32" () As Long
@@ -472,7 +484,7 @@ Private Sub chkUseOrigFuncName_Click()
     Dim f As CFunc
     Set f = selli.tag
     
-    f.UseOriginalFuncName = IIf(chkUseOrigFuncName.Value = 1, True, False)
+    f.UseOriginalFuncName = IIf(chkUseOrigFuncName.value = 1, True, False)
     
 End Sub
 
@@ -486,7 +498,7 @@ Private Sub chkUseOriginalText_Click()
     Dim f As CFunc
     Set f = selli.tag
     
-    f.UseOriginalText = IIf(chkUseOriginalText.Value = 1, True, False)
+    f.UseOriginalText = IIf(chkUseOriginalText.value = 1, True, False)
     selli.ForeColor = IIf(f.UseOriginalText, vbBlue, vbBlack)
     
 End Sub
@@ -501,7 +513,7 @@ Private Sub cmdCopyRenameMap_Click()
         tmp = tmp & li.Text & vbCrLf
     Next
     
-    lv_ItemClick lv.ListItems(lv.ListItems.Count)
+    lv_ItemClick lv.ListItems(lv.ListItems.count)
     
     tmp = tmp & vbCrLf & "Global vars: " & vbCrLf & String(40, "-") & vbCrLf
     For Each li In lvArgs.ListItems
@@ -515,6 +527,23 @@ Private Sub cmdCopyRenameMap_Click()
     
 End Sub
 
+Private Sub cmdHelp_Click()
+   MsgBox "Couple guidelines for this to work right." & vbCrLf & _
+            "" & vbCrLf & _
+            "No functions nested within other functions." & vbCrLf & _
+            "use function x() type instead of var x = function(){" & vbCrLf & _
+            "make sure to run code formatter before use" & vbCrLf & _
+            "double click on function list to override an items default name" & vbCrLf & _
+            "once you select a function, its vars are listed. click once to override name" & vbCrLf & _
+            "if you override a var name, click apply overrides before moving on to next function." & vbCrLf & _
+            "you can clear overrides for selected functions as well" & vbCrLf & _
+            "seems to be a bug right now with overriding global variables" & vbCrLf & _
+            "" & vbCrLf & _
+            "this is a really complex task, but if you follow these guidelines it" & vbCrLf & _
+            "works pretty well." & vbCrLf & _
+            "" & vbCrLf
+End Sub
+
 Private Sub cmdScroll_Click(Index As Integer)
     ScrollPage Text1, Text2, Not CBool(Index)
 End Sub
@@ -526,7 +555,7 @@ Private Sub Command4_Click()
     
     If global_script.UseOriginalText Then
         Complete = global_script.OrgText
-    ElseIf global_script.OverRides.Count > 0 Then
+    ElseIf global_script.OverRides.count > 0 Then
         Complete = global_script.OverRideScript
     Else
         Complete = global_script.CleanText
@@ -542,7 +571,7 @@ Private Sub Command4_Click()
             tmp(0) = "function " & f.NewName & rest
             UpdatedOrg = Join(tmp, vbCrLf)
             Complete = Replace(Complete, "__function_" & f.Index & "_placeholder", UpdatedOrg)
-        ElseIf f.OverRides.Count > 0 Then
+        ElseIf f.OverRides.count > 0 Then
             Complete = Replace(Complete, "__function_" & f.Index & "_placeholder", f.OverRideScript)
         Else
             Complete = Replace(Complete, "__function_" & f.Index & "_placeholder", f.CleanText)
@@ -551,8 +580,11 @@ Private Sub Command4_Click()
     
     'another cheapshot addition..
     For Each f In funcs
-        If f.UseOriginalFuncName Or chkKeepAllOrigFuncNames.Value Then
+        If f.UseOriginalFuncName Or chkKeepAllOrigFuncNames.value Then
             Complete = Replace(Complete, f.NewName, f.OrgName)
+        End If
+        If Len(f.OverRideName) > 0 Then
+            Complete = Replace(Complete, f.NewName, f.OverRideName)
         End If
     Next
     
@@ -593,11 +625,15 @@ End Sub
 Function LoadArgsLv(f As CFunc)
     
     Dim li As ListItem
+    Dim tmp As String
     
     lvArgs.ListItems.Clear
     i = 0
+    
     For Each v In f.OrgVars
-        vnew = IIf(f.IsGlobal, "gvar_" & i, "v" & i)
+        tmp = i
+        If Len(tmp) = 1 Then tmp = "0" & tmp
+        vnew = IIf(f.IsGlobal, "gvar_" & tmp, "v" & tmp)
         overRide = f.OverrideExists(i)
 
         Set li = lvArgs.ListItems.Add(, , vnew & " = " & v)
@@ -610,7 +646,7 @@ End Function
 
 Private Function setPB(cur As Long, max As Long)
     On Error Resume Next
-    pb.Value = CInt((cur / max) * 100)
+    pb.value = CInt((cur / max) * 100)
     DoEvents
     Me.Refresh
     List1.ListIndex = List1.ListCount - 1
@@ -627,10 +663,15 @@ Function LoadFunctions(scriptIn As String, Optional debugMode As Boolean = False
     Dim li As ListItem
     Dim startAt As Long, endAt As Long
     
+    marker = vbCrLf & "};" & vbCrLf
+    If InStr(scriptIn, marker) > 0 Then
+        scriptIn = Replace(scriptIn, marker, vbCrLf & "}" & vbCrLf)
+    End If
+    
     startAt = GetTickCount()
     
     Me.Visible = True
-    pb.Value = 0
+    pb.value = 0
     Set funcs = New Collection
 
     a = vbCrLf & scriptIn
@@ -650,7 +691,7 @@ Function LoadFunctions(scriptIn As String, Optional debugMode As Boolean = False
             Set f.logger = List1
             f.OrgText = Mid(a, fstart, fend - fstart + 3)
             funcs.Add f
-            f.Index = funcs.Count
+            f.Index = funcs.count
             f.ParseName
             Set li = lv.ListItems.Add(, , f.NewName & " = " & f.OrgName)
             Set li.tag = f
@@ -678,32 +719,32 @@ Function LoadFunctions(scriptIn As String, Optional debugMode As Boolean = False
     Dim xx As Long
     Dim totalVars As Long
     
-    pb.Value = 0
+    pb.value = 0
     lblParsingStatus = "Parsing function bodies..."
     
     For Each li In lv.ListItems 'this has to be last in case functions use global variables
-        setPB xx, lv.ListItems.Count
+        setPB xx, lv.ListItems.count
         Set f = li.tag
         f.ParseSelf
-        totalVars = totalVars + f.OrgVars.Count
+        totalVars = totalVars + f.OrgVars.count
         xx = xx + 1
     Next
     
     endAt = GetTickCount()
     
     Me.Caption = "Parsing took: " & (endAt - startAt) / 1000 & " secs - Found: " & _
-                    lv.ListItems.Count - 1 & " functions - " & _
-                    global_script.OrgVars.Count & " global vars - " & _
+                    lv.ListItems.count - 1 & " functions - " & _
+                    global_script.OrgVars.count & " global vars - " & _
                     totalVars & " func level variables"
     
     If debugMode Then
         Me.Visible = True
     End If
     
-    pb.Value = 0
+    pb.value = 0
     fraStatus.Visible = False
     
-    If lv.ListItems.Count > 0 Then
+    If lv.ListItems.count > 0 Then
         lv_ItemClick lv.ListItems(1)
     End If
     
@@ -753,7 +794,8 @@ Private Sub Command3_Click()
     
     Dim f As CFunc
     Set f = selli.tag
-
+    f.OverRideName = Empty
+    
     Set f.OverRides = New Collection
     Text2 = f.CleanText
     
@@ -802,6 +844,21 @@ Private Sub lblShowStatus_Click()
     fraStatus.Visible = True
 End Sub
 
+Private Sub lv_DblClick()
+    On Error Resume Next
+    Dim f As CFunc
+    If selli Is Nothing Then Exit Sub
+    Set f = selli.tag
+    tmp = Trim(Split(selli.Text, "=")(1))
+    x = InputBox("Override default function name with your own?", , tmp)
+    If Len(x) = 0 Then
+        f.OverRideName = Empty
+        Exit Sub
+    End If
+    selli.SubItems(1) = x
+    f.OverRideName = x
+End Sub
+
 Private Sub lv_ItemClick(ByVal Item As MSComctlLib.ListItem)
 
     Dim f As CFunc
@@ -809,7 +866,7 @@ Private Sub lv_ItemClick(ByVal Item As MSComctlLib.ListItem)
     Set f = Item.tag
     Text1 = f.OrgText
     
-    If f.OverRides.Count > 0 Then
+    If f.OverRides.count > 0 Then
         Text2 = f.OverRideScript
     Else
         Text2 = f.CleanText
@@ -817,14 +874,14 @@ Private Sub lv_ItemClick(ByVal Item As MSComctlLib.ListItem)
     
     If f.IsGlobal Then
         chkUseOriginalText.enabled = False 'if you dont want to refactor main script whats the point to much would break
-        chkUseOriginalText.Value = 0
+        chkUseOriginalText.value = 0
         chkUseOrigFuncName.enabled = False
-        chkUseOrigFuncName.Value = 0
+        chkUseOrigFuncName.value = 0
     Else
         chkUseOriginalText.enabled = True
-        chkUseOriginalText.Value = IIf(f.UseOriginalText, 1, 0)
+        chkUseOriginalText.value = IIf(f.UseOriginalText, 1, 0)
         chkUseOrigFuncName.enabled = True
-        chkUseOrigFuncName.Value = IIf(f.UseOriginalFuncName, 1, 0)
+        chkUseOrigFuncName.value = IIf(f.UseOriginalFuncName, 1, 0)
     End If
     
     LoadArgsLv f

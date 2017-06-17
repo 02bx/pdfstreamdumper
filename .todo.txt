@@ -3,6 +3,8 @@ graphing: handled x = function() declares in other functions
 
 test: autocomplete dialog disappearing as you keep typing? - should be fixed..
 
+refactor form overrides fail on global screipt + can not rename functions
+
 ------------------------
 new rtclick menu handles this pretty well..
 jsui, if word under cursor is a recgonized function name, and user is holding ctrl, turn it blue and underline
