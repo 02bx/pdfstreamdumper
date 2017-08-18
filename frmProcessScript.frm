@@ -10,6 +10,7 @@ Begin VB.Form frmProcessScript
    LinkTopic       =   "Form3"
    ScaleHeight     =   5265
    ScaleWidth      =   10590
+   StartUpPosition =   2  'CenterScreen
    Begin VB.Frame Frame1 
       BackColor       =   &H00C0C0C0&
       BorderStyle     =   0  'None

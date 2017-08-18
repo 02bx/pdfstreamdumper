@@ -10,6 +10,15 @@ Begin VB.Form frmEvalSelection
    LinkTopic       =   "Form3"
    ScaleHeight     =   6255
    ScaleWidth      =   12435
+   StartUpPosition =   2  'CenterScreen
+   Begin VB.CheckBox chkIgnoreSelects 
+      Caption         =   "Ignore Selects"
+      Height          =   255
+      Left            =   240
+      TabIndex        =   15
+      Top             =   2880
+      Width           =   1325
+   End
    Begin VB.Frame Frame1 
       BackColor       =   &H8000000C&
       BorderStyle     =   0  'None
@@ -77,6 +86,24 @@ Begin VB.Form frmEvalSelection
          _ExtentY        =   1005
          Language        =   "jscript"
          UseSafeSubset   =   -1  'True
+      End
+      Begin VB.Label lblCopyUp 
+         Caption         =   "^ move"
+         BeginProperty Font 
+            Name            =   "MS Sans Serif"
+            Size            =   8.25
+            Charset         =   0
+            Weight          =   400
+            Underline       =   -1  'True
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         ForeColor       =   &H00FF0000&
+         Height          =   255
+         Left            =   960
+         TabIndex        =   16
+         Top             =   120
+         Width           =   615
       End
       Begin VB.Label Label1 
          Caption         =   "Selection"
@@ -259,6 +286,11 @@ Private Sub Form_Resize()
     txtOutput.Width = txtLibCode.Width
 End Sub
 
+Private Sub lblCopyUp_Click()
+    txtLibCode.Text = txtEval.Text
+    txtEval.Text = Empty
+End Sub
+
 Private Sub sc_Error()
     Me.Caption = "Error line: " & sc.error.line & " - " & sc.error.Description
 End Sub
@@ -270,6 +302,8 @@ Private Sub txtJS_KeyUp(KeyCode As Long, Shift As Long)
 End Sub
 
 Private Sub txtJs_MouseUp(Button As Integer, Shift As Integer, x As Long, y As Long)
+    
+    If chkIgnoreSelects.value = 1 Then Exit Sub
     
     If txtJS.SelLength > 0 Then
         txtEval.Text = txtJS.SelText
