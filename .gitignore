@@ -18,7 +18,6 @@
 *.suo
 *.user
 *.ncb
-*.png
 *.gif
 /_AS3*
 /mupdf/Release/*
