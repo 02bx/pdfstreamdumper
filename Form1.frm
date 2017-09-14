@@ -7,7 +7,7 @@ Begin VB.Form Form1
    Caption         =   "PDF Stream Dumper - http://sandsprite.com"
    ClientHeight    =   9480
    ClientLeft      =   165
-   ClientTop       =   735
+   ClientTop       =   1020
    ClientWidth     =   14925
    BeginProperty Font 
       Name            =   "Courier New"
@@ -834,6 +834,12 @@ Begin VB.Form Form1
          Index           =   0
       End
    End
+   Begin VB.Menu mnuSearchPopup 
+      Caption         =   "mnuSearchPopup"
+      Begin VB.Menu mnuCopySearch 
+         Caption         =   "Copy"
+      End
+   End
 End
 Attribute VB_Name = "Form1"
 Attribute VB_GlobalNameSpace = False
@@ -908,8 +914,7 @@ Dim ActionCount As Long
 Dim PRCCount As Long
 Dim surpressHideWarnings As Boolean
 Dim startup_complete As Boolean
-'Dim defaultLCID As Long
-
+Dim defaultLCID As Long
 Dim DownloadPath As String
 'COMMAND LINE OPTIONS:
 Dim ExtractToFolder As String 'command line ex: pdfstreamdumper "c:\file.pdf" /extract "c:\folder" (extracts objects only (flash, fonts, prc, u3d))
@@ -976,6 +981,10 @@ End Sub
 
 Private Sub lblClosePictViewer_Click()
     fraPictViewer.Visible = False
+End Sub
+
+Private Sub lvSearch_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    If Button = 2 Then PopupMenu mnuSearchPopup
 End Sub
 
 Private Sub mn_b64EncClip_Click()
@@ -1062,6 +1071,16 @@ End Sub
 Private Sub mnuBrowseHomeDir_Click()
     On Error Resume Next
     Shell "explorer.exe """ & App.path & """", vbNormalFocus
+End Sub
+
+Private Sub mnuCopySearch_Click()
+    Dim t() As String
+    Dim li As ListItem
+    For Each li In lvSearch.ListItems
+        push t, li.Text
+    Next
+    Clipboard.Clear
+    Clipboard.SetText Join(t, vbCrLf)
 End Sub
 
 Private Sub mnuDebugBreakAtStream_Click()
@@ -1591,7 +1610,7 @@ Private Sub lv_KeyDown(KeyCode As Integer, Shift As Integer)
     
 End Sub
 
-Private Sub lv2_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub lv2_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
     If Button = 2 Then PopupMenu mnuPopup2
 End Sub
 
@@ -2583,7 +2602,7 @@ Private Sub Form_Unload(Cancel As Integer)
     
 End Sub
 
-Private Sub lv_MouseDown(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub lv_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     On Error Resume Next
     
     Dim stream As CPDFStream
@@ -3297,6 +3316,7 @@ Private Sub Form_Load()
 
     mnuPopup.Visible = False
     mnuPopup2.Visible = False
+    mnuSearchPopup.Visible = False
     
     zlib = App.path & "\zlib.dll" 'this way they are always found even when running in IDE..
     mupdf = App.path & "\mupdf.dll"
@@ -3413,11 +3433,11 @@ Private Sub Form_Load()
     startup_complete = True
     
     'we cant set this, machine needs a reboot to apply...but i think this issue is fixed now?
-    'defaultLCID = GetLocale(UserMode)
-    'If defaultLCID <> LANG_US And defaultLCID <> 0 Then
-    '    'lvDebug.ListItems.Add , , "If unescape error set Language Version for non-unicode programs to United States English"
-    '    TabStrip1.Tabs(3).Selected = True
-    'End If
+    defaultLCID = GetLocale(UserMode)
+    If defaultLCID <> LANG_US And defaultLCID <> 0 Then
+        lvDebug.ListItems.Add , , "You may need to set Language Version for non-unicode programs to United States English"
+        TabStrip1.Tabs(3).Selected = True
+    End If
     
     If Not csharp.Initilized Then
         lvDebug.ListItems.Add , , "C# Filters not initilized. See Tools->Manual Filters and click on iText Enabled = false link"
@@ -3647,7 +3667,7 @@ Private Sub txtPDFPath_KeyDown(KeyCode As Integer, Shift As Integer)
     If KeyCode = 13 Then cmdDecode_Click
 End Sub
 
-Private Sub txtPDFPath_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub txtPDFPath_OLEDragDrop(data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single)
     On Error Resume Next
     AutomatationRun = False
     txtPDFPath = data.Files(1)

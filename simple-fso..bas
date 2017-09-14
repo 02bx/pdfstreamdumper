@@ -17,7 +17,7 @@ Global csharp As New CSharpFilters
 Global Const LANG_US = &H409
 
 #If 0 Then
-    Global Value As Long 'force correct case
+    Global value As Long 'force correct case
 #End If
     
 
@@ -37,11 +37,11 @@ End Enum
 Public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 Private Declare Sub SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal _
-    hWndInsertAfter As Long, ByVal x As Long, ByVal Y As Long, ByVal cx _
+    hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx _
     As Long, ByVal cy As Long, ByVal wFlags As Long)
 
 Private Declare Function GetShortPathName Lib "kernel32" Alias "GetShortPathNameA" (ByVal lpszLongPath As String, ByVal lpszShortPath As String, ByVal cchBuffer As Long) As Long
-'Private Declare Function NtQueryDefaultLocale Lib "ntdll" (ByVal UserProfile As Integer, ByRef lcid As Long) As Long
+Private Declare Function NtQueryDefaultLocale Lib "ntdll" (ByVal UserProfile As Integer, ByRef lcid As Long) As Long
 'Private Declare Function NtSetDefaultLocale Lib "ntdll" (ByVal UserProfile As Integer, ByVal lcid As Long) As Long
 
 Public Declare Function LoadLibrary Lib "kernel32" Alias "LoadLibraryA" (ByVal lpLibFileName As String) As Long
@@ -49,16 +49,16 @@ Public Declare Function LoadLibrary Lib "kernel32" Alias "LoadLibraryA" (ByVal l
 Private Const HWND_TOPMOST = -1
 Private Const HWND_NOTOPMOST = -2
 
-'Public Enum LCIDMode
-'    UserMode = 0
-'    kernelmode = 1
-'End Enum
-'
-'Public Function GetLocale(Optional mode As LCIDMode = kernelmode) As Long
-'    Dim lcid As Long
-'    NtQueryDefaultLocale CInt(mode), lcid
-'    GetLocale = (lcid And &HFFFF)
-'End Function
+Public Enum LCIDMode
+    UserMode = 0
+    kernelmode = 1
+End Enum
+
+Public Function GetLocale(Optional mode As LCIDMode = kernelmode) As Long
+    Dim lcid As Long
+    NtQueryDefaultLocale CInt(mode), lcid
+    GetLocale = (lcid And &HFFFF)
+End Function
 '
 'Public Sub SetLocale(lcid As Long, Optional mode As LCIDMode = kernelmode)
 '    NtSetDefaultLocale CInt(mode), lcid
@@ -312,8 +312,8 @@ Sub FormPos(fform As Form, Optional andSize As Boolean = False, Optional save_mo
     
 End Sub
 
-Sub SaveMySetting(key, Value)
-    SaveSetting App.EXEName, "Settings", key, Value
+Sub SaveMySetting(key, value)
+    SaveSetting App.EXEName, "Settings", key, value
 End Sub
 
 Function GetMySetting(key, Optional defaultval = "")
@@ -600,13 +600,13 @@ Private Sub delTree(folderpath, force As Boolean)
    Call RmDir(folderpath)
 End Sub
 
-Sub push(ary, Value) 'this modifies parent ary object
+Sub push(ary, value) 'this modifies parent ary object
     On Error GoTo init
     x = UBound(ary) '<-throws Error If Not initalized
     ReDim Preserve ary(UBound(ary) + 1)
-    ary(UBound(ary)) = Value
+    ary(UBound(ary)) = value
     Exit Sub
-init: ReDim ary(0): ary(0) = Value
+init: ReDim ary(0): ary(0) = value
 End Sub
 
 Function AryIsEmpty(ary) As Boolean

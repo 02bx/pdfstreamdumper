@@ -80,6 +80,6 @@ Name: {group}\Uninstall; Filename: {app}\unins000.exe
 Name: {userdesktop}\PdfStreamDumper.exe; Filename: {app}\PDFStreamDumper.exe; IconIndex: 0
 
 [Run]
-Filename: {app}\Readme.txt; StatusMsg: View ReadMe; Flags: postinstall shellexec runmaximized
+Filename: {app}\Readme.txt; Description: View ReadMe; Flags: postinstall shellexec runmaximized
 Filename: regedit.exe; Flags: nowait; Parameters: /s {app}\iTextFilters\iText_Filters.reg
-Filename: {app}\AS3_WebInstall\AS3_webInstall.exe
+Filename: {app}\AS3_WebInstall\AS3_webInstall.exe; Description: Install AS3 Flash Decompiler; Flags: postinstall
